@@ -1,0 +1,71 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{natbib}
+
+\newcommand{\E}{\mathbb{E}}
+\renewcommand{\P}{\mathbb{P}}
+
+
+\begin{document}
+
+
+% Name ideas:
+% 
+% extend edges
+% bundle edges
+% inflate edges
+% bundle lines of descent
+% longer ancestral haplotypes
+% inflated ancestors
+% compress paths
+% optimizing edge tables
+% reduce number of ancestors
+% reduce ancestral paths
+
+\section{Introduction}
+
+% PETER
+% * what's a tree sequence
+% * why is a tree sequence (motivation)
+
+The pedigree that describes how everyone of some species
+are related to each other
+is a large graph, where nodes are indexed by time.
+Within this, one can trace back the paths along which segement of genome
+have been inherited.
+The \emph{succinct tree sequence} (or, tree sequence for short)
+was introduced by \citet{kelleher2016efficient} to describe the subset of these paths
+along which the genome of a sample of individuals was inherited.
+
+
+\section{Motivation and statement of problem}
+
+% PETER
+% * minimize number of edges
+% * gives extra info about shared haplotypes, reduces number of ancestral paths
+
+
+\section{Algorithm}
+
+% * description (HALLEY)
+% * proof of something:
+%     - arrives at a local minimum?
+%     - guess at typical reduction?
+
+
+\section{Results (how it works)}
+
+% (ADAM)
+% * reduction in edges ~ sequence length
+% * speed increase ~ sequence length
+% * proprotion of added edges that are true ~ sequeence length
+% * apply to real data:
+%     - % fewer edges
+%     - % fewer distinct ancestors (ancestral paths?) of sample at some time
+
+
+\bibliography{references}
+
+\end{document}
