@@ -5,9 +5,11 @@
 \usepackage{natbib}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{tikz, tikzcd}
 
 \newcommand{\E}{\mathbb{E}}
 \renewcommand{\P}{\mathbb{P}}
+\newcommand{\R}{\mathbb{R}}
 
 
 \begin{document}
@@ -56,10 +58,44 @@ along which the genome of a sample of individuals was inherited.
 %     - arrives at a local minimum?
 %     - guess at typical reduction?
 
+\begin{section*}{Notation}
+    We begin with some notation. We define a \textit{tree sequence}, denoted $TS$, 
+    as a tuple $\left\( \left\{T_k\right\}, N, E, L\right\)$ where
+     $\left\{T_k\right\}_{k=1}^n is the set of trees,
+     $N$ and $E$ are the sets of nodes and edges respecitively,
+     and $L=[0,a)\subseteq \R$ is the length of the sequence on the genome. 
+    Additionally, a node $x\in N$ is \textit{unary} if it only has one child, 
+    ie. only a single edge extending below it on the tree.
+    With these tree sequences our goal is to
+    minimize the number of edges
+    as well as infer coalescence of genes. 
+    To remove edges we consider the following example.
+    Suppose for a tree $T_k$ in the tree sequence $TS$ 
+    there exists a branch which contains a unary node $b\in N$.
+    Then the node $b$ has one parent, $a\in N$, 
+    and one child $c\in N$,
+    each with edges $e_{ab}, e_{bc}\in E$ connecting them.
+    If there is an edge between the nodes $a$ and $c$ in trees 
+    $T_{k+1} (or $T_{k-1}$),
+    then we wish to extend the edges $e_{ab},e_{bc}$ 
+    to $T_{k+1}$ and then remove the edge $e_{ac}$ from $T_{k+1}. 
+    This action reduces the length of the edge $e_{ac}$ on the genome,
+    and in some cases, completely removes the edge. 
+    We now perfrom this action on all such unary nodes 
+    over the entire tree sequence.
+    
+    In full detail, let $TS = \left\( \left\{T_k\right\}_{k=1}^n, N, E, L\right\)
+    be a tree sequence.
+
+
 \begin{algorithm}
 \caption{Extend Edges}\label{alg:cap}
 \begin{algorithmic}
-
+    N' <- N
+    e'\in E' <- 
+    T'_k <- T_{n-k}
+    T' <- (\{T'_k\}_{k=1}^n,N',E',L) 
+    
 \end{algorithmic}
 \end{algorithm}
 
