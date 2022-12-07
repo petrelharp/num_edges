@@ -4,7 +4,6 @@
 \usepackage{amssymb}
 \usepackage{natbib}
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
-\usepackage{algpseudocode}
 \usepackage{tikz}
 \usetikzlibrary{arrows, snakes,backgrounds}
 \tikzstyle{place}=[circle,draw=black,thick, inner sep=0pt, minimum size = 5mm]
@@ -15,7 +14,8 @@
 \newcommand{\E}{\mathbb{E}}
 \renewcommand{\P}{\mathbb{P}}
 \newcommand{\R}{\mathbb{R}}
-
+\newcommand{\tn}{\textnormal}
+\newcommand{\ov}{\overline}
 
 \begin{document}
 
@@ -63,12 +63,15 @@ along which the genome of a sample of individuals was inherited.
 %     - arrives at a local minimum?
 %     - guess at typical reduction?
 
-\section{Notation}
-    We begin with some notation. We define a \textit{tree sequence}, denoted $TS$ (use Psi), 
+\subsection*{Notation}
+    We begin with some notation. We define a \textit{tree sequence}, denoted $TS$, 
     as a tuple $\left( \left\{T_k\right\}, N, E, L\right)$ where
      $\left\{T_k\right\}_{k=1}^n$ is the set of trees,
      $N$ and $E$ are the sets of nodes and edges respectively,
-     and $L=[0,a)\subseteq \R$ is the length of the sequence on the genome. 
+     and $L=[0,a)\subseteq \R$ is the length of the sequence on the genome.
+     The length of each tree $T_k$ is some subinterval $[a_k,a_{k+1})$ 
+     with the lengths of consecutive trees in the sequence 
+     only intersecting each intervals endpoints. 
     Additionally, a node $x\in N$ is \textit{unary} if it only has one child, 
     ie. only a single edge extending below it on the tree.
     With these tree sequences our goal is to
@@ -88,28 +91,137 @@ along which the genome of a sample of individuals was inherited.
     and in some cases, completely removes the edge. 
     We now perform this action on all such unary nodes 
     over the entire tree sequence.
+\begin{center}
+\begin{tikzpicture} 
+	\node[circle,draw,inner sep=1pt] (a) at (0,2) {a}
+	[growth parent anchor=south] 
+		child { node[circle,draw,inner sep=1pt] {b} 		
+	 			child {
+	 				node[circle,draw,inner sep=1pt] (c) at (0,0) {c}
+	 					child{node (d) at (0,1) {$T_k$}
+	 						edge from parent [draw=none]}
+	 				edge from parent 
+	 					node[left] {$e_{b,c}$}
+	 			}	 		
+	 		edge from parent
+	 			node[left] {$e_{a,b}$}
+	 	};
+ 	
+	 	
+	\node[circle,draw,inner sep=1pt] (a') at (3,2) {a}
+	[growth parent anchor=south]
+		child {
+			child{
+				node[circle,draw,inner sep=1pt] (c') at (0,-0.25) {c}	
+					child{node (d) at (0,1) {$T_{k+1}$}
+						edge from parent [draw=none]}
+			}
+			node[left] {$e_{a,c}$}
+		};	
+	
+	\node at (6,0) {$\Longrightarrow$};
+	\node at (6,0.5) {\tn{Edge Extend}};
+	
+	\node[circle,draw,inner sep=1pt] (a''') at (9,2) {a}
+	[growth parent anchor=south] 
+	child { node[circle,draw,inner sep=1pt]	 {b}	
+		child {
+			node[circle,draw,inner sep=1pt] (c) at (0,0) {c}
+			child{node (d) at (0,1) {$T_k$}
+				edge from parent [draw=none]}
+			edge from parent 
+			node[left] {$e_{b,c}$}
+		}
+		edge from parent
+		node[left] {$e_{a,b}$}
+	};
 
-\begin{tikzpicture} %% Do this with phylogenetic trees using tikz (WILL NEED LUALATEX COMPILER) %%
-\node[place] (a)  {a};
-\node[place] (b)  [below of = a] {b};
-\node[place] (c)  [below of = b] {c};
-\draw [-] (a.south) -- (b.north);
-\draw [-] (b.south) -- (c.north);
+	\node[circle,draw,inner sep=1pt] (a'v) at (12,2) {a}
+	[growth parent anchor=south] 
+	child { node[circle,draw,inner sep=1pt] {b}		
+		child {
+			node[circle,draw,inner sep=1pt] (c) at (0,0) {c}
+			child{node (d) at (0,1) {$T_{k+1}$}
+				edge from parent [draw=none]}
+			edge from parent 
+			node[left] {$e_{b,c}$}
+		}
+		edge from parent
+		node[left] {$e_{a,b}$}
+	};
+	
+	
 \end{tikzpicture}
-
-    In full detail, let $TS = \left( \left\{T_k\right\}_{k=1}^n, N, E, L\right)$
+\end{center}
+    In more detail, let $TS = \left( \left\{T_k\right\}_{k=1}^n, N, E, L\right)$ 
     be a tree sequence.
+    Within tskit we can track a tree sequence using a function called `EdgeDiffs'.
+    This function tracks edges which are removed and added 
+    between consecutive trees in the sequence. 
+    As in \ref{} (tikzfigure), we can track if 
+    $e_{a,b}$ and$e_{b,c}$ were removed from $T_k$ 
+    when creating $T_{k+1}$, 
+    and we can see if $e_{a,c}$ was just added in $T_{k+1}$.
 
 
-\begin{algorithm}  % How 'code-like' do we want the algorithm to be? Do we want to keep a lot of the syntax in layman's terms or do we want to use functions like ts1.coiterate(ts2)??
-\caption{Extend Edges}\label{alg:cap}
-\begin{algorithmic}
-\SetKwFunction{mirror}{Mirror Coordinates}
-\State   $ N' \gets N$
-\State   $ e'\in E' \gets E $
-\State   $ T'_k \gets T_{n-k} $
-\State   $ T' \gets (\{T'_k\}_{k=1}^n,N',E',L) $ 
-\end{algorithmic}
+\begin{algorithm}[!ht]  % How 'code-like' do we want the algorithm to be? Do we want to keep a lot of the syntax in layman's terms or do we want to use functions like ts1.coiterate(ts2)??
+	
+\SetStartEndCondition{ }{}{}%
+\SetKwProg{Fn}{def}{\string:}{}
+\SetKwFunction{Range}{range}%%
+\SetKw{KwTo}{in}
+\SetKwFor{For}{for}{\string:}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+\SetKwFor{While}{while}{:}{fintq}%
+\SetKw{Break}{break}
+\newcommand\forcond{$i$ \KwTo\Range{$n$}}
+\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+
+\caption{Extends edges across a tree sequence $TS$.}\label{alg:edge}
+\SetKwFunction{ex}{Extend Edges}
+\SetKwFunction{fwd}{Forward Extend}
+\DontPrintSemicolon
+\LinesNotNumbered
+%\SetAlgoNoEnd
+\input{A tree sequence $TS$}
+\output{New tree sequence,$TS'$, with reduced number of edges}
+
+\BlankLine 
+
+\Fn{\fwd (tree sequence $TS$, forwards = \tn{True})}{
+{	
+\eIf{forwards=\tn{True}}{EdgeDiffs $\gets TS$.edgediffs()\BlankLine}
+{\BlankLine
+	EdgeDiffs $\gets$ reversed($TS$.edgediffs())\;}
+}
+\Indm \For{(Interval, EdgesOut, EdgesIn) \KwTo EdgeDiffs}{
+	\For{e1 \KwTo EdgesOut}{
+		\For{e2 \KwTo EdgesOut}{
+			\If{e2.parent = e1.child}{
+				\For{e3 \KwTo EdgesIn}{
+					\If{e3.parent=e1.parent \tn{AND} e3.child=e2.child}{
+						e1.right $\gets$ Interval.right\;
+						e2.right $\gets$ Interval.right\;
+						e3.left $\gets$ Interval.right\;
+						\If{e3.left = e3.right}{
+							$E$.remove(e3)\;
+							}}}}}}}\;
+$TS'\gets TS$.update()\;						
+\KwRet{$TS'$}\;
+}
+\BlankLine						
+\Fn{\ex ($TS$, iter=100)}{
+	edges $\gets$ $TS$.numedges()\;
+	\BlankLine
+	\For{$*$ \KwTo \Range(iter)}{
+		$TS' \gets TS$.\fwd(fowards=\tn{True})\;
+		$TS' \gets TS$.\fwd(fowards=\tn{False})\;
+		\eIf{$TS$.numedges = edges}{
+			\Break\BlankLine}
+		{edges $\gets$ $TS'$.numedges()\;}
+		}
+}
+\KwRet{$TS'$}\;
 \end{algorithm}
 
 With this algorithm we only extend existing edges
