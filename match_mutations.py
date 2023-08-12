@@ -93,6 +93,8 @@ class NodeMapper:
         """
         Returns the proportion of mutations that map uniquely to ts2 (except
         for uncertainty having to do with unary edges).
+
+        This is a measure of marginal tree similarity, not haplotype similarity.
         """
         return self.num_uniquely_mapped / self.num_mutations
 
@@ -107,6 +109,8 @@ class NodeMapper:
         number of matches minus 2 * (number of 'extra' edges), where each
         mutation mapped to a sequence of k unary edges contributes k-1 to the
         count of 'extra' edges.
+
+        This is a measure of haplotype similarity.
         """
         match = self.match_nodes()
         return np.sum(match[:,1]) / (np.sum(match[:,1:3]) - self.extra_matches)
