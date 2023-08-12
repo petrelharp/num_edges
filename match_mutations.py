@@ -31,6 +31,8 @@ class NodeMapper:
         self.ts2 = ts2
         self.node_map = {}
         self.extra_matches = 0
+        self.num_mutations = 0
+        self.num_uniquely_mapped = 0
         self._map_nodes(*args, **kwargs)
 
     def _add_to_node_map(self, n, n2, extra=False):
@@ -43,7 +45,7 @@ class NodeMapper:
 
     def _map_nodes(self, rate, random_seed=None):
         mts = msprime.sim_mutations(self.ts, rate=rate, discrete_genome=False, keep=False, model=msprime.BinaryMutationModel(), random_seed=random_seed)
-        #  node map is indexed by nodes in ts, and has a list of nodes in ts2 that it is mapped to
+        self.num_mutations += mts.num_mutations
 
         t = mts.first()
         t2 = self.ts2.first()
@@ -56,6 +58,7 @@ class NodeMapper:
             ancestral_state, mutations = t2.map_mutations(v.genotypes, v.alleles)
             n = mut.node
             p = t.parent(n)
+            self.num_uniquely_mapped += (len(mutations) == 1)
             for mut2 in mutations:
                 if mut2.derived_state == "1":
                     n2 = mut2.node
@@ -86,6 +89,13 @@ class NodeMapper:
             match[n] = (top[0], top[1], self.node_map[n].total() - top[1])
         return match
 
+    def prop_uniquely_matching(self):
+        """
+        Returns the proportion of mutations that map uniquely to ts2 (except
+        for uncertainty having to do with unary edges).
+        """
+        return self.num_uniquely_mapped / self.num_mutations
+
     def prop_matching(self):
         """
         Returns the proportion of matches that are between best-matched nodes.
@@ -107,6 +117,7 @@ match = nm.match_nodes()
 correct = (match[:,0] == np.arange(ts.num_nodes))
 
 print(f"Proportion matching: {nm.prop_matching()}")
+print(f"Proportion uniquely mapping: {nm.prop_uniquely_matching()}")
 print(f"Number of extra matches: {nm.extra_matches}")
 print("node match matches non_matches correct?")
 for x in np.column_stack([np.arange(ts.num_nodes), match, correct]):
