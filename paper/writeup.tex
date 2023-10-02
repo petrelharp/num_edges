@@ -1,12 +1,15 @@
-\documentclass{article}
-\usepackage{fullpage}
+\documentclass[10pt,twoside,lineno]{gsajnl}
+\articletype{inv} % article type
+
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{natbib}
-\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage[linesnumbered,ruled,vlined,algo2e]{algorithm2e}
 \usepackage{tikz}
 \usetikzlibrary{arrows, snakes,backgrounds}
 \tikzstyle{place}=[circle,draw=black,thick, inner sep=0pt, minimum size = 5mm]
+
+\bibliographystyle{plainnat}
 
 \SetKwInput{input}{Input}
 \SetKwInput{output}{Output}
@@ -16,8 +19,61 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\tn}{\textnormal}
 \newcommand{\ov}{\overline}
+\newcommand{\tskit}{\texttt{tskit}}
+
+
+\title{
+    Information in recombination junctions 
+    can both compress and improve inferred tree sequences
+}
+
+% NOTE: these are in alphabetical order for now; we can revisit that ordering
+\author[$\dagger$]{Ava Bamforth}
+\author[$\dagger$]{Halley Fritze}
+\author[$\ddagger$]{Jerome Kelleher}
+\author[$\dagger$]{Nathaniel Pope}
+\author[$\ast$,$\dagger$,1]{Peter Ralph}
+
+\affil[$\ast$]{Institute of Evolution and Ecology and Department of Biology, University of Oregon, Eugene, Oregon}
+\affil[$\dagger$]{Department of Mathematics, University of Oregon, Eugene, Oregon}
+\affil[$\ddagger$]{Big Data Institute, Li Ka Shing Centre for Health Information and Discovery, University of Oxford}
+
+
+\keywords{genealogy, tree sequence, haplotypes}
+
+\runningtitle{Junctions in tree sequences}
+\runningauthor{Bamforth \textit{et al.}}
+
+%%%%%%%%%%
+\begin{abstract}
+    Foreshadowing haplotype-based methods of the genomics era,
+    it is an old observation that the ``junction'' between two distinct haplotypes
+    produced by recombination is inherited as a Mendelian marker.
+    In this paper, we describe how this recombination-mediated information
+    can in many cases be recovered from inference based solely on
+    polymorphic markers (i.e., information produced by mutation),
+    which produces unary nodes along the branches of the marginal genealogical trees.
+    The resulting inferred ARGs, represented as tree sequences,
+    are smaller, faster to compute with,
+    and potentially contain substantially more information
+    about the age of ancestral haplotypes,
+    than inferred ARGs without these unary nodes.
+    We provide efficient algorithms to identify this ancestral haplotype information,
+    new metrics of agreement/disagreement between inferred ARGs,
+    and explore some consequences for ARGs inferred from real data.
+\end{abstract}
 
 \begin{document}
+
+\maketitle
+\thispagestyle{firststyle}
+\marginmark
+\firstpagefootnote
+
+\correspondingauthoraffiliation{1}{Corresponding author: {plr@uoregon.edu}}
+\vspace{-33pt}% Only used for adjusting extra space in the left column of the first page
+
+
 
 
 % Name ideas:
@@ -39,15 +95,39 @@
 % * what's a tree sequence
 % * why is a tree sequence (motivation)
 
-The pedigree that describes how everyone of some species
-are related to each other
-is a large graph, where nodes are indexed by time.
-Within this, one can trace back the paths along which segement of genome
-have been inherited.
-The \emph{succinct tree sequence} (or, tree sequence for short)
-was introduced by \citet{kelleher2016efficient} to describe the subset of these paths
-along which the genome of a sample of individuals was inherited.
+There has been substantial recent progress
+in the problem of ``ARG inference'',
+which seeks to infer (portions of) the ``ancestral recombination graph'' (or, ARG)
+that describes how a set of genotypes samples are related to each other
+at each position of the genome.
+For reviews of this progress, see CITE CITE CITE.
+Often such methods focus on the sequence of ``marginal trees'',
+i.e., the genealogical trees that describe how each portion of the genome
+was inherited by the focal genomes.
+For instance, the ``succinct tree sequence'',
+introduced by \citet{kelleher2016efficient},
+is a common format for describing these inferred ARGs,
+and is seeing wide use thanks in part to its efficiency and accompanying reliable toolkit,
+\tskit (CITE).
 
+However, the ARG is emphatically not merely a sequence of trees:
+since each segment of an ancestor's genome that has been inherited by the focal genomes
+may extend over a portion of the genome over which there are many distinct trees,
+a single ancestor should usually be represented by nodes in many distinct trees.
+In other words, one way to view an ARG is as a sequence of trees in which nodes may be shared across many trees,
+but another way to view the ARG is as a set of relationships between segments of ancestral haplotypes.
+
+Another reason we tend to focus on the trees is that
+much of our intuition about inference of relationships from genomic data
+comes from phylogenetics.
+Indeed, all methods might very roughly be summarized as
+``more similar sequences are more closely related''.
+For instance, two sequences that share a drerived mutation
+are (probably) more closely related over some span of genome surrounding the location where the mutation occurs.
+\citet{fisher} pointed out that not only mutations
+but also the ``junctions'' between distinct haplotypes,
+if they could be somehow identified,
+would be inherited as Mendelian markers.
 
 \section{Motivation and statement of problem}
 
@@ -164,7 +244,7 @@ along which the genome of a sample of individuals was inherited.
     and we can see if $e_{a,c}$ was just added in $T_{k+1}$.
 
 
-\begin{algorithm}[!ht]  % How 'code-like' do we want the algorithm to be? Do we want to keep a lot of the syntax in layman's terms or do we want to use functions like ts1.coiterate(ts2)??
+\begin{algorithm2e}[!ht]  % How 'code-like' do we want the algorithm to be? Do we want to keep a lot of the syntax in layman's terms or do we want to use functions like ts1.coiterate(ts2)??
 	
 \SetStartEndCondition{ }{}{}%
 \SetKwProg{Fn}{def}{\string:}{}
@@ -222,7 +302,7 @@ $TS'\gets TS$.update()\;
 		}
 }
 \KwRet{$TS'$}\;
-\end{algorithm}
+\end{algorithm2e}
 
 With this algorithm we only extend existing edges
 over a larger interval on the genome,
@@ -281,48 +361,49 @@ and remove unnecessary edges in the process.
  
 
 
-
-\begin{algorithm}[!ht]
-\SetStartEndCondition{ }{}{}%
-\SetKwProg{Fn}{def}{\string:}{}
-\SetKwFunction{Range}{range}%%
-\SetKw{KwTo}{in}
-\SetKwFor{For}{for}{\string:}{}%
-\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-\SetKwFor{While}{while}{:}{fintq}%
-\SetKw{Break}{break}
-\newcommand\forcond{$i$ \KwTo\Range{$n$}}
-\SetKwComment{Comment}{}{} 
-\DontPrintSemicolon
-\LinesNotNumbered
-\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
-
-
-\input{$(TS_1,TS_2)$}
-\output{discrepancy number (some float value)}
-
-\Fn{Node Discrepancy($x,TS_1,TS_2$)}{
-$s=0\in \mathbb{Z}^{|N^2|}$ \Comment*[f]{Similarity vector with each entry corresponds to a node in $TS_2$}
-
-\For{$I$, $T^1_k$, $T^2_j$ \KwTo $(L,TS_1,TS_2)$}{
-\Comment{Here $I=[a^1_k,a^1_{k+1})\cap [a^2_j,a^2_{j+1})$ is the interval which the two trees $T^1_k$, $T^2_j$ both span over. Here we find the best matching node $y$.}
-$D_{T^1_k}(x)\gets D_{TS^1}(x,i)$ where $i\in I$\;
-\If{$|D_{T^1_k}(x)| > 0$}{
-\If{$|D_{T^1_k}(x)|=1$}{
-$y \gets D_{T^1_k}(x)$\;
-$m \gets D_{T^1_k}(x)$\;}
-\Else{$m \gets $ most recent common anscestor of $D_{T^1_k}(x)$ in $T^1_k$\;
-$y\gets $ most recent common anscestor of $D_{T^1_k}(x)$ in $T^2_j$\;}}
-\If{$D_{T^2_j}(y)=D_{T^1_k}(x)$}{
-$s_y\gets s_y$\;}}
-\KwRet{node discrepancy}\;}
-\Fn{Discrepancy($TS_1,TS_2$)}{
-discrepancy = 0\;
-\For{$x\in N^1$}{discrepancy = $\sum_{x\in N^1}{$Node Discrepancy($x,TS_1,TS_2$)}}
-\BlankLine
-\KwRet{discrepancy}}
-\caption{Discrepancy Function}\label{ndisc}
-\end{algorithm}
+% PLR: commented this out since it's not compiling
+% 
+% \begin{algorithm}[!ht]
+% \SetStartEndCondition{ }{}{}%
+% \SetKwProg{Fn}{def}{\string:}{}
+% \SetKwFunction{Range}{range}%%
+% \SetKw{KwTo}{in}
+% \SetKwFor{For}{for}{\string:}{}%
+% \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+% \SetKwFor{While}{while}{:}{fintq}%
+% \SetKw{Break}{break}
+% \newcommand\forcond{$i$ \KwTo\Range{$n$}}
+% \SetKwComment{Comment}{}{} 
+% \DontPrintSemicolon
+% \LinesNotNumbered
+% \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+% 
+% 
+% \input{$(TS_1,TS_2)$}
+% \output{discrepancy number (some float value)}
+% 
+% \Fn{Node Discrepancy($x,TS_1,TS_2$)}{
+% $s=0\in \mathbb{Z}^{|N^2|}$ \Comment*[f]{Similarity vector with each entry corresponds to a node in $TS_2$}
+% 
+% \For{$I$, $T^1_k$, $T^2_j$ \KwTo $(L,TS_1,TS_2)$}{
+% \Comment{Here $I=[a^1_k,a^1_{k+1})\cap [a^2_j,a^2_{j+1})$ is the interval which the two trees $T^1_k$, $T^2_j$ both span over. Here we find the best matching node $y$.}
+% $D_{T^1_k}(x)\gets D_{TS^1}(x,i)$ where $i\in I$\;
+% \If{$|D_{T^1_k}(x)| > 0$}{
+% \If{$|D_{T^1_k}(x)|=1$}{
+% $y \gets D_{T^1_k}(x)$\;
+% $m \gets D_{T^1_k}(x)$\;}
+% \Else{$m \gets $ most recent common anscestor of $D_{T^1_k}(x)$ in $T^1_k$\;
+% $y\gets $ most recent common anscestor of $D_{T^1_k}(x)$ in $T^2_j$\;}}
+% \If{$D_{T^2_j}(y)=D_{T^1_k}(x)$}{
+% $s_y\gets s_y$\;}}
+% \KwRet{node discrepancy}\;}
+% \Fn{Discrepancy($TS_1,TS_2$)}{
+% discrepancy = 0\;
+% \For{$x\in N^1$}{discrepancy = $\sum_{x\in N^1}{$Node Discrepancy($x,TS_1,TS_2$)}}
+% \BlankLine
+% \KwRet{discrepancy}}
+% \caption{Discrepancy Function}\label{ndisc}
+% \end{algorithm}
 
 \section{Data}
 % * 1. Simulate data
