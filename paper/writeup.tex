@@ -127,20 +127,28 @@ but also the ``junctions'' between distinct haplotypes,
 if they could be somehow identified,
 would be inherited as Mendelian markers.
 
-\section{Motivation and statement of problem}
+\subsection{Motivation and statement of problem}
 
 % PETER
 % * minimize number of edges
 % * gives extra info about shared haplotypes, reduces number of ancestral paths
 
+\begin{figure}
+    \caption{
+        Conceptual figure of what we're talking about.
+        \label{fig:conceptual}
+    }
+\end{figure}
 
-\section{Algorithm}
+\section{Methods}
+
+\subsection{Algorithm}
 
 % * description (HALLEY)
 % * proof of something:
 %     - arrives at a local minimum?
-%     - guess at typical reduction?
-
+%     - guess at typical reduction? (reduces edges by 1/3?)
+ 
 \subsection*{Notation}
     We begin with some notation. We define a \textit{tree sequence}, denoted $TS$, 
     as a tuple $\left( \left\{T_k\right\}, N, E, L\right)$ where
@@ -169,6 +177,8 @@ would be inherited as Mendelian markers.
     and in some cases, completely removes the edge. 
     We now perform this action on all such unary nodes 
     over the entire tree sequence.
+
+\begin{figure}
 \begin{center}
 \begin{tikzpicture} 
 	\node[circle,draw,inner sep=1pt] (a) at (0,2) {a}
@@ -231,6 +241,12 @@ would be inherited as Mendelian markers.
 	
 \end{tikzpicture}
 \end{center}
+\caption{
+    \label{fig:extending_diagram}
+}
+\end{figure}`
+
+
     In more detail, let $TS = \left( \left\{T_k\right\}_{k=1}^n, N, E, L\right)$ 
     be a tree sequence.
     Within tskit we can track a tree sequence using a function called `EdgeDiffs'.
@@ -307,17 +323,7 @@ over a larger interval on the genome,
 and remove unnecessary edges in the process.
 %% Find counter example to global minimum.
 
-\section{Results (how it works)}
-
-% (AVA)
-% * reduction in edges ~ sequence length
-% * speed increase ~ sequence length
-% * proprotion of added edges that are true ~ sequeence length
-% * apply to real data:
-%     - % fewer edges
-%     - % fewer distinct ancestors (ancestral paths?) of sample at some time
-
-\section{Discrepancy Function}
+\subsection{Discrepancy Function}
 % * How to measure agreement that includes haplotypes
 % * Definition and Algorithm
 % * Supp fig: runtime ~ # trees, samples
@@ -333,7 +339,15 @@ and remove unnecessary edges in the process.
  We have thus constructed a function which counts the differences 
  between trees on a pair of tree sequences. 
  To count all the discrepancies we must begin by counting differences for each node in the tree sequence.
- 
+
+\begin{figure}
+    \caption{
+        Conceptual figure displaying what discrepancy is?
+        TODO: brainstorm.
+        \label{fig:conceptual_discrepancy}
+    }
+\end{figure}
+
  Let $TS^1=(\{T_i^1\},N^1,E^1,L^1)$ and $TS^2=(\{T^2_j\},N^2,E^2,L^2)$ be tree sequences.
  Suppose that $x\in N^1$ and $y\in N^2$ are nodes in each tree sequence.
  We denote the \textit{set of descendant samples} of $x$ at position $i$ in the genome as $D_{TS^1}(x,i)$.
@@ -403,7 +417,49 @@ and remove unnecessary edges in the process.
 % \caption{Discrepancy Function}\label{ndisc}
 % \end{algorithm}
 
-\section{Data}
+
+\section{Results}
+
+% (AVA)
+% * reduction in edges ~ sequence length
+% * speed increase ~ sequence length
+% * proprotion of added edges that are true ~ sequeence length
+
+\begin{figure}
+    \caption{
+        Two-part figure, showing reduction in number of edges (left) and increase in speed of stats comptuation (right)
+        as a function of number of trees (modulated by sequence length),
+        on reasonably big simulated sequences.
+        For "speed": plot ratio of runtime before/after extending.
+        \label{fig:speed_and_edges}
+    }
+\end{figure}
+
+Simple experiment:
+(1) simulate, simplify, and extend;
+(2) let $x$ be total matching span of simplified tree (here equal to the total span); $y$ total matching span of extended tree in truth and $z$ total not-matching span;
+then $z$ is "total wrongly added stuff" and $y-x$ is "total rightly added stuff".
+
+With tsinfer: (1) simulate and tsinfer; (2) do the above either with or without simplifying the tsinfer'ed trees.
+(but also take into account that there's wrong stuff in tsinfer'ed tree: look at whether it reduces discrepancy!)
+
+\begin{figure}
+    \caption{
+        Maybe: summaries of lengths and/or numbers of correctly and incorrectly added edges?
+        (See notebook.)
+        \label{fig:results_edges}
+    }
+\end{figure}
+
+\begin{figure}
+    \caption{
+        Summaries of correctly and incorrectly added spans
+        ... as a function of number of samples?
+        \label{fig:results_discrepancy}
+    }
+\end{figure}
+
+\subsection{Data}
 % * 1. Simulate data
 % * 2. Run tsinfer
 % * 3. Compare d(x,truth) for x in tsinfer, tsinfer+add edge, tsinfer+add edge + simplify, tsinfer+simplify
@@ -411,6 +467,24 @@ and remove unnecessary edges in the process.
 % * How much unary edges?
 % * How much can we add?
 
+% * apply to real data:
+%     - % fewer edges
+%     - % fewer distinct ancestors (ancestral paths?) of sample at some time
+
+\section{Discussion}
+
+TODO
+
 \bibliography{references}
+
+\appendix
+
+\begin{figure}
+    \caption{
+        Supplementary figure: runtime of discrepancy function as a function of number of trees
+        (which we modulate by changing sequence length).
+        \label{fig:speed_discrepancy}
+    }
+\end{figure}
 
 \end{document}
