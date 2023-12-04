@@ -25,6 +25,13 @@
     can both compress and improve inferred tree sequences
 }
 
+% Non-coalescing regions of dark matter in ARGs
+% Can we find them? Are they useful in inference, dating? 
+% Look, we can find them and they seem at least useful for compression.
+% Also, here's a way of measuring agreement that takes this sort of thing into account,
+%  which extends R-F to measure haplotypes
+
+
 % NOTE: these are in alphabetical order for now; we can revisit that ordering
 \author[$\dagger$]{Ava Bamforth}
 \author[$\dagger$]{Halley Fritze}
@@ -71,7 +78,40 @@
 \correspondingauthoraffiliation{1}{Corresponding author: {plr@uoregon.edu}}
 \vspace{-33pt}% Only used for adjusting extra space in the left column of the first page
 
+\comment{idea: look at ratio of unary-to-not over time; does it change with
+    selection? or modes of recombination?}
 
+%%% OUTLINE
+% Intro: haplotypes, unary bits of non-coalescing nodes, ARGS, etcetera
+%    explain what tsinfer does to create unary regions
+%    statement of problem
+%    Yan: are breakpoints in true->simplify->extend the same as in original?
+%   Fig 1: conceptual figure
+%    Also IBD gets screwed up
+% 
+% Methods:
+%   edge extend algorithm
+%   discrepancy funciton algorithm
+%   Fig 2: Conceptual figure for discrepancy
+% 
+% Results:
+%   Fig 3:
+%     (a) reduction in number of edges and (b) speed change
+%
+%   Fig 4:
+%     Histograms of (a) total span added, (b) percent incorrect
+%
+%   Fig 5 and maybe 6: how it interacts with tsinfer
+%     (a) summarize total matching and unmatching span (or maybe percent matching?)
+%           across reps
+%     (b) discrepancy per node against depth or time or number of subtended samples
+%        describe percent span matched against true span or depth or something
+%
+%   Fig 7(?): compare IBD stats before/after
+% 
+% Supp:
+%   S1: runtime
+%%%
 
 
 % Name ideas:
@@ -327,10 +367,10 @@ and remove unnecessary edges in the process.
 % * How to measure agreement that includes haplotypes
 % * Definition and Algorithm
 % * Supp fig: runtime ~ # trees, samples
-% * fig: how add edges rueduces discrepancy
-%       - compare to Relate and tsinfer
-% * Show: how add edges reduces discrepancy
-% * THINK of a way to asynchronously computing discrepancy
+% * fig: how add edges reduces discrepancy (RESULTS)
+%       - compare to tsinfer
+% * Show: how add edges reduces discrepancy (RESULTS)
+% * THINK of a way to asynchronously computing discrepancy (???)
 
 \par Now with an algorithm in place
  we need a metric to discern
@@ -420,6 +460,13 @@ and remove unnecessary edges in the process.
 
 \section{Results}
 
+\comment{
+    Idea: look at statistical properties of unary regions:
+    look at how much 'unary regions' there is in simulation
+    and how much we can put back in,
+    as a function of time.
+}
+
 % (AVA)
 % * reduction in edges ~ sequence length
 % * speed increase ~ sequence length
@@ -448,14 +495,6 @@ With tsinfer: (1) simulate and tsinfer; (2) do the above either with or without 
         Maybe: summaries of lengths and/or numbers of correctly and incorrectly added edges?
         (See notebook.)
         \label{fig:results_edges}
-    }
-\end{figure}
-
-\begin{figure}
-    \caption{
-        Summaries of correctly and incorrectly added spans
-        ... as a function of number of samples?
-        \label{fig:results_discrepancy}
     }
 \end{figure}
 
