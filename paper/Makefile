@@ -1,22 +1,28 @@
-writeup.pdf : references.bib
+writeup.pdf : references.bib conceptual_figure.pdf
 
 %.pdf : %.tex %.bbl
 	while ( pdflatex $<;  grep -q "Rerun to get" $*.log ) do true ; done
+	touch $*.bbl
+	touch $@
 
 %.aux : %.tex
 	-pdflatex $<
 
-%.bbl : %.aux
+%.bbl : %.aux references.bib
 	bibtex $<
-
-%.svg : %.pdf
-	inkscape $< --export-plain-svg=$@
 
 %.png : %.pdf
 	convert -density 300 $< -flatten $@
 
-%.pdf : %.ink.svg
-	inkscape $< --export-pdf=$@
+%.pdf : %.svg
+	inkscape $< --export-area-drawing --export-filename=$@
+	# chromium --headless --no-pdf-header-footer --print-to-pdf=$@ $<
+	# ./svg2pdf.sh $< $@
 
-%.eps : %.pdf
-	inkscape --without-gui --export-eps=$@ $<
+%.pdf : %.eps
+	# inkscape $< --export-filename=$@
+	epspdf $<
+
+%.pdf : %.ink.svg
+	inkscape $< --export-filename=$@
+

@@ -1,6 +1,7 @@
 \documentclass[10pt,twoside,lineno]{gsajnl}
 \articletype{inv} % article type
 
+\usepackage{xcolor}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{natbib}
@@ -18,6 +19,7 @@
 \newcommand{\tn}{\textnormal}
 \newcommand{\ov}{\overline}
 \newcommand{\tskit}{\texttt{tskit}}
+\newcommand{\comment}[1]{{\color{blue} \it #1}}
 
 
 \title{
@@ -173,9 +175,48 @@ would be inherited as Mendelian markers.
 % * minimize number of edges
 % * gives extra info about shared haplotypes, reduces number of ancestral paths
 
+Consider the (small portion) of a hypothetical tree sequence in Figure~\ref{fig:conceptual}A.
+On the first portion of the genome (left-hand tree), the sample nodes (labeled 0, 1, and 2)
+coalesce into a small subtree: 1 and 2 find a common ancestor in ancestral node 3,
+which finds a common ancestor with node 0 in ancestral node 4.
+On the next portion of the genome (right-hand tree), sample node 2 has a different ancestor.
+This seems reasonable, and a method that infers trees separately on each portion of the genome
+could not be expected to produce anything different.
+However, things change once we think about what this implies about haplotype inheritance.
+Figure~\ref{fig:conceptual}B shows the implied inheritance of haplotypes,
+with the haplotypes carried by 4 to the left and right of the recombination breakpoint labeled $L$ and $R$.
+Here, sample node 2 has inherited the chunk of haplotype labeled $L$ from ancestral node 4 via 3,
+and the haplotype to the right of this from some other node (and so doesn't carry haplotype $R$).
+On the other hand, sample node 1 has inherited \emph{both} haplotypes $L$ and $R$
+from ancestral node 4, but the trees imply that only haplotype $L$ is inherited via ancestral node 3.
+This implies -- if taken literally -- that there must have been a recombination event
+at some point between node 1 and node 4 that separated the $L$ and $R$ haplotypes,
+and then these two ancestral (and nonoverlapping) haplotypes coalesced together in ancestral node 4.
+Although this is possible, it seems unlikely --
+a more parsimonious explanation is depicted in Figure~\ref{fig:conceptual}C,
+in which sample node 1 inherits the entire $LR$ haplotype from ancestral node 4 through node 3
+(and there is a recombination somewhere between node 3 and node 2).
+This implies that ancestral node 3 inherits from node 4 on the right-hand tree as well,
+which is depicted in Figure~\ref{fig:conceptual}D --
+and so node 3 has become unary in this tree.
+Note that the more parsimonious tree sequence also includes fewer edges:
+the three distinct edges $4 \to 3$, $3 \to 1$, and $4 \to 1$ in Figure~\ref{fig:conceptual}B
+have been reduced to the two edges
+$4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
+
 \begin{figure}
+    \begin{center}
+    \includegraphics[width=0.9\textwidth]{conceptual_figure}
+    \end{center}
     \caption{
-        Conceptual figure of what we're talking about.
+        A simple example showing the basic idea
+        (described in more detail in the text):
+        \textbf{(A)} a small portion of a tree sequence without unary nodes;
+        \textbf{(B)} the implied inheritance pattern of the two portions of the haplotype carried by ancestral node 4,
+        labeled $L$ and $R$;
+        \textbf{(C)} marginal trees with a unary node added,
+        which produces \textbf{(D)} a more parsimonious haplotype inheritance pattern
+        (that also includes fewer edges).
         \label{fig:conceptual}
     }
 \end{figure}
