@@ -224,14 +224,14 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 
 \section{Methods}
 
-\subsection{Extend Edges}}
+\subsection{Extend Edges}
 
 % * description (HALLEY)
 % * proof of something:
 %     - arrives at a local minimum?
 %     - guess at typical reduction? (reduces edges by 1/3?)
     We define a \textit{tree sequence}, denoted $\T$, 
-    as a tuple $\left(T_1,...,T_{|\T|}}\right)$ with a sequence of points
+    as a tuple $\left(T_1,...,T_{|\T|}\right)$ with a sequence of points
 	$0 = a_0 \leq a_1 \leq \cdots < a_{|\T|} = L$ where
      each $T_k$ is a tree describing genealogical relationships between samples
      over a distinct portion of the genome $[a_{k-1}, a_k)$.
@@ -336,16 +336,19 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
  we need a metric to discern
  if trees modified with edge extend
  in fact correctly infer haplotypes in our original tree sequence.
- One such function a so called \textit{discrepancy function}, can be called on a pair of tree 
+ One such function a so called \textit{discrepancy function}, can be called on a pair of tree sequences.
  To count all the discrepancies we must begin by counting differences for each node in the tree sequence.
 
-\begin{figure}
-
+\begin{figure}[!ht]
+	\begin{center}
+\includegraphics[height=1.5in, width=3in]{discrepancy_func_method_t1.pdf}
+\includegraphics[height=1.5in, width=3in]{discrepancy_function_method_t2.pdf}
     \caption{
         Conceptual figure displaying what discrepancy is?
         TODO: brainstorm.
         \label{fig:conceptual_discrepancy}
     }
+	\end{center}
 \end{figure}
 
  Let $TS^1=(\{T_i^1\},N^1,E^1,L^1)$ and $TS^2=(\{T^2_j\},N^2,E^2,L^2)$ be tree sequences.
