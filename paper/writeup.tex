@@ -16,6 +16,7 @@
 \newcommand{\E}{\mathbb{E}}
 \renewcommand{\P}{\mathbb{P}}
 \newcommand{\R}{\mathbb{R}}
+\newcommand{\T}{\mathbb{T}}
 \newcommand{\tn}{\textnormal}
 \newcommand{\ov}{\overline}
 \newcommand{\tskit}{\texttt{tskit}}
@@ -206,7 +207,7 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 
 \begin{figure}
     \begin{center}
-    \includegraphics[width=0.9\textwidth]{conceptual_figure}
+    \includegraphics[width=0.9\textwidth]{conceptual_figure.pdf}
     \end{center}
     \caption{
         A simple example showing the basic idea
@@ -229,114 +230,41 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 % * proof of something:
 %     - arrives at a local minimum?
 %     - guess at typical reduction? (reduces edges by 1/3?)
-    We define a \textit{tree sequence}, denoted $TS$, 
-    as a tuple $\left( \left\{T_k\right\}, N, E, L\right)$ where
-     $\left\{T_k\right\}_{k=1}^n$ is the set of trees,
-     $N$ and $E$ are the sets of nodes and edges respectively,
-     and $L=[0,a)\subseteq \R$ is the length of the sequence on the genome.
-     The length of each tree $T_k$ is some subinterval $[a_k,a_{k+1})$ 
-     with the lengths of consecutive trees in the sequence 
-     only intersecting each intervals endpoints.
+    We define a \textit{tree sequence}, denoted $\T$, 
+    as a tuple $\left(T_1,...,T_{|\T|}}\right)$ with a sequence of points
+	$0 = a_0 \leq a_1 \leq \cdots < a_{|\T|} = L$ where
+     each $T_k$ is a tree describing genealogical relationships between samples
+     over a distinct portion of the genome $[a_{k-1}, a_k)$.
     Given any tree sequence, our goal is to
     identify areas of implied inheritance of haplotypes.
     We do so by identifying short paths (2 edges) in a tree.
     If neighboring trees contain edges with 
-    identical parent and child nodes, we assume that there
-    is implied coalescence of haplotypes between nodes, and
-  	we will extend the path's edges to the neighboring tree \ref{fig:extending_diagram}.
-  	In more concrete terms, for a tree $T_k$ in the tree sequence $TS$ 
-    suppose there exists a path which contains a node $b\in N$,
-    with parent and child nodes $a, c\in N$, respectively.
-    If there is an edge between the nodes $a$ and $c$ in trees 
+    identical ancestor (parent) and descendant (child) nodes, 
+    we assume that there is implied coalescence of haplotypes between nodes, 
+    and we will extend the path's edges to the neighboring tree \ref{fig:extending_diagram}.
+  	In more concrete terms, for a tree $T_k$ in the tree sequence $\T$ 
+    suppose there exists a path which contains a node $3$,
+    with parent and child nodes $4$ and $0$, respectively.
+    If there is an edge between the nodes $4$ and $0$ in trees 
     $T_{k+1}$ (or $T_{k-1}$),
-    then we wish to extend the edges $e_{ab},e_{bc}$ 
-    to $T_{k+1}$ and then remove the edge $e_{ac}$ from $T_{k+1}$. 
-    This action reduces the length of $e_{ac}$ on the genome,
+    then we wish to extend the edges $4\to 3$ and $3\to 0$ 
+    into tree $T_{k+1}$ and then remove the edge $4 \to 0$ from $T_{k+1}$. 
+    This action reduces the length of $4 \to 0$ on the genome,
     and in some cases, completely removes the edge. 
     We now perform this action on all such ancestral paths 
     over the entire tree sequence.
+    With this algorithm \ref{alg:edge} we only extend existing edges
+    over a larger interval on the genome,
+    and remove unnecessary edges in the process.
 
 \begin{figure}[!ht]
 \begin{center}
-\begin{tikzpicture} 
-	\node[circle,draw,inner sep=1pt] (a) at (0,2) {a}
-	[growth parent anchor=south] 
-		child { node[circle,draw,inner sep=1pt] {b} 		
-	 			child {
-	 				node[circle,draw,inner sep=1pt] (c) at (-0.5,0) {c}
-	 				edge from parent 
-	 					node[left] {$e_{b,c}$}}
- 				child {
- 					node (d) at (0,-1) {$T_k$}
- 					edge from parent [draw=none]}
-	 			child {
-	 				node[circle,draw,inner sep=1pt] (e) at (0.5,0)  {d}
- 					edge from parent
- 						node[right] {$e_{b,d}$}} 		
-	 		edge from parent
-	 			node[left] {$e_{a,b}$}
-	 	}; 	
-	\node[circle,draw,inner sep=1pt] (a') at (4,2) {a}
-	[growth parent anchor=south]
-		child {
-			child{
-				node[circle,draw,inner sep=1pt] (c') at (0,-0.25) {c}	
-					child{node (d) at (0,1) {$T_{k+1}$}
-						edge from parent [draw=none]}
-			}
-			node[left] {$e_{a,c}$}
-		};	
-	
-	\node at (7,0) {$\Longrightarrow$};
-	\node at (7,0.5) {\tn{Edge Extend}};
-	
-	\node[circle,draw,inner sep=1pt] (a''') at (9,2) {a}
-	[growth parent anchor=south] 
-	child { node[circle,draw,inner sep=1pt]	 {b}	
-		child {
-			node[circle,draw,inner sep=1pt] (c) at (0,0) {c}
-			child{node (d) at (0,1) {$T_k$}
-				edge from parent [draw=none]}
-			edge from parent 
-			node[left] {$e_{b,c}$}
-		}
-		edge from parent
-		node[left] {$e_{a,b}$}
-	};
-
-	\node[circle,draw,inner sep=1pt] (a'v) at (12,2) {a}
-	[growth parent anchor=south] 
-	child { node[circle,draw,inner sep=1pt] {b}		
-		child {
-			node[circle,draw,inner sep=1pt] (c) at (0,0) {c}
-			child{node (d) at (0,1) {$T_{k+1}$}
-				edge from parent [draw=none]}
-			edge from parent 
-			node[left] {$e_{b,c}$}
-		}
-		edge from parent
-		node[left] {$e_{a,b}$}
-	};
-	
-	
-\end{tikzpicture}
+	\includegraphics[width=5in]{edge_extend_method.pdf}
 \end{center}
-\caption{A simple visualization of the Edge Extend method.
+\caption{A visualization of the \textit{extend edges} method. Given two neighboring trees $T_1$ and $T_2$, the tree $T_1$ has a short path of edges $4 \to 3\to0$. The next tree contains a single edge $4 \to 0$. If node $3$ is not in $T_2$, then edge extend will extend edges $ 4\to 3$ and $3\to 0$ to tree $T_2$, hence removing the edge $4\to 0$. 
     \label{fig:extending_diagram}
 }
 \end{figure}
-
-
-    In more detail, let $TS = \left( \left\{T_k\right\}_{k=1}^n, N, E, L\right)$ 
-    be a tree sequence.
-    Within tskit we can track a tree sequence using a function called `EdgeDiffs'.
-    This function tracks edges which are removed and added 
-    between consecutive trees in the sequence. 
-    As in \ref{fig:extending_diagram} (tikzfigure), we can track if 
-    $e_{a,b}$ and$e_{b,c}$ were removed from $T_k$ 
-    when creating $T_{k+1}$, 
-    and we can see if $e_{a,c}$ was just added in $T_{k+1}$.
-
 
 \begin{algorithm2e}[!ht]  % How 'code-like' do we want the algorithm to be? Do we want to keep a lot of the syntax in layman's terms or do we want to use functions like ts1.coiterate(ts2)??
 	
@@ -353,54 +281,46 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 
 \caption{Extends edges across a tree sequence $TS$.}\label{alg:edge}
 \SetKwFunction{ex}{Extend Edges}
-\SetKwFunction{fwd}{Forward Extend}
+\SetKwFunction{fwd}{Extend}
 \DontPrintSemicolon
 \LinesNotNumbered
 %\SetAlgoNoEnd
-\input{A tree sequence $TS$}
-\output{New tree sequence,$TS'$, with reduced number of edges}
+\input{A tree sequence $\T$}
+\output{New tree sequence,$\T'$}
 
 \BlankLine 
 
-\Fn{\fwd (tree sequence $TS$, forwards = \tn{True})}{
+\Fn{\fwd (tree sequence $\T$, forwards = \tn{True})}{
 {	
-\eIf{forwards=\tn{True}}{EdgeDiffs $\gets TS$.edgediffs()\BlankLine}
+\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
 {\BlankLine
-	EdgeDiffs $\gets$ reversed($TS$.edgediffs())\;}
+	$\T = \left(T_{|\T|},..., T_1\right)$\;}
 }
-\Indm \For{(Interval, EdgesOut, EdgesIn) \KwTo EdgeDiffs}{
-	\For{e1 \KwTo EdgesOut}{
-		\For{e2 \KwTo EdgesOut}{
-			\If{e2.parent = e1.child}{
-				\For{e3 \KwTo EdgesIn}{
-					\If{e3.parent=e1.parent \tn{AND} e3.child=e2.child}{
-						e1.right $\gets$ Interval.right\;
-						e2.right $\gets$ Interval.right\;
-						e3.left $\gets$ Interval.right\;
-						\If{e3.left = e3.right}{
-							$E$.remove(e3)\;
-							}}}}}}}\;
-$TS'\gets TS$.update()\;						
-\KwRet{$TS'$}\;
+\Indm \For{$T_k\in \T$}{
+	Find all edge pairs $(e_1,e_2)$ such that $e_1 = a\to b$ and $e_2 = b\to c$ for some nodes $a,b,c$.\;
+	\For{edges $f$ in $T_{k+1}$}{
+		\If{$f = a \to c$ and $b$ is not in $T_{k+1}$}{
+		Remove $f$ from $T_{k+1}$.\;
+		Add $e_1$ and $e_2$ to $T_{k+1}$.\;
+		Update $\T$.\;
+	}
+	}
+}\;						
+\KwRet{$\T$}\;
 }
 \BlankLine						
-\Fn{\ex ($TS$, iter=100)}{
-	edges $\gets$ $TS$.numedges()\;
-	\BlankLine
+\Fn{\ex ($\T$, iter=100)}{
 	\For{$*$ \KwTo \Range(iter)}{
-		$TS' \gets TS$.\fwd(fowards=\tn{True})\;
-		$TS' \gets TS$.\fwd(fowards=\tn{False})\;
-		\eIf{$TS$.numedges = edges}{
+		$\T' \gets \T$.\fwd(fowards=\tn{True})\;
+		$\T' \gets \T$.\fwd(fowards=\tn{False})\;
+		\If{Number of edges in $\T$ = Number of edges in $\T'$}{
 			\Break\BlankLine}
-		{edges $\gets$ $TS'$.numedges()\;}
 		}
 }
-\KwRet{$TS'$}\;
+\KwRet{$\T'$}\;
 \end{algorithm2e}
 
-With this algorithm we only extend existing edges
-over a larger interval on the genome,
-and remove unnecessary edges in the process.
+
 %% Find counter example to global minimum.
 
 \subsection{Discrepancy Function}
@@ -416,11 +336,11 @@ and remove unnecessary edges in the process.
  we need a metric to discern
  if trees modified with edge extend
  in fact correctly infer haplotypes in our original tree sequence.
- We have thus constructed a function which counts the differences 
- between trees on a pair of tree sequences. 
+ One such function a so called \textit{discrepancy function}, can be called on a pair of tree 
  To count all the discrepancies we must begin by counting differences for each node in the tree sequence.
 
 \begin{figure}
+
     \caption{
         Conceptual figure displaying what discrepancy is?
         TODO: brainstorm.
