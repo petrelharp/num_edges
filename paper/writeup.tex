@@ -223,61 +223,60 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 
 \section{Methods}
 
-\subsection{Algorithm}
+\subsection{Extend Edges}}
 
 % * description (HALLEY)
 % * proof of something:
 %     - arrives at a local minimum?
 %     - guess at typical reduction? (reduces edges by 1/3?)
- 
-\subsection*{Notation}
-    We begin with some notation. We define a \textit{tree sequence}, denoted $TS$, 
+    We define a \textit{tree sequence}, denoted $TS$, 
     as a tuple $\left( \left\{T_k\right\}, N, E, L\right)$ where
      $\left\{T_k\right\}_{k=1}^n$ is the set of trees,
      $N$ and $E$ are the sets of nodes and edges respectively,
      and $L=[0,a)\subseteq \R$ is the length of the sequence on the genome.
      The length of each tree $T_k$ is some subinterval $[a_k,a_{k+1})$ 
      with the lengths of consecutive trees in the sequence 
-     only intersecting each intervals endpoints. 
-    Additionally, a node $x\in N$ is \textit{unary} if it only has one child, 
-    ie. only a single edge extending below it on the tree.
-    With these tree sequences our goal is to
-    minimize the number of edges
-    as well as infer coalescence of genes. 
-    To remove edges we consider the following example.
-    Suppose for a tree $T_k$ in the tree sequence $TS$ 
-    there exists a branch which contains a unary node $b\in N$.
-    Then the node $b$ has one parent, $a\in N$, 
-    and one child $c\in N$,
-    each with edges $e_{ab}, e_{bc}\in E$ connecting them.
+     only intersecting each intervals endpoints.
+    Given any tree sequence, our goal is to
+    identify areas of implied inheritance of haplotypes.
+    We do so by identifying short paths (2 edges) in a tree.
+    If neighboring trees contain edges with 
+    identical parent and child nodes, we assume that there
+    is implied coalescence of haplotypes between nodes, and
+  	we will extend the path's edges to the neighboring tree \ref{fig:extending_diagram}.
+  	In more concrete terms, for a tree $T_k$ in the tree sequence $TS$ 
+    suppose there exists a path which contains a node $b\in N$,
+    with parent and child nodes $a, c\in N$, respectively.
     If there is an edge between the nodes $a$ and $c$ in trees 
     $T_{k+1}$ (or $T_{k-1}$),
     then we wish to extend the edges $e_{ab},e_{bc}$ 
     to $T_{k+1}$ and then remove the edge $e_{ac}$ from $T_{k+1}$. 
-    This action reduces the length of the edge $e_{ac}$ on the genome,
+    This action reduces the length of $e_{ac}$ on the genome,
     and in some cases, completely removes the edge. 
-    We now perform this action on all such unary nodes 
+    We now perform this action on all such ancestral paths 
     over the entire tree sequence.
 
-\begin{figure}
+\begin{figure}[!ht]
 \begin{center}
 \begin{tikzpicture} 
 	\node[circle,draw,inner sep=1pt] (a) at (0,2) {a}
 	[growth parent anchor=south] 
 		child { node[circle,draw,inner sep=1pt] {b} 		
 	 			child {
-	 				node[circle,draw,inner sep=1pt] (c) at (0,0) {c}
-	 					child{node (d) at (0,1) {$T_k$}
-	 						edge from parent [draw=none]}
+	 				node[circle,draw,inner sep=1pt] (c) at (-0.5,0) {c}
 	 				edge from parent 
-	 					node[left] {$e_{b,c}$}
-	 			}	 		
+	 					node[left] {$e_{b,c}$}}
+ 				child {
+ 					node (d) at (0,-1) {$T_k$}
+ 					edge from parent [draw=none]}
+	 			child {
+	 				node[circle,draw,inner sep=1pt] (e) at (0.5,0)  {d}
+ 					edge from parent
+ 						node[right] {$e_{b,d}$}} 		
 	 		edge from parent
 	 			node[left] {$e_{a,b}$}
-	 	};
- 	
-	 	
-	\node[circle,draw,inner sep=1pt] (a') at (3,2) {a}
+	 	}; 	
+	\node[circle,draw,inner sep=1pt] (a') at (4,2) {a}
 	[growth parent anchor=south]
 		child {
 			child{
@@ -288,8 +287,8 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 			node[left] {$e_{a,c}$}
 		};	
 	
-	\node at (6,0) {$\Longrightarrow$};
-	\node at (6,0.5) {\tn{Edge Extend}};
+	\node at (7,0) {$\Longrightarrow$};
+	\node at (7,0.5) {\tn{Edge Extend}};
 	
 	\node[circle,draw,inner sep=1pt] (a''') at (9,2) {a}
 	[growth parent anchor=south] 
@@ -322,10 +321,10 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 	
 \end{tikzpicture}
 \end{center}
-\caption{
+\caption{A simple visualization of the Edge Extend method.
     \label{fig:extending_diagram}
 }
-\end{figure}`
+\end{figure}
 
 
     In more detail, let $TS = \left( \left\{T_k\right\}_{k=1}^n, N, E, L\right)$ 
@@ -333,7 +332,7 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
     Within tskit we can track a tree sequence using a function called `EdgeDiffs'.
     This function tracks edges which are removed and added 
     between consecutive trees in the sequence. 
-    As in \ref{} (tikzfigure), we can track if 
+    As in \ref{fig:extending_diagram} (tikzfigure), we can track if 
     $e_{a,b}$ and$e_{b,c}$ were removed from $T_k$ 
     when creating $T_{k+1}$, 
     and we can see if $e_{a,c}$ was just added in $T_{k+1}$.
