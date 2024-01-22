@@ -335,50 +335,80 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 % * Show: how add edges reduces discrepancy (RESULTS)
 % * THINK of a way to asynchronously computing discrepancy (???)
 
-\par Now with an algorithm in place
+\par \comment{This needs work. Choose $n_1$ or $i$ for node not both. Do you want it through the perspective of TS or through nodes? You wording is mixed on this}
+ Now with an algorithm in place
  we need a metric to discern
  if trees modified with extend edges
  in fact correctly infer haplotypes in our original tree sequence.
- One such function a so called \textit{discrepancy function}, can be called on a pair of tree sequences.
- To count all the discrepancies we must begin by counting differences for each node in the tree sequence.
+ One such function a so called \textit{discrepancy function} (see Algorithm \ref{alg:disc}), can be called on a pair of tree sequences $\T_1$, $\T_2$ of equal length $L$.
+ Let $N_1$ and $N_2$ be the set of nodes on $\T_1$ respectively $\T_2$.
+ For a pair of nodes $(n_1,n_2)\in N_1\times N_2$, we define their \textit{discrepancy} as a difference in their total spans over the genome.
+ Each node $n\in\T$ has a given span along the genome and a time, 
+ so we can write each node $n = (t_n, L_n)$ where $L_n\subset \left[0,L\right)$ and $t_n\in \R^{\geq 0}$.
+ Clearly, computing the discrepancy between a random pair of nodes is not helpful, 
+ so we must first identify which pairs of nodes would be most identical to one another or a 'best match'.
+ When we find 'best matching' nodes we want our pair to be close in terms of time and have equal descendant sample sets,
+ ie. $s(n_1) = s(n_2)$ where $s$ is the function to compute the descendant sample set of $n_1$.
  
-\comment{Note this is somewhat similar to the Robinson-Foulds metric in concept.}
+ To find a best match for each node $n_1\in N_1$ \comment{(Should I do this by mentioning clades?)}
+ we compute the \textit{shared span} between $(n_1, m)$ for all $m\in N_2$.
+ The \textit{shared span} between two tree sequences, $ss(\T_1,\T_2)$, is an $|N_1|\times |N_2|$ matrix $A$
+ where each entry $a_{ij}$ represents the shared span between a pair of nodes $(i,j)\in N_1\times N_2$.
+ If a pair has equal descendant sample sets, $s(i) = s(j)$
+ then $a_{ij} = |L_i \cap L_j|$.
+ If the pair does not have an equal descendant sample set then we set $a_{ij}=0$.
+ Matrix $A$ then determines the \textit{best match} for every node $i\in N_1$
+ via looking at the maximum in row $i$, $\alpha_i = \max_{j\in N_2}a_{ij}$.
+ If this maximum is not unique, we use time difference to determine the best match pair.
+ We then define the \textit{discrepancy} between $\T_1$ and $\T_2$ as 
+ one minus the proportion of sum of the shared spans divided by the total node span of $\T_1$.
+ This function is similar in idea to the Robinson-Foulds metric \comment{CITE}.
+ % Robinson-Foulds Paper: https://www.sciencedirect.com/science/article/abs/pii/0025556481900432?via%3Dihub 
+ However, where the Robinson-Foulds metric compares nodes between individual pairs of trees,
+ in an effort to infer coalescent haplotypes, our function chooses to compare nodes
+ across the entire genome. 
+ We think this helps track ancestry \comment{something something something...}
  
+\comment{Do we want a complete walkthrough of Figure 3? Could be useful in an appendix} 
 
 \begin{figure}[!ht]
 	\begin{center}
 \includegraphics[height=1.5in, width=3in]{discrepancy_func_method_t1.pdf}
 \includegraphics[height=1.5in, width=3in]{discrepancy_function_method_t2.pdf}
     \caption{
-        Something here \comment{something useful}
+        For two tree sequences $T1$ and $T2$ the \textit{discrepancy function}, $d(T1,T2)$, matches nodes in $T1$ with nodes in $T2$
+        based on identical sample sets. We then measure each pair of nodes' \textit{shared span} across the entire tree sequence.
+        In this example we have nodes $0$ through $7$ in $T1$ match with their identical counterpart. 
+        Node $8$ has no match in $T2$ as there are no nodes in $T2$ with sample set $\left{1,2,3\right}$.
+        \comment{make some reference to Discrepancy function section or appendix for more in depth calculation.}
         \label{fig:conceptual_discrepancy}
     }
 	\end{center}
 \end{figure}
 
- Let $TS^1=(\{T_i^1\},N^1,E^1,L^1)$ and $TS^2=(\{T^2_j\},N^2,E^2,L^2)$ be tree sequences.
- Suppose that $x\in N^1$ and $y\in N^2$ are nodes in each tree sequence.
- We denote the \textit{set of descendant samples} of $x$ at position $i$ in the genome as $D_{TS^1}(x,i)$.
- Now for a pair of nodes $(x,y)\in TS^1\times TS^2$ 
- we can measure how much they agree along the genome.
- We do so with the following function
- $$\rho_{(TS^1,TS^2)}(x,y)=\frac{1}{L}\sum_{i=0}^{L-1}[D_{TS^1}(x,i)=D_{TS^2}(y,i)],$$
- where $L=\min\{L^1,L^2\}$ and $[\cdot]$ is the characteristic function. 
- We see $\rho$ measures the fraction of the tree sequence
- along which $x$ and $y$ have exactly the same descendant set. 
- For each node $x\in N^1$ we can use $\rho$ to find its global best matching node $y\in N^2$. 
- This node $y$ should not just be a maximum of $\rho(x,\cdot)$ but it should also have a branch length similar to $x$. 
- This means our node $y$ should minimize both $|t_x-t_y|$ and $1-\rho_{(TS^1,TS^2)}$.
- We then use this $y$ to find count the length of genome which $x$ differs from its best matching node in $TS_2$ with the function
- $$\hat{d}(x,TS^1,TS^2)=\min_y\{|t_x-t_y|(1-\rho_{(TS^1,TS^2)}(x,y))\}.$$
- Here $t_x$ and $t_y$ denote the time of occurrences (ie. branch length) for nodes $x$ and $y$. 
- The function $\hat{d}$ measures the proportion of the genome 
- over which the descendant set of $x$ differs from its best matching node $y$.
- We can now extend this from any node $x\in N^11$ to all of $TS_1$ with the \textbf{discrepancy function}
- $$d(TS_1,TS_2)=\sum_{x\in N_1}\hat{d}(x,TS_1,TS_2).$$
- This function, as we will see in the algorithm below,
- is $|N^1||\{T^1\}|$ as for each tree in $TS_1$ and each node $x\in N^1$ we only need to look at $O(1)$ nodes rather than all nodes in $N^2$.
- 
+% Let $TS^1=(\{T_i^1\},N^1,E^1,L^1)$ and $TS^2=(\{T^2_j\},N^2,E^2,L^2)$ be tree sequences.
+% Suppose that $x\in N^1$ and $y\in N^2$ are nodes in each tree sequence.
+% We denote the \textit{set of descendant samples} of $x$ at position $i$ in the genome as $D_{TS^1}(x,i)$.
+% Now for a pair of nodes $(x,y)\in TS^1\times TS^2$ 
+% we can measure how much they agree along the genome.
+% We do so with the following function
+% $$\rho_{(TS^1,TS^2)}(x,y)=\frac{1}{L}\sum_{i=0}^{L-1}[D_{TS^1}(x,i)=D_{TS^2}(y,i)],$$
+% where $L=\min\{L^1,L^2\}$ and $[\cdot]$ is the characteristic function. 
+% We see $\rho$ measures the fraction of the tree sequence
+% along which $x$ and $y$ have exactly the same descendant set. 
+% For each node $x\in N^1$ we can use $\rho$ to find its global best matching node $y\in N^2$. 
+% This node $y$ should not just be a maximum of $\rho(x,\cdot)$ but it should also have a branch length similar to $x$. 
+% This means our node $y$ should minimize both $|t_x-t_y|$ and $1-\rho_{(TS^1,TS^2)}$.
+% We then use this $y$ to find count the length of genome which $x$ differs from its best matching node in $TS_2$ with the function
+% $$\hat{d}(x,TS^1,TS^2)=\min_y\{|t_x-t_y|(1-\rho_{(TS^1,TS^2)}(x,y))\}.$$
+% Here $t_x$ and $t_y$ denote the time of occurrences (ie. branch length) for nodes $x$ and $y$. 
+% The function $\hat{d}$ measures the proportion of the genome 
+% over which the descendant set of $x$ differs from its best matching node $y$.
+% We can now extend this from any node $x\in N^11$ to all of $TS_1$ with the \textbf{discrepancy function}
+% $$d(TS_1,TS_2)=\sum_{x\in N_1}\hat{d}(x,TS_1,TS_2).$$
+% This function, as we will see in the algorithm below,
+% is $|N^1||\{T^1\}|$ as for each tree in $TS_1$ and each node $x\in N^1$ we only need to look at $O(1)$ nodes rather than all nodes in $N^2$.
+% 
 
 
 % PLR: commented this out since it's not compiling
@@ -419,10 +449,13 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 	$\operatorname{matches}_i = \argmax_{k\in N_{T_2}} a_{ik}.$\;
 	Let $j = \argmax_{k\in \operatorname{matches}_i}\frac{1}{1+|t_i-t_k|}$.\;
 	Define $\alpha_i = a_{ij}$.\;
+	\BlankLine
 }
-\begin{left} $$tree\ discrepancy = 1 - \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname{tr}\left(Shared Spans(T_1, T_2)\right)}$$\end{left}\;
+\begin{left}
+$$tree\ discrepancy = 1 - \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname{tr}\left(Shared Spans(T_1, T_2)\right)}$$\end{left}\;
 \BlankLine\BlankLine
-\begin{left} $$rmse = \sqrt{\frac{\sum_{i\in N_{T_1}}|t_i - t_j|\alpha_i}{\operatorname{tr}\left(Shared Spans(T_1,T_2)\right)}}$$\end{left}\;
+\begin{left}
+$$rmse = \sqrt{\frac{\sum_{i\in N_{T_1}}|t_i - t_j|\alpha_i}{\operatorname{tr}\left(Shared Spans(T_1,T_2)\right)}}$$\end{left}\;
 \BlankLine\BlankLine
 \KwRet{tree discrepancy, rmse}
 }
@@ -444,6 +477,7 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 % * proprotion of added edges that are true ~ sequeence length
 
 \begin{figure}
+	\includegraphics[width=0.9\textwidth]{Edge_reduc_comp_speed.pdf}
     \caption{
         Two-part figure, showing reduction in number of edges (left) and increase in speed of stats comptuation (right)
         as a function of number of trees (modulated by sequence length),
