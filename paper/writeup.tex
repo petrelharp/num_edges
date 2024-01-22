@@ -21,6 +21,7 @@
 \newcommand{\ov}{\overline}
 \newcommand{\tskit}{\texttt{tskit}}
 \newcommand{\comment}[1]{{\color{blue} \it #1}}
+\newcommand{\argmax}{\operatorname{argmax}}
 
 
 \title{
@@ -238,6 +239,7 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
     Given any tree sequence, our goal is to
     identify areas of implied inheritance of haplotypes.
     We do so by identifying short paths (2 edges) in a tree.
+    \comment{Change this if we append new Extend Edges Method to account for longer paths $p\to x \to y\to c$}
     If neighboring trees contain edges with 
     identical ancestor (parent) and descendant (child) nodes, 
     we assume that there is implied coalescence of haplotypes between nodes, 
@@ -253,7 +255,8 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
     and in some cases, completely removes the edge. 
     We now perform this action on all such ancestral paths 
     over the entire tree sequence.
-    With this algorithm \ref{alg:edge} we only extend existing edges
+    With algorithm \ref{alg:edge} we only extend existing edges
+    \comment{Note possible change pending algorithm change}
     over a larger interval on the genome,
     and remove unnecessary edges in the process.
 
@@ -261,7 +264,7 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 \begin{center}
 	\includegraphics[width=5in]{edge_extend_method.pdf}
 \end{center}
-\caption{A visualization of the \textit{extend edges} method. Given two neighboring trees $T_1$ and $T_2$, the tree $T_1$ has a short path of edges $4 \to 3\to0$. The next tree contains a single edge $4 \to 0$. If node $3$ is not in $T_2$, then edge extend will extend edges $ 4\to 3$ and $3\to 0$ to tree $T_2$, hence removing the edge $4\to 0$. 
+\caption{A visualization of the \textit{extend edges} method. Given two neighboring trees $T_1$ and $T_2$, the tree $T_1$ has a short path of edges $4 \to 3\to0$. The next tree contains a single edge $4 \to 0$. If node $3$ is not in $T_2$, then we will extend edges $ 4\to 3$ and $3\to 0$ to tree $T_2$, hence removing the edge $4\to 0$. 
     \label{fig:extending_diagram}
 }
 \end{figure}
@@ -334,18 +337,20 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 
 \par Now with an algorithm in place
  we need a metric to discern
- if trees modified with edge extend
+ if trees modified with extend edges
  in fact correctly infer haplotypes in our original tree sequence.
  One such function a so called \textit{discrepancy function}, can be called on a pair of tree sequences.
  To count all the discrepancies we must begin by counting differences for each node in the tree sequence.
+ 
+\comment{Note this is somewhat similar to the Robinson-Foulds metric in concept.}
+ 
 
 \begin{figure}[!ht]
 	\begin{center}
 \includegraphics[height=1.5in, width=3in]{discrepancy_func_method_t1.pdf}
 \includegraphics[height=1.5in, width=3in]{discrepancy_function_method_t2.pdf}
     \caption{
-        Conceptual figure displaying what discrepancy is?
-        TODO: brainstorm.
+        Something here \comment{something useful}
         \label{fig:conceptual_discrepancy}
     }
 	\end{center}
@@ -378,47 +383,50 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 
 % PLR: commented this out since it's not compiling
 % 
-% \begin{algorithm}[!ht]
-% \SetStartEndCondition{ }{}{}%
-% \SetKwProg{Fn}{def}{\string:}{}
-% \SetKwFunction{Range}{range}%%
-% \SetKw{KwTo}{in}
-% \SetKwFor{For}{for}{\string:}{}%
-% \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-% \SetKwFor{While}{while}{:}{fintq}%
-% \SetKw{Break}{break}
-% \newcommand\forcond{$i$ \KwTo\Range{$n$}}
-% \SetKwComment{Comment}{}{} 
-% \DontPrintSemicolon
-% \LinesNotNumbered
-% \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
-% 
-% 
-% \input{$(TS_1,TS_2)$}
-% \output{discrepancy number (some float value)}
-% 
-% \Fn{Node Discrepancy($x,TS_1,TS_2$)}{
-% $s=0\in \mathbb{Z}^{|N^2|}$ \Comment*[f]{Similarity vector with each entry corresponds to a node in $TS_2$}
-% 
-% \For{$I$, $T^1_k$, $T^2_j$ \KwTo $(L,TS_1,TS_2)$}{
-% \Comment{Here $I=[a^1_k,a^1_{k+1})\cap [a^2_j,a^2_{j+1})$ is the interval which the two trees $T^1_k$, $T^2_j$ both span over. Here we find the best matching node $y$.}
-% $D_{T^1_k}(x)\gets D_{TS^1}(x,i)$ where $i\in I$\;
-% \If{$|D_{T^1_k}(x)| > 0$}{
-% \If{$|D_{T^1_k}(x)|=1$}{
-% $y \gets D_{T^1_k}(x)$\;
-% $m \gets D_{T^1_k}(x)$\;}
-% \Else{$m \gets $ most recent common anscestor of $D_{T^1_k}(x)$ in $T^1_k$\;
-% $y\gets $ most recent common anscestor of $D_{T^1_k}(x)$ in $T^2_j$\;}}
-% \If{$D_{T^2_j}(y)=D_{T^1_k}(x)$}{
-% $s_y\gets s_y$\;}}
-% \KwRet{node discrepancy}\;}
-% \Fn{Discrepancy($TS_1,TS_2$)}{
-% discrepancy = 0\;
-% \For{$x\in N^1$}{discrepancy = $\sum_{x\in N^1}{$Node Discrepancy($x,TS_1,TS_2$)}}
-% \BlankLine
-% \KwRet{discrepancy}}
-% \caption{Discrepancy Function}\label{ndisc}
-% \end{algorithm}
+ \begin{algorithm2e}[!ht]
+ \SetStartEndCondition{ }{}{}%
+ \SetKwProg{Fn}{def}{\string:}{}
+ \SetKwFunction{Range}{range}%%
+ \SetKw{KwTo}{in}
+ \SetKwFor{For}{for}{\string:}{}%
+ \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+ \SetKwFor{While}{while}{:}{fintq}%
+ \SetKw{Break}{break}
+ \newcommand\forcond{$i$ \KwTo\Range{$n$}}
+ \SetKwComment{Comment}{}
+ \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+ \DontPrintSemicolon\LinesNotNumbered
+ 
+ \caption{Discrepancy Function}\label{alg:disc}
+ \input{$(T_1,T_2)$}
+ \output{tree discrepancy, root-mean-square error}
+ 
+ \Fn{Shared Spans($T_1,T_2$)}{
+ \For{pairs $(i,j)\in N_{T_1}\times N_{T_2}$}{
+ 	$i = (t_i, L_i)$ and $j = (t_j, L_j)$ where $L_i, L_j\subset \left[0,L\right).\quad$ \Comment{Each node is a tuple (time, genome location).}
+ 	\If{$(i,j)$ has equal sample sets, $s(i)=s(j)$}{
+ 		Define $a_{ij}=|L_i\cap L_j|$.
+ 	}
+ 	\Else{Define $a_{ij}=0$.}
+ Define matrix $A=\left[a_{ij}\right]\in M_{N_{T_1}\times N_{T_2}}(\R)$.\;
+ }
+ \KwRet{$A$}
+ }
+\BlankLine
+\Fn{Discrepancy ($T_1,T_2$)}{
+\For{each node $i\in N_{T_1}$}{
+	Find nodes in $N_{T_2}$ which have the highest matching span.\;
+	$\operatorname{matches}_i = \argmax_{k\in N_{T_2}} a_{ik}.$\;
+	Let $j = \argmax_{k\in \operatorname{matches}_i}\frac{1}{1+|t_i-t_k|}$.\;
+	Define $\alpha_i = a_{ij}$.\;
+}
+\begin{left} $$tree\ discrepancy = 1 - \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname{tr}\left(Shared Spans(T_1, T_2)\right)}$$\end{left}\;
+\BlankLine\BlankLine
+\begin{left} $$rmse = \sqrt{\frac{\sum_{i\in N_{T_1}}|t_i - t_j|\alpha_i}{\operatorname{tr}\left(Shared Spans(T_1,T_2)\right)}}$$\end{left}\;
+\BlankLine\BlankLine
+\KwRet{tree discrepancy, rmse}
+}
+\end{algorithm2e}
 
 
 \section{Results}
