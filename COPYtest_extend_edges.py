@@ -220,7 +220,7 @@ We think that we can combine `extend_paths` and `extend_edges`
 in a piece-meal way to speed up this convergence, but this requires 
 further testing.
 '''
-def merge_edge_paths(edges_in, in_parent, out_parent, degree, not_sample, ts, edges):
+def merge_edge_paths(edges_in, in_parent, out_parent, degree, not_sample, nodes_edge, ts, edges):
     # We want a list (or dict) of all longest edge paths
     # from out tree and in tree
     paths = list()
@@ -280,6 +280,14 @@ def merge_edge_paths(edges_in, in_parent, out_parent, degree, not_sample, ts, ed
                 # print('out path', opp)
                 # print('in path', ipp)
                 # print('path', path)
+            if len(common_nodes) == 1:
+                if nodes_edge[ipp[-1]] == opp[-1]:
+                    ipp.append(opp[-1])
+                    assert ipp[-1] == opp[-1], f'ipp {ipp} and opp {opp}'
+                    path = list(set(ipp + opp))
+                    path.sort(key = lambda x: ts.tables.nodes.time[x])
+                    path_check[path[:-1]] = False
+                    paths.append(path)
     return paths
 
 def _extend_paths(ts, forwards=True):
@@ -380,7 +388,7 @@ def _extend_paths(ts, forwards=True):
             assert foundit == (p != -1)
         assert np.all(degree >= 0), print('degree', degree)
         added_edges = 0
-        edge_paths = merge_edge_paths(edges_in, in_parent, out_parent, degree, not_sample, ts, edges)
+        edge_paths = merge_edge_paths(edges_in, in_parent, out_parent, degree, not_sample, nodes_edge, ts, edges)
         for path in edge_paths:
             for j in range(len(path)-1):
                 child = path[j]
