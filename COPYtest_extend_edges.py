@@ -324,7 +324,7 @@ def _extend_paths(ts, forwards=True):
     while valid:
         # print(f'--------{forwards}----------')
         left, right = tree_pos.interval
-        print('-----------',left, right,'----------')
+        # print('-----------',left, right,'----------')
         here = left if forwards else right
         there = right if forwards else left
         
@@ -354,11 +354,11 @@ def _extend_paths(ts, forwards=True):
         for j in range(tree_pos.out_range.start, tree_pos.out_range.stop, direction):
             e = tree_pos.out_range.order[j]
             nodes_edge[edges.child[e]] = tskit.NULL
-            if edges.child[e] == 295:
-                print('TREE SCAN OUT RANGE', here, there)
-                print('295 edge', nodes_edge[edges.child[e]])
-                print('295 parent', edges.parent[e])
-                print('--------')
+            # if edges.child[e] == 295:
+            #     print('TREE SCAN OUT RANGE', here, there)
+            #     print('295 edge', nodes_edge[edges.child[e]])
+            #     print('295 parent', edges.parent[e])
+            #     print('--------')
             if out_parent[edges.child[e]] == -1:
                 edges_out.append([e, False])
                 out_parent[edges.child[e]] = edges.parent[e]
@@ -368,11 +368,11 @@ def _extend_paths(ts, forwards=True):
             edges_in.append([e, False])
             in_parent[edges.child[e]] = edges.parent[e]
             nodes_edge[edges.child[e]] = e
-            if edges.child[e] == 295:
-                print('TREE SCAN IN RANGE', here, there)
-                print('295 edge', nodes_edge[edges.child[e]])
-                print('295 parent', edges.parent[e])
-                print('-----------------')
+            # if edges.child[e] == 295:
+            #     print('TREE SCAN IN RANGE', here, there)
+            #     print('295 edge', nodes_edge[edges.child[e]])
+            #     print('295 parent', edges.parent[e])
+            #     print('-----------------')
         for e, _ in edges_out:
             degree[edges.parent[e]] -= 1
             degree[edges.child[e]] -= 1
@@ -403,23 +403,23 @@ def _extend_paths(ts, forwards=True):
                 if old_edge == tskit.NULL:
                     old_parent = tskit.NULL
                     degree[child] += 2
-                if child == 295:
-                    print('-----')
-                    print(here, there)
-                    print('path', path)
-                    print('old edge id', nodes_edge[child])
-                    print('old edge', edges[nodes_edge[child]])
-                    print('old_parent', edges[old_edge].parent)
-                    print('new_parent', new_parent)
+                # if child == 295:
+                #     print('-----')
+                #     print(here, there)
+                #     print('path', path)
+                #     print('old edge id', nodes_edge[child])
+                #     print('old edge', edges[nodes_edge[child]])
+                #     print('old_parent', edges[old_edge].parent)
+                #     print('new_parent', new_parent)
                 if new_parent == old_parent:
                     assert degree[old_parent] == degree[new_parent], print(degree[old_parent], degree[new_parent])
                     assert degree[child] > 0, print(degree[child])
                     # this is an edge already in the tree
                     # do nothing
-                    if child == 295:
-                        print('NEW PARENT = OLD PARENT')
-                        print('old edge id', old_edge)
-                        print('old edge', edges[old_edge])
+                    # if child == 295:
+                    #     print('NEW PARENT = OLD PARENT')
+                    #     print('old edge id', old_edge)
+                    #     print('old edge', edges[old_edge])
                     continue
                 if new_parent != old_parent:
                     # check if our new edge is in edges_out 
@@ -439,11 +439,13 @@ def _extend_paths(ts, forwards=True):
                         far_side[e_out] = there
                         if (e_out != old_edge) and (old_edge != tskit.NULL):
                             near_side[old_edge] = there
+                            edges_in.append([old_edge, True])
                         nodes_edge[child] = e_out
-                        if child == 295:
-                            print(child, new_parent, 'extend edge')
-                            print('e_out', e_out)
-                            print(edges[e_out])
+                        # if child == 295:
+                        #     print(child, new_parent, 'extend edge')
+                        #     print('e_out', e_out)
+                        #     print(edges[e_out])
+                        #     print('new endpoints', near_side[e_out], far_side[e_out])
                         if degree[child] == 0:
                             degree[child] += 2
                         if degree[new_parent] == 0:
@@ -460,12 +462,15 @@ def _extend_paths(ts, forwards=True):
                     if not found_it:
                         edges.add_row(parent = new_parent, child = child, left = left, right = right)
                         nodes_edge[child] = edges.num_rows
-                        if child == 295:
-                            print(child, new_parent, 'NEW EDGE')
-                            print(edges[-1])
+                        # if child == 295:
+                        #     print(child, new_parent, 'NEW EDGE')
+                        #     print(edges[-1])
                         added_edges += 1
+                        edges_out.append([edges.num_rows -1, True])
                         if old_edge != tskit.NULL:
                             near_side[old_edge] = there
+                            if near_side[old_edge] != far_side[old_edge]:
+                                edges_in.append([old_edge, True])
                         if forwards:
                             near_side = np.append(near_side, [left])
                             far_side = np.append(far_side, [right])
@@ -518,25 +523,25 @@ def extend_paths(ts, max_iter=10):
     last_num_edges = ts.num_edges
     for k in range(max_iter):
         for forwards in [True, False]:
-            print(k)
+            # print(k)
             edges = _extend_paths(ts, forwards=forwards)
             tables.edges.replace_with(edges)
             tables.sort()
-            if k == 1:
-                # print(tables.edges)
-                for j, e in enumerate(tables.edges):
-                    mask = np.full(len(tables.edges), False, dtype = 'bool')
-                    l, r = e.left, e.right
-                    for i, f in enumerate(tables.edges):
-                        fl, fr = f.left, f.right
-                        if f.child == e.child:
-                            if (l < fl and fl < r) or (l < fr and fr < r):
-                                mask[i] = True
-                                mask[j] = True
-                    # mask = [(k.parent == e.parent and k.child == e.child) for k in tables.edges]
-                    if len(tables.edges[mask]) > 1:
-                        print( tables.edges[mask])
-                        print('%%%%%%%%%%%%%%%%%%%%%%%%%')
+            # if k == 1:
+            #     # print(tables.edges)
+            #     for j, e in enumerate(tables.edges):
+            #         mask = np.full(len(tables.edges), False, dtype = 'bool')
+            #         l, r = e.left, e.right
+            #         for i, f in enumerate(tables.edges):
+            #             fl, fr = f.left, f.right
+            #             if f.child == e.child:
+            #                 if (l < fl and fl < r) or (l < fr and fr < r):
+            #                     mask[i] = True
+            #                     mask[j] = True
+            #         # mask = [(k.parent == e.parent and k.child == e.child) for k in tables.edges]
+            #         if len(tables.edges[mask]) > 1:
+            #             print( tables.edges[mask])
+            #             print('%%%%%%%%%%%%%%%%%%%%%%%%%')
             tables.build_index()
             tables.edges.squash()
             # print(tables.edges.num_rows)
