@@ -38,7 +38,7 @@
 
 
 % NOTE: these are in alphabetical order for now; we can revisit that ordering
-%\author[$\dagger$]{Ava Bamforth}
+\author[$\dagger$]{Ava Bamforth}
 \author[$\dagger$]{Halley Fritze}
 \author[$\ddagger$]{Jerome Kelleher}
 \author[$\dagger$]{Nathaniel Pope}
@@ -251,12 +251,12 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
      subforest of edges in $T_k$ that are removed to construct $T_{k+1}$
      and the subforest of edges in $T_{k+1}$ which were added to construct 
      $T_{k+1}$ from $T_k$. We call these subforest the out-forest and in-forest, respectively,
-     and denoted $EO$ and $EI$. \comment{Need better notation. Currently cant think of anything better.}
-     For each edge $e \in EO$ with child $c$,
-     we construct a path $p_c^{EO}$ comprised of edges in the $EO$ subforest.
-     If there exists an edge $e'\in EI$ also with child $c$,
-     we construct path $p_c^{EI}$ from edges in the $EI$ subforest.
-     If there is a common node in both paths excluding $c$, ie. $(p_c^{EO}\cap p_c^{EI})\backslash \{c\}\neq\emptyset$, then there is a mergable path between both subforests. The merged path $\bar{p}_c = \hat{p}_c^{EI} \cup \hat{p}^{EO}$ is the union of both paths truncated ($\hat{p}$) at the common intersection node. We then insert $\bar{p}$ into $T_2$, postponing or deleting edges in its original inforest $EI$, see Figure \ref{complicated extending diagram}. We perform this action across all consecutive pairs of tree sequences, going both forward and backward along the genome, until there are no more edges extended in this way.
+     and denoted $F_O$ and $F_O$. \comment{Need better notation. Currently cant think of anything better.}
+     For each edge $e \in F_O$ with child $c$,
+     we construct a path $p_c^{F_O}$ comprised of edges in the $F_O$ subforest.
+     If there exists an edge $e'\in F_I$ also with child $c$,
+     we construct path $p_c^{F_I}$ from edges in the $F_I$ subforest.
+     If there is a common node in both paths excluding $c$, ie. $(p_c^{F_O}\cap p_c^{F_I})\backslash \{c\}\neq\emptyset$, then there is a mergable path between both subforests. The merged path $\bar{p}_c = \hat{p}_c^{F_I} \cup \hat{p}^{F_O}$ is the union of both paths truncated ($\hat{p}$) at the common intersection node. We then insert $\bar{p}$ into $T_2$, postponing or deleting edges in its original inforest $F_I$, see Figure \ref{complicated extending diagram}. We perform this action across all consecutive pairs of tree sequences, going both forward and backward along the genome, until there are no more edges extended in this way.
 %    We do so by identifying short paths (2 edges) in a tree.
 %    \comment{Change this if we append new Extend Edges Method to account for longer paths $p\to x \to y\to c$}
 %    If neighboring trees contain edges with 
@@ -283,7 +283,7 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 \begin{center}
 	\includegraphics[width=5in]{edge_extend_method.pdf}
 \end{center}
-\caption{\comment{Change figure to say Extend halplotypes}A visualization of the \textit{extend haplotypes} method. Given two neighboring trees $T_1$ and $T_2$, $EO$ in the tree $T_1$ contains the edge $3\to 0$. Starting at $0$, there is a path of edges $0 \to 3 \to 4$. The tree $T_2$ has edge $4 \to 0$ in $EI$, and so there exists path $0 to 4$. These two paths share common end points, $0$ and $4$, and so we will extend path $0 \to 3 \to 4$ onto tree $T_2$, hence removing the edge $4\to 0$.
+\caption{\comment{Change figure to say Extend halplotypes}A visualization of the \textit{extend haplotypes} method. Given two neighboring trees $T_1$ and $T_2$, $F_O$ in the tree $T_1$ contains the edge $3\to 0$. Starting at $0$, there is a path of edges $0 \to 3 \to 4$. The tree $T_2$ has edge $4 \to 0$ in $F_I$, and so there exists path $0 to 4$. These two paths share common end points, $0$ and $4$, and so we will extend path $0 \to 3 \to 4$ onto tree $T_2$, hence removing the edge $4\to 0$.
     \label{fig:extending_diagram}
 }
 \end{figure}
@@ -326,25 +326,25 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 		}
 	}
 		\For{pairs $(T_k, T_{k+1})\in \T\times\T$}{
-		Compute subforests $EO\subseteq T_k$ and $EI\subseteq\in T_{k+1}$.\;
-		\For{edges $e$ in $EO$}{
+		Compute subforests $F_O\subseteq T_k$ and $F_I\subseteq\in T_{k+1}$.\;
+		\For{edges $e$ in $F_O$}{
 			Let $c$ be child node.\;
-			$p_c^{EO} = [c]$\;
-			$p_c^{EI} = [c]$\;
+			$p_c^{F_O} = [c]$\;
+			$p_c^{F_I} = [c]$\;
 			$\bar{p}_c = []$ Path to be inserted\;
-			\While{$\exists f\in EO$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))=0$}{
+			\While{$\exists f\in F_O$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))=0$}{
 				$p = \tn{parent}(f)$\;
-				Append $p$ to $p_c^{EO}$\;
+				Append $p$ to $p_c^{F_O}$\;
 				$c = p$\;
 			}
-			\While{$\exists f\in EI$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))<3$}{
+			\While{$\exists f\in F_I$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))<3$}{
 				$p =\tn{parent}(f)$\;
-				Append $p$ to $p_c^{EI}$\;
+				Append $p$ to $p_c^{F_I}$\;
 				$c = p$\;
 			}
-			\If{($p_c^{EO}\cap p_c^{EI})\backslash\{c\}\neq\emptyset$}{
+			\If{($p_c^{F_O}\cap p_c^{F_I})\backslash\{c\}\neq\emptyset$}{
 				Merge paths up to intersection point\;
-				$\bar{p}_c = \hat{p}_c^{EI} \cup \hat{p}^{EI}_c$\;
+				$\bar{p}_c = \hat{p}_c^{F_I} \cup \hat{p}^{F_I}_c$\;
 				and sort by node time.\;
 			}
 			Insert $\bar{p}_c$ into $T_{k+1}$\;		
