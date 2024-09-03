@@ -38,7 +38,7 @@
 
 
 % NOTE: these are in alphabetical order for now; we can revisit that ordering
-\author[$\dagger$]{Ava Bamforth}
+%\author[$\dagger$]{Ava Bamforth}
 \author[$\dagger$]{Halley Fritze}
 \author[$\ddagger$]{Jerome Kelleher}
 \author[$\dagger$]{Nathaniel Pope}
@@ -226,7 +226,7 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 
 \section{Methods}
 
-\subsection{Extend Edges}
+\subsection{Extend Haplotypes}
 
 % * description (HALLEY)
 % * proof of something:
@@ -239,36 +239,131 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
      over a distinct portion of the genome $[a_{k-1}, a_k)$.
     Given any tree sequence, our goal is to
     identify areas of implied inheritance of haplotypes.
-    We do so by identifying short paths (2 edges) in a tree.
-    \comment{Change this if we append new Extend Edges Method to account for longer paths $p\to x \to y\to c$}
-    If neighboring trees contain edges with 
+    We do so by identifying paths in pairs of consecutive tree sequences
+    and merge them, given the correct condition.
+    For example, if neighboring trees contain edges with 
     identical ancestor (parent) and descendant (child) nodes, 
     we assume that there is implied coalescence of haplotypes between nodes, 
-    and we will extend the path's edges to the neighboring tree \ref{fig:extending_diagram}.
-  	In more concrete terms, for a tree $T_k$ in the tree sequence $\T$ 
-    suppose there exists a path which contains a node $3$,
-    with parent and child nodes $4$ and $0$, respectively.
-    If there is an edge between the nodes $4$ and $0$ in trees 
-    $T_{k+1}$ (or $T_{k-1}$),
-    then we wish to extend the edges $4\to 3$ and $3\to 0$ 
-    into tree $T_{k+1}$ and then remove the edge $4 \to 0$ from $T_{k+1}$. 
-    This action reduces the length of $4 \to 0$ on the genome,
-    and in some cases, completely removes the edge. 
-    We now perform this action on all such ancestral paths 
-    over the entire tree sequence.
-    With algorithm \ref{alg:edge} we only extend existing edges
-    \comment{Note possible change pending algorithm change}
-    over a larger interval on the genome,
-    and remove unnecessary edges in the process.
+    and we will extend the path's edges to the neighboring tree
+     \ref{fig:extending_diagram}.
+     More generally, for a pair of trees $T_k, T_{k+1}\in\mathbb{T}$,
+     to transition from tree $T_k$ to tree $T_{k+1}$ we identify the 
+     subforest of edges in $T_k$ that are removed to construct $T_{k+1}$
+     and the subforest of edges in $T_{k+1}$ which were added to construct 
+     $T_{k+1}$ from $T_k$. We call these subforest the out-forest and in-forest, respectively,
+     and denoted $EO$ and $EI$. \comment{Need better notation. Currently cant think of anything better.}
+     For each edge $e \in EO$ with child $c$,
+     we construct a path $p_c^{EO}$ comprised of edges in the $EO$ subforest.
+     If there exists an edge $e'\in EI$ also with child $c$,
+     we construct path $p_c^{EI}$ from edges in the $EI$ subforest.
+     If there is a common node in both paths excluding $c$, ie. $(p_c^{EO}\cap p_c^{EI})\backslash \{c\}\neq\emptyset$, then there is a mergable path between both subforests. The merged path $\bar{p}_c = \hat{p}_c^{EI} \cup \hat{p}^{EO}$ is the union of both paths truncated ($\hat{p}$) at the common intersection node. We then insert $\bar{p}$ into $T_2$, postponing or deleting edges in its original inforest $EI$, see Figure \ref{complicated extending diagram}. We perform this action across all consecutive pairs of tree sequences, going both forward and backward along the genome, until there are no more edges extended in this way.
+%    We do so by identifying short paths (2 edges) in a tree.
+%    \comment{Change this if we append new Extend Edges Method to account for longer paths $p\to x \to y\to c$}
+%    If neighboring trees contain edges with 
+%    identical ancestor (parent) and descendant (child) nodes, 
+%    we assume that there is implied coalescence of haplotypes between nodes, 
+%    and we will extend the path's edges to the neighboring tree \ref{fig:extending_diagram}.
+%  	In more concrete terms, for a tree $T_k$ in the tree sequence $\T$ 
+%    suppose there exists a path which contains a node $3$,
+%    with parent and child nodes $4$ and $0$, respectively.
+%    If there is an edge between the nodes $4$ and $0$ in trees 
+%    $T_{k+1}$ (or $T_{k-1}$),
+%    then we wish to extend the edges $4\to 3$ and $3\to 0$ 
+%    into tree $T_{k+1}$ and then remove the edge $4 \to 0$ from $T_{k+1}$. 
+%    This action reduces the length of $4 \to 0$ on the genome,
+%    and in some cases, completely removes the edge. 
+%    We now perform this action on all such ancestral paths 
+%    over the entire tree sequence.
+%    With algorithm \ref{alg:edge} we only extend existing edges
+%    \comment{Note possible change pending algorithm change}
+%    over a larger interval on the genome,
+%    and remove unnecessary edges in the process.
 
 \begin{figure}[!ht]
 \begin{center}
 	\includegraphics[width=5in]{edge_extend_method.pdf}
 \end{center}
-\caption{A visualization of the \textit{extend edges} method. Given two neighboring trees $T_1$ and $T_2$, the tree $T_1$ has a short path of edges $4 \to 3\to0$. The next tree contains a single edge $4 \to 0$. If node $3$ is not in $T_2$, then we will extend edges $ 4\to 3$ and $3\to 0$ to tree $T_2$, hence removing the edge $4\to 0$. 
+\caption{\comment{Change figure to say Extend halplotypes}A visualization of the \textit{extend haplotypes} method. Given two neighboring trees $T_1$ and $T_2$, $EO$ in the tree $T_1$ contains the edge $3\to 0$. Starting at $0$, there is a path of edges $0 \to 3 \to 4$. The tree $T_2$ has edge $4 \to 0$ in $EI$, and so there exists path $0 to 4$. These two paths share common end points, $0$ and $4$, and so we will extend path $0 \to 3 \to 4$ onto tree $T_2$, hence removing the edge $4\to 0$.
     \label{fig:extending_diagram}
 }
 \end{figure}
+
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=0.4\linewidth, height=1.2in]{EH-Ex2.pdf}
+		\includegraphics[width=0.4\linewidth, height=1.2in]{EH-extended-Ex2.pdf}
+	\end{center}
+	\caption{More complicated extension}
+	\label{fig:complicated_extending_diagram}
+\end{figure}
+
+\begin{algorithm2e}[!ht]
+	\SetStartEndCondition{ }{}{}%
+	\SetKwProg{Fn}{def}{\string:}{}
+	\SetKwFunction{Range}{range}%%
+	\SetKw{KwTo}{in}
+	\SetKwFor{For}{for}{\string:}{}%
+	\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+	\SetKwFor{While}{while}{:}{fintq}%
+	\SetKw{Break}{break}
+	\newcommand\forcond{$i$ \KwTo\Range{$n$}}
+	\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+	
+	\caption{Extends haplotypes across a tree sequence $TS$.}\label{alg:hap}
+	\SetKwFunction{ex}{Extend Paths}
+	\SetKwFunction{fp}{Find Paths}
+	\DontPrintSemicolon
+	\LinesNotNumbered
+	%\SetAlgoNoEnd
+	\input{A tree sequence $\T$}
+	\output{New tree sequence,$\T'$}
+	\BlankLine
+	\Fn{\fp (tree sequence $\T$, forwards = \tn{True})}{
+	{
+		\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
+		{\BlankLine
+			$\T = \left(T_{|\T|},..., T_1\right)$\;
+		}
+	}
+		\For{pairs $(T_k, T_{k+1})\in \T\times\T$}{
+		Compute subforests $EO\subseteq T_k$ and $EI\subseteq\in T_{k+1}$.\;
+		\For{edges $e$ in $EO$}{
+			Let $c$ be child node.\;
+			$p_c^{EO} = [c]$\;
+			$p_c^{EI} = [c]$\;
+			$\bar{p}_c = []$ Path to be inserted\;
+			\While{$\exists f\in EO$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))=0$}{
+				$p = \tn{parent}(f)$\;
+				Append $p$ to $p_c^{EO}$\;
+				$c = p$\;
+			}
+			\While{$\exists f\in EI$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))<3$}{
+				$p =\tn{parent}(f)$\;
+				Append $p$ to $p_c^{EI}$\;
+				$c = p$\;
+			}
+			\If{($p_c^{EO}\cap p_c^{EI})\backslash\{c\}\neq\emptyset$}{
+				Merge paths up to intersection point\;
+				$\bar{p}_c = \hat{p}_c^{EI} \cup \hat{p}^{EI}_c$\;
+				and sort by node time.\;
+			}
+			Insert $\bar{p}_c$ into $T_{k+1}$\;		
+		}
+	}\;
+	Update $\T$.\;
+	\KwRet{$\T$}\;
+}
+\BlankLine						
+\Fn{\ex ($\T$, iter=100)}{
+	\For{$*$ \KwTo \Range(iter)}{
+		$\T' \gets \T$.\fp(fowards=\tn{True})\;
+		$\T' \gets \T$.\fp(fowards=\tn{False})\;
+		\If{Number of edges in $\T$ = Number of edges in $\T'$}{
+			\Break\BlankLine}
+	}
+	\KwRet{$\T'$}\;
+}
+\end{algorithm2e}
 
 \begin{algorithm2e}[!ht]  % How 'code-like' do we want the algorithm to be? Do we want to keep a lot of the syntax in layman's terms or do we want to use functions like ts1.coiterate(ts2)??
 	
@@ -300,7 +395,7 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 {\BlankLine
 	$\T = \left(T_{|\T|},..., T_1\right)$\;}
 }
-\Indm \For{$T_k\in \T$}{
+	\For{$T_k\in \T$}{
 	Find all edge pairs $(e_1,e_2)$ such that $e_1 = a\to b$ and $e_2 = b\to c$ for some nodes $a,b,c$.\;
 	\For{edges $f$ in $T_{k+1}$}{
 		\If{$f = a \to c$ and $b$ is not in $T_{k+1}$}{
@@ -452,15 +547,30 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 	Define $\alpha_i = a_{ij}$.\;
 	\BlankLine
 }
-\begin{left}
-$$tree\ discrepancy = 1 - \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname{tr}\left(Shared Spans(T_1, T_2)\right)}$$\end{left}\;
+$$tree\ discrepancy = 1 - \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname{tr}\left(Shared Spans(T_1, T_1)\right)}$$\;
 \BlankLine\BlankLine
-\begin{left}
-$$rmse = \sqrt{\frac{\sum_{i\in N_{T_1}}|t_i - t_j|\alpha_i}{\operatorname{tr}\left(Shared Spans(T_1,T_2)\right)}}$$\end{left}\;
+$$rmse = \sqrt{\frac{\sum_{i\in N_{T_1}}|t_i - t_j|\alpha_i}{\operatorname{tr}\left(Shared Spans(T_1,T_1)\right)}}$$\;
+\BlankLine
+$$true\ proportion = \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname(tr)\left( Shared Spans(T_2, T_2)\right)}$$\;
 \BlankLine\BlankLine
-\KwRet{tree discrepancy, rmse}
+\KwRet{tree discrepancy, rmse, true proportion}
 }
 \end{algorithm2e}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.9\linewidth]{newplots_wo_ee/discrepancy_over_sample_5e7.pdf}
+		\caption{Left: Discrepancy \newline Right: True Proportion }
+	\end{center}
+	\label{fig:discrepancy-over-sample}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.9\linewidth]{newplots_wo_ee/discrepancy_over_seqlen_1000s.pdf}
+		\caption{Left: Discrepancy \newline Right: True Proportion}
+	\end{center}
+\end{figure}
 
 
 \section{Results}
@@ -472,13 +582,41 @@ $$rmse = \sqrt{\frac{\sum_{i\in N_{T_1}}|t_i - t_j|\alpha_i}{\operatorname{tr}\l
     as a function of time.
 }
 
+Notes on trapped unary spans:
+Simulate a TS with the following parameters:
+$msprime.sim_ancestry(1000, sequence_length=5e7, recombination_rate=1e-8, population_size=1e4, coalescing_segments_only=False, random_seed=1)$
+From the above output we see that ratio of unary span bordering coalescing between 
+- ExtendPaths/Truth = 0.4917
+- ExtendEdges/Truth = 0.27828
+
+The trapped unary span of our ground truth is 49\% of the TS.
+
+Total unary span bordering coalescing: 255151996720.0 (51.0\%)
+Total trapped unary span: 245038231157.0 (49.0\%)
+Total coalescing span: 99950000000.0
+Total unary span bordering coalescing: 125466159245.0 (100.0\%)
+Total trapped unary span: 0.0 (0.0\%)
+Total coalescing span: 99950000000.0
+
+\begin{figure}
+	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_log.pdf}
+	\caption{Correct Unary Span for Extend Haplotypes (log)}
+	\label{fig:correct-unary-span-log}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_notlog.pdf}
+	\caption{Correct Unary Span for Extend Haplotypes}
+	\label{fig:correct-unary-span}
+\end{figure}
+
 % (AVA)
 % * reduction in edges ~ sequence length
 % * speed increase ~ sequence length
 % * proprotion of added edges that are true ~ sequeence length
 
 \begin{figure}
-	\includegraphics[width=0.9\textwidth]{Edge_reduc_comp_speed.pdf}
+	\includegraphics[width=0.9\textwidth]{newplots_wo_ee/simp_vs_ext_tajimasD_runtime_numtrees.pdf}
     \caption{
         Two-part figure, showing reduction in number of edges (left) and increase in speed of stats comptuation (right)
         as a function of number of trees (modulated by sequence length),
@@ -497,6 +635,8 @@ With tsinfer: (1) simulate and tsinfer; (2) do the above either with or without 
 (but also take into account that there's wrong stuff in tsinfer'ed tree: look at whether it reduces discrepancy!)
 
 \begin{figure}
+	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/SL_vs_Num_edges_subplot.pdf}
+	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/edge_reduction_prop_vs_SL.pdf}
     \caption{
         Maybe: summaries of lengths and/or numbers of correctly and incorrectly added edges?
         (See notebook.)
