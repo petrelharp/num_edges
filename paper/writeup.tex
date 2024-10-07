@@ -1,7 +1,7 @@
 \documentclass[10pt,twoside,lineno]{gsajnl}
 \articletype{inv} % article type
 
-\usepackage{xcolor}
+\usepackage[dvipsnames]{xcolor}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{natbib}
@@ -9,9 +9,15 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows, snakes,backgrounds}
 \tikzstyle{place}=[circle,draw=black,thick, inner sep=0pt, minimum size = 5mm]
+\usepackage{hyperref}
+\hypersetup{
+	pagebackref=true,
+	colorlinks = true,
+	allcolors = OliveGreen}
 
 \SetKwInput{input}{Input}
 \SetKwInput{output}{Output}
+
 
 \newcommand{\E}{\mathbb{E}}
 \renewcommand{\P}{\mathbb{P}}
@@ -20,8 +26,30 @@
 \newcommand{\tn}{\textnormal}
 \newcommand{\ov}{\overline}
 \newcommand{\tskit}{\texttt{tskit}}
-\newcommand{\comment}[1]{{\color{blue} \it #1}}
+\newcommand{\comment}[1]{{\color{violet} \it #1}}
 \newcommand{\argmax}{\operatorname{argmax}}
+
+\newcommand{\algorithmref}[2][]{%
+	\hyperref[{#2}]{%
+		Algorithm~\ref*{#2}%
+		\ifx\\#1\\%
+		\else
+		\,#1%
+		\fi
+	}%
+}
+
+\newcommand*{\figref}[2][]{%
+	\hyperref[{#2}]{%
+		Figure~\ref*{#2}%
+		\ifx\\#1\\%
+		\else
+		\,#1%
+		\fi
+	}%
+}
+
+
 
 
 \title{
@@ -131,6 +159,19 @@
 % optimizing edge tables
 % reduce number of ancestors
 % reduce ancestral paths
+
+
+%%%% COLOR SCHEME FOR FIGURES %%%%
+% colors = {'blue': 'rgb(46,37,133)',
+%	'red': 'rgb(194,106,119)',
+%	'lgreen': 'rgb(93,168,153)',
+%	'gold': 'rgb(220,205,125)',
+%	'green': 'rgb(51, 117,56)',
+%	'lblue': 'rgb(148,203,236)',
+%	'magenta': 'rgb(159,74,150)',
+%	'wine': 'rgb(126,041,084)', 
+%}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction}
 
@@ -264,22 +305,21 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
     identify areas of implied inheritance of haplotypes.
     We do so by identifying paths in pairs of consecutive tree sequences
     and merging them, given the correct condition.
-    For example, if there exists paths neighboring trees which contain 
+    For example, \figref{fig:extending_diagram}, if there exists paths neighboring trees which contain 
     identical ancestor (parent) and descendant (child) nodes, 
     we assume that there is implied coalescence of haplotypes between nodes, 
-    and we will extend the path's edges to the neighboring tree
-     \ref{fig:extending_diagram}.
-     More generally, for a pair of trees $T_k, T_{k+1}\in\mathbb{T}$,
+    and we will extend the path's edges to the neighboring tree.
+     More generally, see \algorithmref{alg:hap}, for a pair of trees $T_k, T_{k+1}\in\mathbb{T}$,
      to transition from tree $T_k$ to tree $T_{k+1}$ we identify the 
      subforest of edges in $T_k$ that are removed to construct $T_{k+1}$
      and the subforest of edges in $T_{k+1}$ which were added to construct 
      $T_{k+1}$ from $T_k$. We call these subforests the out-forest and in-forest, respectively,
-     and denoted $F_O$ and $F_O$.
+     and denote them as $F_O$ and $F_O$.
      For each edge $e \in F_O$ with child $c$,
      we construct a path $p_c^{F_O}$ comprised of edges in the $F_O$ subforest.
      If there exists an edge $e'\in F_I$ also with child $c$,
      we construct path $p_c^{F_I}$ from edges in the $F_I$ subforest.
-     If there is a common node in both paths excluding $c$, ie. $(p_c^{F_O}\cap p_c^{F_I})\backslash \{c\}\neq\emptyset$, then there is a mergable path between both subforests. The merged path $\bar{p}_c = \hat{p}_c^{F_I} \cup \hat{p}^{F_O}$ is the union of both paths truncated ($\hat{p}$) at the common intersection node. We then insert $\bar{p}$ into $T_2$, postponing or deleting edges in its original in-forest $F_I$, see Figure \ref{complicated extending diagram}. We perform this action across all consecutive pairs of tree sequences, going both forward and backward along the genome, until there are no more edges extended in this way.
+     If there is a common node in both paths excluding $c$, ie. $(p_c^{F_O}\cap p_c^{F_I})\backslash \{c\}\neq\emptyset$, then there is a mergable path between both subforests. The merged path $\bar{p}_c = \hat{p}_c^{F_I} \cup \hat{p}^{F_O}$ is the union of both paths truncated ($\hat{p}$) at the common intersection node. We then insert $\bar{p}$ into $T_2$, postponing or deleting edges in its original in-forest $F_I$, see \figref{complicated_extending_diagram}. We perform this action across all consecutive pairs of tree sequences, going both forward and backward along the genome, until there are no more edges extended in this way.
 
 
 \begin{figure}[!ht]
@@ -296,7 +336,7 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 		\includegraphics[width=0.4\linewidth, height=1.2in]{EH-Ex2.pdf}
 		\includegraphics[width=0.4\linewidth, height=1.2in]{EH-extended-Ex2.pdf}
 	\end{center}
-	\caption{More complicated extension}
+	\caption{\comment{Change figure to have the same arrow with 'Extend Haplotypes' in inkscape for unity's sake.}The extend haplotypes method between tree with more unary nodes. Given two neighboring trees, there exists paths $4\to 6\to8\to10$ and $5\to 9\to 10$ in $F_O$, and in $F_I$ we have paths $4\to 7\to 11\to 10$ and $5\to 12\to 10$. Both the out-forest and in-forest both contain paths with the same initial and terminal nodes, $4\to 10$ and $5\to 10$ respectively, we merge both paths and output the tree sequence on the right.}
 	\label{fig:complicated_extending_diagram}
 \end{figure}
 
@@ -312,7 +352,9 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 	\newcommand\forcond{$i$ \KwTo\Range{$n$}}
 	\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
 	
-	\caption{Extends haplotypes across a tree sequence $TS$.}\label{alg:hap}
+	\caption{Extends haplotypes across a tree sequence $TS$.}
+	\label{alg:hap}
+	
 	\SetKwFunction{ex}{Extend Paths}
 	\SetKwFunction{fp}{Find Paths}
 	\DontPrintSemicolon
@@ -369,59 +411,62 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 }
 \end{algorithm2e}
 
-\begin{algorithm2e}[!ht]  % How 'code-like' do we want the algorithm to be? Do we want to keep a lot of the syntax in layman's terms or do we want to use functions like ts1.coiterate(ts2)??
-	
-\SetStartEndCondition{ }{}{}%
-\SetKwProg{Fn}{def}{\string:}{}
-\SetKwFunction{Range}{range}%%
-\SetKw{KwTo}{in}
-\SetKwFor{For}{for}{\string:}{}%
-\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-\SetKwFor{While}{while}{:}{fintq}%
-\SetKw{Break}{break}
-\newcommand\forcond{$i$ \KwTo\Range{$n$}}
-\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
-
-\caption{Extends edges across a tree sequence $TS$.}\label{alg:edge}
-\SetKwFunction{ex}{Extend Edges}
-\SetKwFunction{fwd}{Extend}
-\DontPrintSemicolon
-\LinesNotNumbered
-%\SetAlgoNoEnd
-\input{A tree sequence $\T$}
-\output{New tree sequence,$\T'$}
-
-\BlankLine 
-
-\Fn{\fwd (tree sequence $\T$, forwards = \tn{True})}{
-{	
-\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
-{\BlankLine
-	$\T = \left(T_{|\T|},..., T_1\right)$\;}
-}
-	\For{$T_k\in \T$}{
-	Find all edge pairs $(e_1,e_2)$ such that $e_1 = a\to b$ and $e_2 = b\to c$ for some nodes $a,b,c$.\;
-	\For{edges $f$ in $T_{k+1}$}{
-		\If{$f = a \to c$ and $b$ is not in $T_{k+1}$}{
-		Remove $f$ from $T_{k+1}$.\;
-		Add $e_1$ and $e_2$ to $T_{k+1}$.\;
-		Update $\T$.\;
-	}
-	}
-}\;						
-\KwRet{$\T$}\;
-}
-\BlankLine						
-\Fn{\ex ($\T$, iter=100)}{
-	\For{$*$ \KwTo \Range(iter)}{
-		$\T' \gets \T$.\fwd(fowards=\tn{True})\;
-		$\T' \gets \T$.\fwd(fowards=\tn{False})\;
-		\If{Number of edges in $\T$ = Number of edges in $\T'$}{
-			\Break\BlankLine}
-		}
-}
-\KwRet{$\T'$}\;
-\end{algorithm2e}
+%% Can most likely delete the extend-edges algorithm %%
+%\begin{algorithm2e}[!ht] 
+%	
+%\SetStartEndCondition{ }{}{}%
+%\SetKwProg{Fn}{def}{\string:}{}
+%\SetKwFunction{Range}{range}%%
+%\SetKw{KwTo}{in}
+%\SetKwFor{For}{for}{\string:}{}%
+%\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+%\SetKwFor{While}{while}{:}{fintq}%
+%\SetKw{Break}{break}
+%\newcommand\forcond{$i$ \KwTo\Range{$n$}}
+%\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+%
+%\caption{Extends edges across a tree sequence $TS$.}
+%\label{alg:edge}
+%
+%\SetKwFunction{ex}{Extend Edges}
+%\SetKwFunction{fwd}{Extend}
+%\DontPrintSemicolon
+%\LinesNotNumbered
+%%\SetAlgoNoEnd
+%\input{A tree sequence $\T$}
+%\output{New tree sequence,$\T'$}
+%
+%\BlankLine 
+%
+%\Fn{\fwd (tree sequence $\T$, forwards = \tn{True})}{
+%{	
+%\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
+%{\BlankLine
+%	$\T = \left(T_{|\T|},..., T_1\right)$\;}
+%}
+%	\For{$T_k\in \T$}{
+%	Find all edge pairs $(e_1,e_2)$ such that $e_1 = a\to b$ and $e_2 = b\to c$ for some nodes $a,b,c$.\;
+%	\For{edges $f$ in $T_{k+1}$}{
+%		\If{$f = a \to c$ and $b$ is not in $T_{k+1}$}{
+%		Remove $f$ from $T_{k+1}$.\;
+%		Add $e_1$ and $e_2$ to $T_{k+1}$.\;
+%		Update $\T$.\;
+%	}
+%	}
+%}\;						
+%\KwRet{$\T$}\;
+%}
+%\BlankLine						
+%\Fn{\ex ($\T$, iter=100)}{
+%	\For{$*$ \KwTo \Range(iter)}{
+%		$\T' \gets \T$.\fwd(fowards=\tn{True})\;
+%		$\T' \gets \T$.\fwd(fowards=\tn{False})\;
+%		\If{Number of edges in $\T$ = Number of edges in $\T'$}{
+%			\Break\BlankLine}
+%		}
+%}
+%\KwRet{$\T'$}\;
+%\end{algorithm2e}
 
 
 %% Find counter example to global minimum.
@@ -440,36 +485,36 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
  we need a metric to discern
  if trees modified with extend edges
  in fact correctly infer haplotypes in our original tree sequence.
- One such function a so called \textit{discrepancy function} (see Algorithm \ref{alg:disc}), can be called on a pair of tree sequences $\T_1$, $\T_2$ of equal length $L$.
- Let $N_1$ and $N_2$ be the set of nodes on $\T_1$ respectively $\T_2$.
- For a pair of nodes $(n_1,n_2)\in N_1\times N_2$, we define their \textit{discrepancy} as a difference in their total spans over the genome.
- Each node $n\in\T$ has a given span along the genome and a time, 
- so we can write each node $n = (t_n, L_n)$ where $L_n\subset \left[0,L\right)$ and $t_n\in \R^{\geq 0}$.
- Clearly, computing the discrepancy between a random pair of nodes is not helpful, 
- so we must first identify which pairs of nodes would be most identical to one another or a 'best match'.
- When we find 'best matching' nodes we want our pair to be close in terms of time and have equal descendant sample sets,
- ie. $s(n_1) = s(n_2)$ where $s$ is the function to compute the descendant sample set of $n_1$.
+  % Robinson-Foulds Paper: https://www.sciencedirect.com/science/article/abs/pii/0025556481900432?via%3Dihub 
+ An immediate choice of metric would be the Robinson-Foulds metric \comment{CITE} which compares nodes between individual pairs of trees.
+ However, in an effort to infer coalescent haplotypes, our function chooses to compare nodes
+ across the entire genome. 
+ \comment{something something something...}
  
- To find a best match for each node $n_1\in N_1$ \comment{(Should I do this by mentioning clades?)}
- we compute the \textit{shared span} between $(n_1, m)$ for all $m\in N_2$.
- The \textit{shared span} between two tree sequences, $ss(\T_1,\T_2)$, is an $|N_1|\times |N_2|$ matrix $A$
- where each entry $a_{ij}$ represents the shared span between a pair of nodes $(i,j)\in N_1\times N_2$.
- If a pair has equal descendant sample sets, $s(i) = s(j)$
+ Inspired by Robinson-Foulds we define a function, called a \textit{discrepancy function} (see \algorithmref{alg:disc}), on a pair of tree sequences $\T_1$, $\T_2$ of equal length $L$.
+ Let $N_{T_1}$ and $N_{T_2}$ be the set of nodes on $\T_1$ respectively $\T_2$.
+ For a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$, we define their \textit{discrepancy} as a difference in their total spans over the genome.
+ Each node $n\in\T$ has a given position along the genome and time, 
+ so we can write each node as a tuple $n = (t_n, L_n)$ with position $L_n\subset \left[0,L\right)$ and time $t_n\in \R^{\geq 0}$.
+ Computing the discrepancy between a random pair of nodes is not helpful, 
+ so we must first identify which pairs of nodes would be most identical to one another or a `best match'.
+ These `best matching' nodes should be close in terms of time and have equal descendant sample sets,
+ ie. $s(i) = s(j)$ where $s$ is the function to compute the descendant sample set of $n_1$.
+ 
+ To find a best match for each node $i\in N_{T_1}$ \comment{(Should I do this by mentioning clades?)}
+ we compute the \textit{shared span} between node $i\in N_{T_1}$ and every node in $N_{T_2}$.
+ Then, the \textit{shared span} between two tree sequences, denoted $ss(\T_1,\T_2)$, is a $|N_{T_1}|\times |N_{T_2}|$ matrix $A$
+ where each entry $a_{ij}$ represents the shared span between a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$.
+ If a pair $(i,j)$ has equal descendant sample sets, $s(i) = s(j)$
  then $a_{ij} = |L_i \cap L_j|$.
  If the pair does not have an equal descendant sample set then we set $a_{ij}=0$.
- Matrix $A$ then determines the \textit{best match} for every node $i\in N_1$
- via looking at the maximum in row $i$, $\alpha_i = \max_{j\in N_2}a_{ij}$.
+ Matrix $A$ determines the \textit{best match} for every node $i\in N_{T_1}$
+ via looking at the maximum in row $i$, $\alpha_i = \max_{j\in N_{T_2}} a_{ij}$.
  If this maximum is not unique, we use time difference to determine the best match pair.
  We then define the \textit{discrepancy} between $\T_1$ and $\T_2$ as 
  one minus the proportion of sum of the shared spans divided by the total node span of $\T_1$.
- This function is similar in idea to the Robinson-Foulds metric \comment{CITE}.
- % Robinson-Foulds Paper: https://www.sciencedirect.com/science/article/abs/pii/0025556481900432?via%3Dihub 
- However, where the Robinson-Foulds metric compares nodes between individual pairs of trees,
- in an effort to infer coalescent haplotypes, our function chooses to compare nodes
- across the entire genome. 
- We think this helps track ancestry \comment{something something something...}
  
- We note that the discrepancy function is a metric for detecting non-similarity between two tree sequences. However, we note that this function is not a metric in the mathematical sense, as it is not symmetric, nor is it reflexive. For example, given a tree sequence $\T$ and its simplification $\mathbb{S}$ and $\T\neq\mathbb{S}$ we have $\operatorname{discrepancy}(\mathbb{S}, \T)=0$. Additionally, given Figure \ref{fig:conceptual_discrepancy}, $\operatorname{discrepancy}(T1, T2) \neq \operatorname{discrepancy}(T2, T1)$ \comment{actually compute this. We may just do it in this section instead of the appendix?}
+ We note that the discrepancy function is a metric for detecting non-similarity between two tree sequences. However, we note that this function is not a metric in the mathematical sense, as it is not symmetric, nor is it reflexive. For example, given a tree sequence $\T$ and its simplification $\mathbb{S}$ and $\T\neq\mathbb{S}$ we have $\operatorname{discrepancy}(\mathbb{S}, \T)=0$. Additionally, given \figref{fig:conceptual_discrepancy}, $\operatorname{discrepancy}(T1, T2) \neq \operatorname{discrepancy}(T2, T1)$ \comment{actually compute this. We may just do it in this section instead of the appendix?}
  
 \comment{Do we want a complete walkthrough of Figure 3? Could be useful in an appendix} 
 
@@ -487,34 +532,7 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
     }
 	\end{center}
 \end{figure}
-
-% Let $TS^1=(\{T_i^1\},N^1,E^1,L^1)$ and $TS^2=(\{T^2_j\},N^2,E^2,L^2)$ be tree sequences.
-% Suppose that $x\in N^1$ and $y\in N^2$ are nodes in each tree sequence.
-% We denote the \textit{set of descendant samples} of $x$ at position $i$ in the genome as $D_{TS^1}(x,i)$.
-% Now for a pair of nodes $(x,y)\in TS^1\times TS^2$ 
-% we can measure how much they agree along the genome.
-% We do so with the following function
-% $$\rho_{(TS^1,TS^2)}(x,y)=\frac{1}{L}\sum_{i=0}^{L-1}[D_{TS^1}(x,i)=D_{TS^2}(y,i)],$$
-% where $L=\min\{L^1,L^2\}$ and $[\cdot]$ is the characteristic function. 
-% We see $\rho$ measures the fraction of the tree sequence
-% along which $x$ and $y$ have exactly the same descendant set. 
-% For each node $x\in N^1$ we can use $\rho$ to find its global best matching node $y\in N^2$. 
-% This node $y$ should not just be a maximum of $\rho(x,\cdot)$ but it should also have a branch length similar to $x$. 
-% This means our node $y$ should minimize both $|t_x-t_y|$ and $1-\rho_{(TS^1,TS^2)}$.
-% We then use this $y$ to find count the length of genome which $x$ differs from its best matching node in $TS_2$ with the function
-% $$\hat{d}(x,TS^1,TS^2)=\min_y\{|t_x-t_y|(1-\rho_{(TS^1,TS^2)}(x,y))\}.$$
-% Here $t_x$ and $t_y$ denote the time of occurrences (ie. branch length) for nodes $x$ and $y$. 
-% The function $\hat{d}$ measures the proportion of the genome 
-% over which the descendant set of $x$ differs from its best matching node $y$.
-% We can now extend this from any node $x\in N^11$ to all of $TS_1$ with the \textbf{discrepancy function}
-% $$d(TS_1,TS_2)=\sum_{x\in N_1}\hat{d}(x,TS_1,TS_2).$$
-% This function, as we will see in the algorithm below,
-% is $|N^1||\{T^1\}|$ as for each tree in $TS_1$ and each node $x\in N^1$ we only need to look at $O(1)$ nodes rather than all nodes in $N^2$.
-% 
-
-
-% PLR: commented this out since it's not compiling
-% 
+ 
  \begin{algorithm2e}[!ht]
  \SetStartEndCondition{ }{}{}%
  \SetKwProg{Fn}{def}{\string:}{}
@@ -563,22 +581,6 @@ $$true\ proportion = \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname(tr)\left(
 }
 \end{algorithm2e}
 
-\begin{figure}
-	\begin{center}
-		\includegraphics[width=0.9\linewidth]{newplots_wo_ee/discrepancy_over_sample_5e7_new.pdf}
-		\caption{Left: Discrepancy \newline Right: True Proportion }
-	\end{center}
-	\label{fig:discrepancy-over-sample}
-\end{figure}
-
-\begin{figure}
-	\begin{center}
-		\includegraphics[width=0.9\linewidth]{newplots_wo_ee/discrepancy_over_seqlen_1000s_new_5e7.pdf}
-		\caption{Left: Discrepancy \newline Right: True Proportion}
-	\end{center}
-	\label{fig:discrepancy-over-seqlen}
-\end{figure}
-
 
 \section{Results}
 
@@ -589,27 +591,44 @@ $$true\ proportion = \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname(tr)\left(
     as a function of time.
 }
 
-When observing our algorithm, we have to observe that for general tree sequences that have been initially simplified, there are portions of the tree sequence that the extend haplotypes method will not be able to recover. We call these portions the trapped unary spans. Most of these spans occur in the oldest portions of the ancestry near roots of the tree sequence. Thus we must disregard these unary spans when observings the effects of extend haplotypes. 
+%% TO DO:
+%% 1. Discuss trapped unary spans more
+%% 2. Discuss the comparison between tsinfer and extend haplotypes
+%% 3. Add more figures 
+%%	- (Edge counts between tsinfer and extend haplotypes)
+%%	- Average Edge counts per iterations
+%% 4. Discuss figures about total edge span added in both recombination and gene conversion events
+%% 5. Discuss the figures on edge reduction (include #3 part 1.)
 
-For a tree sequence $\T$ simulated in `msprime` of length $5\times 10^7$ with 1000 samples, recombination rate $10^{-8}$ and population size $10^4$, we found that there 
+When observing our algorithm, we have to observe that for general tree sequences that have been initially simplified, there are portions of the tree sequence that the extend haplotypes method will not be able to recover. We call these portions \textit{trapped unary spans}. Most of these spans occur in the oldest portions of the ancestry near roots of the tree sequence. Thus we must disregard these unary spans when observing the effects of extend haplotypes.
+First we have to determine how much of a tree sequence is trapped?
+For a tree sequence $\T$ simulated in `msprime` with genomic length $5\times 10^7$ with 1000 samples, recombination rate $10^{-8}$ and population size $10^4$, we found that trapped unary spans represented 49\%.
+This means that extend haplotypes can only affect 51\% of this tree sequence.
+When we apply our algorithm to the simplified given tree sequence, the ratio of unary span bordering coalescing between the extend tree sequence and the original is 0.4917. This means that \comment{something something something...}  
+See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figref{fig:node-spans}.
 
-Notes on trapped unary spans:
-Simulate a TS with the following parameters:
-$msprime.sim_ancestry(1000, sequence_length=5e7, recombination_rate=1e-8, population_size=1e4, coalescing_segments_only=False, random_seed=1)$
-From the above output we see that ratio of unary span bordering coalescing between 
-- ExtendPaths/Truth = 0.4917
-- ExtendEdges/Truth = 0.27828
 
-The trapped unary span of our ground truth is 49\% of the TS.
+%$msprime.sim_ancestry(1000, sequence_length=5e7, recombination_rate=1e-8, population_size=1e4, coalescing_segments_only=False, random_seed=1)$
+%From the above output we see that ratio of unary span bordering coalescing between 
+%- ExtendPaths/Truth = 0.4917
+%- ExtendEdges/Truth = 0.27828
+%
+%The trapped unary span of our ground truth is 49\% of the TS.
+%
+%Total unary span bordering coalescing: 255151996720.0 (51.0\%)
+%Total trapped unary span: 245038231157.0 (49.0\%)
+%Total coalescing span: 99950000000.0
+%Total unary span bordering coalescing: 125466159245.0 (100.0\%)
+%Total trapped unary span: 0.0 (0.0\%)
+%Total coalescing span: 99950000000.0
 
-Total unary span bordering coalescing: 255151996720.0 (51.0\%)
-Total trapped unary span: 245038231157.0 (49.0\%)
-Total coalescing span: 99950000000.0
-Total unary span bordering coalescing: 125466159245.0 (100.0\%)
-Total trapped unary span: 0.0 (0.0\%)
-Total coalescing span: 99950000000.0
+\begin{figure}[bht]
+	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/node_spans_wo_trapped_unary_regions.pdf}
+	\caption{Node spans of simulated tree sequence (blue), simplified tree sequence (green), and extended tree sequence (red).}
+	\label{fig:node-spans}
+\end{figure}
 
-\begin{figure}
+\begin{figure}[bht]
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_log.pdf}
 	\caption{Correct Unary Span for Extend Haplotypes (log)}
 	\label{fig:correct-unary-span-log}
@@ -619,6 +638,12 @@ Total coalescing span: 99950000000.0
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_notlog.pdf}
 	\caption{Correct Unary Span for Extend Haplotypes}
 	\label{fig:correct-unary-span}
+\end{figure}
+
+\begin{figure}
+%	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/avg_edge_count_over_iters_5e7_1000s.pdf}
+	\caption{The average number of edges for an extended tree sequence per iteration of the extend haplotypes algorithm.}
+	\label{fig:edges-per-iteration}
 \end{figure}
 
 % (AVA)
@@ -644,6 +669,22 @@ Total coalescing span: 99950000000.0
 %
 %With tsinfer: (1) simulate and tsinfer; (2) do the above either with or without simplifying the tsinfer'ed trees.
 %(but also take into account that there's wrong stuff in tsinfer'ed tree: look at whether it reduces discrepancy!)
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.9\linewidth]{newplots_wo_ee/discrepancy_over_sample_5e7_new.pdf}
+		\caption{Left: Discrepancy \newline Right: True Proportion }
+	\end{center}
+	\label{fig:discrepancy-over-sample}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.9\linewidth]{newplots_wo_ee/discrepancy_over_seqlen_1000s_new_5e7.pdf}
+		\caption{Left: Discrepancy \newline Right: True Proportion}
+	\end{center}
+	\label{fig:discrepancy-over-seqlen}
+\end{figure}
 
 \begin{figure}
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/SL_vs_Num_edges_subplot.pdf}
