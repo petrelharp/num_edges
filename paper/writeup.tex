@@ -23,11 +23,14 @@
 \renewcommand{\P}{\mathbb{P}}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\T}{\mathbb{T}}
+\newcommand{\ind}{\mathbf{1}}
 \newcommand{\tn}{\textnormal}
 \newcommand{\ov}{\overline}
 \newcommand{\tskit}{\texttt{tskit}}
-\newcommand{\comment}[1]{{\color{violet} \it #1}}
 \newcommand{\argmax}{\operatorname{argmax}}
+\newcommand{\dis}{\operatorname{dis}}
+\newcommand{\agree}{\operatorname{agree}}
+\newcommand{\comment}[1]{{\color{violet} \it #1}}
 
 \newcommand{\algorithmref}[2][]{%
 	\hyperref[{#2}]{%
@@ -70,11 +73,12 @@
 \author[$\dagger$]{Halley Fritze}
 \author[$\ddagger$]{Jerome Kelleher}
 \author[$\dagger$]{Nathaniel Pope}
-\author[$\ast$,$\dagger$,1]{Peter Ralph}
+\author[$\ast$,$\dagger$,S]{Peter Ralph}
 
 \affil[$\ast$]{Institute of Evolution and Ecology and Department of Biology, University of Oregon, Eugene, Oregon}
 \affil[$\dagger$]{Department of Mathematics, University of Oregon, Eugene, Oregon}
 \affil[$\ddagger$]{Big Data Institute, Li Ka Shing Centre for Health Information and Discovery, University of Oxford}
+\affil[$\S$]{Department of Data Science, University of Oregon, Eugene, Oregon}
 
 
 \keywords{genealogy, tree sequence, haplotypes}
@@ -183,23 +187,26 @@ There has been substantial recent progress
 in the problem of ``ARG inference'',
 which seeks to infer (portions of) the ``ancestral recombination graph'' (or, ARG)
 that describes how a set of genotypes samples are related to each other
-at each position of the genome.
-For reviews of this progress, see CITE CITE CITE.
-Often such methods focus on the sequence of ``marginal trees'',
+at each position of the genome \citep{XXX}.
+One way of viewing the ARG is as a sequence of ``marginal trees'',
 i.e., the genealogical trees that describe how each portion of the genome
 was inherited by the focal genomes.
-For instance, the ``succinct tree sequence'',
+This is reflected in methodology of some ARG inference methods \citep[e.g.,][]{Relate},
+in metrics used to assess inference accuracy \citep{XXX},
+as well as in basic terminology.
+For instance, 
+the ``succinct tree sequence'',
 introduced by \citet{kelleher2016efficient},
 is a common format for describing these inferred ARGs,
 and is seeing wide use thanks in part to its efficiency and accompanying reliable toolkit,
-\tskit (CITE).
+\tskit \citep{XXX}.
 
 However, the ARG is emphatically not merely a sequence of trees:
-since each segment of an ancestor's genome that has been inherited by the focal genomes
-may extend over a portion of the genome over which there are many distinct trees,
-a single ancestor should usually be represented by nodes in many distinct trees.
-In other words, one way to view an ARG is as a sequence of trees in which nodes may be shared across many trees,
-but another way to view the ARG is as a set of relationships between segments of ancestral haplotypes.
+viewed another way, it describes inheritance relationships between ancestral haplotypes.
+These two points of view are related because a single haplotype
+may extend over many marginal trees;
+in other words, the internal nodes in the trees are labeled, and many of these labels
+are shared between adjacent trees.
 
 Another reason we tend to focus on the trees is that
 much of our intuition about inference of relationships from genomic data
@@ -208,10 +215,51 @@ Indeed, all methods might very roughly be summarized as
 ``more similar sequences are more closely related''.
 For instance, two sequences that share a drerived mutation
 are (probably) more closely related over some span of genome surrounding the location where the mutation occurs.
-\citet{fisher} pointed out that not only mutations
+It has long been observed 
+that not only mutations
 but also the ``junctions'' between distinct haplotypes,
 if they could be somehow identified,
-would be inherited as Mendelian markers.
+would be inherited as Mendelian markers
+\citet{fisher1954fuller,chapman2003model}.
+In more modern terminology, 
+even in the absence of new mutations,
+recombination between distinct haplotypes can create a novel haplotype
+whose relationships and origination time could be inferred.
+
+Haplotype identity has been relatively overlooked in the literature on ARG inference so far --
+all metrics that have been used so far to measure accuracy of inferred ARGs
+depend only on the sequence of marginal trees,
+not on sharing of ancestral haplotype identities between them.
+Suppose two methods are used to infer ARGs from the same set of genotyped samples.
+Although both ARGs describes relationships between many haplotypes,
+only those haplotypes that represent the focal set of genotyped samples
+can be unambiguously said to represent the same thing in both.
+So, most metrics only describe these relationships,
+which ignores the additional information carried by the structure of other haplotypes.
+For instance, \citet{XXX} compared true and inferred ARGs
+using average XXX distance between trees across a regular sequence of genomic positions,
+using sampled genotypes as labels,
+while \citet{brandt2022evaluation} compared times to most recent common ancestor
+between pairs of sampled genomes.
+Neither is affected by shared haplotype structure -
+two ARGs could be identiical by either measure
+but have completely different identity by descent (IBD) segment structure
+(as defined in the context of the ARG, \citep{XXX}).
+
+In this paper, we study various aspects of haplotype identity in ARGs.
+First, we describe a deterministic algorithm that
+extends the span over which ancestral haplotypes extend
+using the principle that intermediate nodes in inheritance paths
+should remain unchanged when possible.
+These extended ancestral haplotypes manifest as unary nodes in the marginal trees.
+To quantify how accurate the new information is,
+we define and describe how to compute new measures of (dis-)agreement between ARGs
+that are motivated by the XXX distance between trees
+but account for haplotype identity.
+These measures show that the vast majority of these extended haplotypes are correct,
+and that substantial information about haplotypes is contained in these nodes
+in inferred trees as well.
+
 
 \subsection{Motivation and statement of problem}
 
@@ -219,7 +267,7 @@ would be inherited as Mendelian markers.
 % * minimize number of edges
 % * gives extra info about shared haplotypes, reduces number of ancestral paths
 
-Consider the (small portion) of a hypothetical tree sequence in Figure~\ref{fig:conceptual}A.
+Consider the (small portion) of a hypothetical tree sequence in \figref{fig:conceptual}A.
 On the first portion of the genome (left-hand tree), the sample nodes (labeled 0, 1, and 2)
 coalesce into a small subtree: 1 and 2 find a common ancestor in ancestral node 3,
 which finds a common ancestor with node 0 in ancestral node 4.
@@ -227,7 +275,7 @@ On the next portion of the genome (right-hand tree), sample node 2 has a differe
 This seems reasonable, and a method that infers trees separately on each portion of the genome
 could not be expected to produce anything different.
 However, things change once we think about what this implies about haplotype inheritance.
-Figure~\ref{fig:conceptual}B shows the implied inheritance of haplotypes,
+\figref{fig:conceptual}B shows the implied inheritance of haplotypes,
 with the haplotypes carried by 4 to the left and right of the recombination breakpoint labeled $L$ and $R$.
 Here, sample node 2 has inherited the chunk of haplotype labeled $L$ from ancestral node 4 via 3,
 and the haplotype to the right of this from some other node (and so doesn't carry haplotype $R$).
@@ -237,16 +285,26 @@ This implies -- if taken literally -- that there must have been a recombination 
 at some point between node 1 and node 4 that separated the $L$ and $R$ haplotypes,
 and then these two ancestral (and nonoverlapping) haplotypes coalesced together in ancestral node 4.
 Although this is possible, it seems unlikely --
-a more parsimonious explanation is depicted in Figure~\ref{fig:conceptual}C,
+a more parsimonious explanation is depicted in \figref{fig:conceptual}C,
 in which sample node 1 inherits the entire $LR$ haplotype from ancestral node 4 through node 3
 (and there is a recombination somewhere between node 3 and node 2).
 This implies that ancestral node 3 inherits from node 4 on the right-hand tree as well,
-which is depicted in Figure~\ref{fig:conceptual}D --
+which is depicted in \figref{fig:conceptual}D --
 and so node 3 has become unary in this tree.
 Note that the more parsimonious tree sequence also includes fewer edges:
-the three distinct edges $4 \to 3$, $3 \to 1$, and $4 \to 1$ in Figure~\ref{fig:conceptual}B
+the three distinct edges $4 \to 3$, $3 \to 1$, and $4 \to 1$ in \figref{fig:conceptual}B
 have been reduced to the two edges
-$4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
+$4 \to 3$ and $3 \to 1$ in \figref{fig:conceptual}D.
+
+So, given the ARG shown in \figref{fig:conceptual}A\&B,
+it should be possible to extend the ancestral haplotype represented by node 3
+to obtain the ARG shown in \figref{fig:conceptual}C\&D,
+thus adding additional information to the ARG.
+This might be surprising,
+as intuition from phylogenetics suggests we can only infer
+information about the branching points in the tree, not intermediate (unary) nodes.
+The goal of this paper is to answer:
+How can we do this, and how accurate is the resulting inference?
 
 \begin{figure}
     \begin{center}
@@ -264,8 +322,6 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
         \label{fig:conceptual}
     }
 \end{figure}
-
-\section{Methods}
 
 %\subsection{Extend Edges}
 %	\comment{Should we keep a brief section about the original extend edges? If yes, some notes are below.}
@@ -290,43 +346,72 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 %    over a larger interval on the genome,
 %    and remove unnecessary edges in the process.
 
-\subsection{Extend Haplotypes}
+\section{Methods}
 
-% * description (HALLEY)
-% * proof of something:
-%     - arrives at a local minimum?
-%     - guess at typical reduction? (reduces edges by 1/3?)
-    We define a \textit{tree sequence}, denoted $\T$, 
-    as a tuple $\left(T_1,...,T_{|\T|}\right)$ of $|\T|$ trees with a sequence of points
-	$0 = a_0 \leq a_1 \leq \cdots < a_{|\T|} = L$.
-     Each $T_k$ is a tree describing genealogical relationships between samples
-     over a distinct portion of the genome $[a_{k-1}, a_k)$.
-    Given any tree sequence, our goal is to
-    identify areas of implied inheritance of haplotypes.
-    We do so by identifying paths in pairs of consecutive tree sequences
-    and merging them, given the correct condition.
-    For example, \figref{fig:extending_diagram}, if there exists paths neighboring trees which contain 
-    identical ancestor (parent) and descendant (child) nodes, 
-    we assume that there is implied coalescence of haplotypes between nodes, 
-    and we will extend the path's edges to the neighboring tree.
-     More generally, see \algorithmref{alg:hap}, for a pair of trees $T_k, T_{k+1}\in\mathbb{T}$,
-     to transition from tree $T_k$ to tree $T_{k+1}$ we identify the 
-     subforest of edges in $T_k$ that are removed to construct $T_{k+1}$
-     and the subforest of edges in $T_{k+1}$ which were added to construct 
-     $T_{k+1}$ from $T_k$. We call these subforests the out-forest and in-forest, respectively,
-     and denote them as $F_O$ and $F_O$.
-     For each edge $e \in F_O$ with child $c$,
-     we construct a path $p_c^{F_O}$ comprised of edges in the $F_O$ subforest.
-     If there exists an edge $e'\in F_I$ also with child $c$,
-     we construct path $p_c^{F_I}$ from edges in the $F_I$ subforest.
-     If there is a common node in both paths excluding $c$, ie. $(p_c^{F_O}\cap p_c^{F_I})\backslash \{c\}\neq\emptyset$, then there is a mergable path between both subforests. The merged path $\bar{p}_c = \hat{p}_c^{F_I} \cup \hat{p}^{F_O}$ is the union of both paths truncated ($\hat{p}$) at the common intersection node. We then insert $\bar{p}$ into $T_2$, postponing or deleting edges in its original in-forest $F_I$, see \figref{complicated_extending_diagram}. We perform this action across all consecutive pairs of tree sequences, going both forward and backward along the genome, until there are no more edges extended in this way.
+\subsection{Notation and terminology}
 
+We use work with the \emph{succinct tree sequence} representation of the ARG (henceforth, ``tree sequence''),
+to take advantage of the extensive, stable, and well-documented set of open-source tools
+available in \tskit{} \citep{tskit}.
+So, our terminology and notation follows \citet{ralph2020efficiently}.
+For our purposes here,
+a tree sequence $\T = (N, E)$ contains a set of \emph{nodes} $N$ 
+which represent ancestral segments of genome,
+and \emph{edges} $E$ which represent relationships between nodes over different regions of the genome.
+Each node $n \in N$ has a \emph{time} $t_n$,
+which is the amount of time in the past that the individual who carried that segment of genome lived.
+Each edge $e \in E$ describes inheritance between a parent node $p_e$ and child node $c_e$,
+over a segment of genome $[\ell_e, r_e)$.
+(The tree sequence includes substantially more information, including genotypes, but we will not use that in this paper.)
+Suppose that the unique elements of the set of left and right edge endpoints
+are $0 = a_0 < a_1 < \cdots < a_{n} = L$, where $L$ is the length of the genome.
+Using this information, one can construct the sequence of 
+trees $\left(T_1,...,T_{n}\right)$ that describe how the nodes are related to each other along the genome:
+each $T_k$ is a tree whose nodes are in $N$
+and that describes relationships on the half-open interval $[a_{k-1}, a_k)$.
+Not all nodes appear in each tree,
+and we say $n \in T_k$ for a node $n$ if the tree $T_k$ describes at least one parent-child relationship
+for node $n$.
+
+\subsection{An algorithm to extend haplotypes}
+
+% Description of algorithm
+Given a tree sequence, our goal is to
+identify areas of implied inheritance of haplotypes.
+Generalizing from \figref{fig:conceptual} (or \figref{fig:extending_diagram}?),
+we do this by identifying paths of inheritance that are shared across a sequence of marginal trees
+but for which some of the intermediate nodes are missing.
+Concretely, suppose that 
+if in tree $T_k$ there is a chain of inheritance
+$p \to u_1 \to \cdots \to u_m \to c$
+(where $a \to b$ denotes a parent-child relationship)
+and in tree $T_{k+1}$ there is a chain of inheritance
+$p \to v_1 \to \cdots \to v_n \to c$,
+where $\{u_i\}_{i=1}^m$ and $\{v_j\}_{j=1}^n$ are disjoint.
+This situation implies that $c$ inherited from $p$ over the entire interval $[a_{k-1}, a_{k+1})$,
+so it seems reasonable to assume that $c$ has inherited from $p$ \emph{along the same path} for that entire interval.
+In other words, the intermediate nodes $\{u_i\}$ should also lie on the path from $c$ to $p$ in tree $T_{k+1}$,
+and conversely the nodes $\{v_j\}$ should lie on that path in tree $T_k$.
+Of course, this does not always make sense --
+for instance, if $u_i$ is already represented somewhere else in $T_{k+1}$,
+or if $t_{u_i} = t_{v_j}$ for some $i$ and $j$.
+for which the intermediate nodes are not in the other tree
+So, we restrict our attention to pairs of such paths in adjacent trees
+for which
+$u_i \notin T_{k+1}$ for all $1 \le i \le m$,
+$v_j \notin T_k$ for all $1 \le j \le n$,
+and the times of the nodes $\{u_i\}$ and $\{v_j\}$ are unique.
+Call a pair of such paths \emph{mergeable}.
+So, the goal of our algorithm is to iterate over trees,
+identify mergeable pairs of paths,
+and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
+(We also extend $\{v_j\}$ to $T_k$, but on a backwards pass.)
 
 \begin{figure}[!ht]
 \begin{center}
 	\includegraphics[width=5in]{edge_extend_method.pdf}
 \end{center}
-\caption{\comment{Change figure to say Extend halplotypes}A visualization of the \textit{extend haplotypes} method. Given two neighboring trees $T_1$ and $T_2$, $F_O$ in the tree $T_1$ contains the edge $3\to 0$. Starting at $0$, there is a path of edges $0 \to 3 \to 4$. The tree $T_2$ has edge $4 \to 0$ in $F_I$, and so there exists path $0 to 4$. These two paths share common end points, $0$ and $4$, and so we will extend path $0 \to 3 \to 4$ onto tree $T_2$, hence removing the edge $4\to 0$.
+\caption{\comment{Change figure to say Extend halplotypes} A visualization of the \textit{extend haplotypes} method. Given two neighboring trees $T_1$ and $T_2$, $F_O$ in the tree $T_1$ contains the edge $3\to 0$. Starting at $0$, there is a path of edges $0 \to 3 \to 4$. The tree $T_2$ has edge $4 \to 0$ in $F_I$, and so there exists path $0 to 4$. These two paths share common end points, $0$ and $4$, and so we will extend path $0 \to 3 \to 4$ onto tree $T_2$, hence removing the edge $4\to 0$.
     \label{fig:extending_diagram}
 }
 \end{figure}
@@ -340,6 +425,53 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 	\label{fig:complicated_extending_diagram}
 \end{figure}
 
+A relatively efficient algorithm to do this is described in \algorithmref{alg:extend}, 
+and implemented in \tskit{} as \texttt{extend\_haplotypes}.
+The algorithm considers each tree transition from $T_k$ to $T_{k+1}$ in turn, updating its internal state
+(which includes possibly modifying $T_k$) as it goes.
+Suppose we are at the transition from tree $T_k$ to tree $T_{k+1}$,
+which is done by first removing a set of edges $O$
+and then adding another set of edges $I$.
+$O$ defines a sub-forest $F_O$ of $T_k$,
+and $I$ defines a sub-forest $F_I$ of $T_{k+1}$.
+The key step in the algorithm is to determine whether the pair of paths
+that terminate in a given node in two adjacent trees are mergeable,
+\algorithmref{alg:mergeable}, which works as follows.
+If a pair of paths is mergeable,
+then the edges of the two paths must lie in $O$ and $I$, respectively.
+Suppose an edge in $O$ has child $c$.
+To see if $c$ is the base of a pair of mergeable paths,
+the algorithm traverses up from $c$ in both $F_O$ and $F_I$;
+terminating if a node in the other tree is found
+(i.e., if the node traversed in $F_O$ is in $T_{k+1}$ or if the node traversed in $F_I$ is in $T_k$)
+or if a pair of traversed nodes have the same time.
+If these two traversals end in the same node $p$, the paths are mergeable.
+Iterating over all edges in $O$ will thus find all mergeable pairs of paths.
+There is often more than one pair of mergeable paths in a tree transition;
+so, the algorithm merges pairs of mergeable paths,
+starting with pairs that add the smallest number of new edges,
+until no more are found.
+\comment{Maybe we need to highlight in a figure how new edges can be added.}
+
+\algorithmref{alg:extend} simplifies the algorithm in several ways --
+for instance, the bookeeping required to keep track of $T_k$ and $T_{k+1}$ is omitted.
+Furthermore, as described the algorithm does one left-to-right pass over the tree sequence;
+in practice we do repeated passes in both directions until no changes can be made.
+The main step that is omitted is a description of the \texttt{merge} operation,
+which performs the actual extending of haplotypes.
+This algorithm is essentially the same as \texttt{mergeable} in \algorithmref{alg:mergeable},
+except with additional bookkeeping.
+Roughly speaking, the algorithm
+traverses up from the shared base node $c$,
+doing the appropriate operations to insert the nodes along the path found in $T_k$
+into the path in $T_{k+1}$.
+To do this, some edges that end at $a_k$ will be extended to end at $a_{k+1}$;
+some edges that begin at $a_k$ will be postponed to begin at $a_{k+1}$,
+and some entirely new edges may be added.
+Furthermore, the trees $T_k$ and $T_{k+1}$ (and corresponding forests $F_O$ and $F_I$)
+need to be updated.
+
+
 \begin{algorithm2e}[!ht]
 	\SetStartEndCondition{ }{}{}%
 	\SetKwProg{Fn}{def}{\string:}{}
@@ -351,123 +483,118 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 	\SetKw{Break}{break}
 	\newcommand\forcond{$i$ \KwTo\Range{$n$}}
 	\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
-	
-	\caption{Extends haplotypes across a tree sequence $TS$.}
-	\label{alg:hap}
-	
-	\SetKwFunction{ex}{Extend Paths}
-	\SetKwFunction{fp}{Find Paths}
+    \caption{
+        Given a node $c$, trees $T_O$ and $T_I$,
+        and sub-forests $F_O$ and $F_I$
+        such that removing $F_O$ and adding $F_I$ turns $T_O$ into $T_I$,
+        checks to see if the paths upwards from $c$ in $T_O$ and $T_I$ are mergeable.
+        If the paths are mergeable then this returns the number of new edges
+        that would be added by extending the path from $T_O$ to $T_I$;
+        otherwise, returns $\infty$.
+        Let $P_O[n]$ and $P_I[n]$ be the parents of node $n$
+        in the set of edges to be removed and added, respectively
+        (i.e., in $F_O$ and $F_I$).
+    }
+	\label{alg:mergeable}
+	\SetKwFunction{mergeable}{Mergeable}
 	\DontPrintSemicolon
-	\LinesNotNumbered
-	%\SetAlgoNoEnd
-	\input{A tree sequence $\T$}
-	\output{New tree sequence,$\T'$}
-	\BlankLine
-	\Fn{\fp (tree sequence $\T$, forwards = \tn{True})}{
-	{
-		\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
-		{\BlankLine
-			$\T = \left(T_{|\T|},..., T_1\right)$\;
-		}
-	}
-		\For{pairs $(T_k, T_{k+1})\in \T\times\T$}{
-		Compute subforests $F_O\subseteq T_k$ and $F_I\subseteq\in T_{k+1}$.\;
-		\For{edges $e$ in $F_O$}{
-			Let $c$ be child node.\;
-			$p_c^{F_O} = [c]$\;
-			$p_c^{F_I} = [c]$\;
-			$\bar{p}_c = []$ Path to be inserted\;
-			\While{$\exists f\in F_O$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))=0$}{
-				$p = \tn{parent}(f)$\;
-				Append $p$ to $p_c^{F_O}$\;
-				$c = p$\;
-			}
-			\While{$\exists f\in F_I$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))<3$}{
-				$p =\tn{parent}(f)$\;
-				Append $p$ to $p_c^{F_I}$\;
-				$c = p$\;
-			}
-			\If{($p_c^{F_O}\cap p_c^{F_I})\backslash\{c\}\neq\emptyset$}{
-				Merge paths up to intersection point\;
-				$\bar{p}_c = \hat{p}_c^{F_I} \cup \hat{p}^{F_I}_c$\;
-				and sort by node time.\;
-			}
-			Insert $\bar{p}_c$ into $T_{k+1}$\;		
-		}
-	}\;
-	Update $\T$.\;
-	\KwRet{$\T$}\;
-}
-\BlankLine						
-\Fn{\ex ($\T$)}{
-	$\T' \gets $ \fp($\T$, forwards =\tn{True})\;
-	$\T' \gets $ \fp($\T$, forwards = \tn{False})\;
-	\While{Number of edges in $\T$ $\neq$ Number of edges in $\T'$}{
-		$\T' \gets $ \fp($\T$, fowards=\tn{True})\;
-		$\T' \gets $ \fp($\T$, fowards=\tn{False})\;
-		
-	}
-	\KwRet{$\T'$}\;
-}
+    \Fn{\mergeable($c$, $T_O$, $T_I$)}{
+        $p_i = P_I[c]$\;
+        $t_i = t[p_i]$\;
+        $p_o = P_O[c]$\;
+        $t_o = t[p_o]$\;
+        $n_e = n = 0$\;
+        \While{\tn{True}}{
+            $y_i = (p_i \neq NULL)
+                \text{ and } (p_i \notin T_O)
+                \text{ and } (t_i < t_o)$ \;
+            $y_o = (p_o \neq NULL)
+                \text{ and } (p_o \notin T_I)
+                \text{ and } (t_o < t_i)$ \;
+            \If{not ($y_i$ or $y_o$)}{ \Break\; }
+            \eIf{$y_i$}{
+                \If{$P_I[c] \neq p_i$ and $P_O[c] \neq p_i$}{
+                    $n_e += 1$\;
+                }
+                $c = p_i$\;
+                $p_i = P_I[p_i]$\;
+                $t_i = (p_i = NULL) ? \infty : t[p_i]$\;
+            }{
+                \If{$P_I[c] \neq p_o$ and $P_O[c] \neq p_o$}{
+                    $n_e += 1$\;
+                }
+                $c = p_o$\;
+                $p_o = P_O[p_o]$\;
+                $t_o = (p_o = NULL) ? \infty : t[p_o]$\;
+                $n += 1$\;
+            }
+        }
+        \If{$n = 0$ or $p_i \neq p_o$ or $p_i = NULL$}{
+            $n_e = \infty$\;
+        }
+        \KwRet{$n_e$}\;
+    }
 \end{algorithm2e}
 
-%% Can most likely delete the extend-edges algorithm %%
-%\begin{algorithm2e}[!ht] 
-%	
-%\SetStartEndCondition{ }{}{}%
-%\SetKwProg{Fn}{def}{\string:}{}
-%\SetKwFunction{Range}{range}%%
-%\SetKw{KwTo}{in}
-%\SetKwFor{For}{for}{\string:}{}%
-%\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-%\SetKwFor{While}{while}{:}{fintq}%
-%\SetKw{Break}{break}
-%\newcommand\forcond{$i$ \KwTo\Range{$n$}}
-%\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
-%
-%\caption{Extends edges across a tree sequence $TS$.}
-%\label{alg:edge}
-%
-%\SetKwFunction{ex}{Extend Edges}
-%\SetKwFunction{fwd}{Extend}
-%\DontPrintSemicolon
-%\LinesNotNumbered
-%%\SetAlgoNoEnd
-%\input{A tree sequence $\T$}
-%\output{New tree sequence,$\T'$}
-%
-%\BlankLine 
-%
-%\Fn{\fwd (tree sequence $\T$, forwards = \tn{True})}{
-%{	
-%\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
-%{\BlankLine
-%	$\T = \left(T_{|\T|},..., T_1\right)$\;}
-%}
-%	\For{$T_k\in \T$}{
-%	Find all edge pairs $(e_1,e_2)$ such that $e_1 = a\to b$ and $e_2 = b\to c$ for some nodes $a,b,c$.\;
-%	\For{edges $f$ in $T_{k+1}$}{
-%		\If{$f = a \to c$ and $b$ is not in $T_{k+1}$}{
-%		Remove $f$ from $T_{k+1}$.\;
-%		Add $e_1$ and $e_2$ to $T_{k+1}$.\;
-%		Update $\T$.\;
-%	}
-%	}
-%}\;						
-%\KwRet{$\T$}\;
-%}
-%\BlankLine						
-%\Fn{\ex ($\T$, iter=100)}{
-%	\For{$*$ \KwTo \Range(iter)}{
-%		$\T' \gets \T$.\fwd(fowards=\tn{True})\;
-%		$\T' \gets \T$.\fwd(fowards=\tn{False})\;
-%		\If{Number of edges in $\T$ = Number of edges in $\T'$}{
-%			\Break\BlankLine}
-%		}
-%}
-%\KwRet{$\T'$}\;
-%\end{algorithm2e}
+\begin{algorithm2e}[!ht]
+	\SetStartEndCondition{ }{}{}%
+	\SetKwProg{Fn}{def}{\string:}{}
+	\SetKwFunction{Range}{range}%%
+	\SetKw{KwTo}{in}
+	\SetKwFor{For}{for}{\string:}{}%
+	\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+	\SetKwFor{While}{while}{:}{fintq}%
+	\SetKw{Break}{break}
+	\newcommand\forcond{$i$ \KwTo\Range{$n$}}
+	\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+    \caption{
+        Extend haplotypes.
+        \comment{TODO: include this in the previous algorithm?}
+    }
+	\label{alg:extend}
+	\SetKwFunction{mergeable}{Mergeable}
+	\SetKwFunction{merge}{Merge}
+	\SetKwFunction{extend}{ExtendHaplotypes}
+	\DontPrintSemicolon
+    \Fn{\extend($\T$)}{
+        \For{$k$ in $1 \ldots N$}{
+            $M = 0$\;
+            $M' = \infty$\;
+            \While{$M < \infty$}{
+                \For{$e \in O_k$}{
+                    $m$ = \mergeable($c_e$, $T_k$, $T_{k+1}$)\;
+                    \eIf{$m < M$}{
+                        \merge($c_e$, $T_k$, $T_{k+1}$)\;
+                    }{
+                        $M' = \min(m, M)$\;
+                    }
+                }
+                $M = M'$\;
+                $M' = \infty$\;
+            }
+        }
+    }
+\end{algorithm2e}
 
+Since the algorithm needs to take multiple passes over the tree sequence
+in each direction,
+an important practical quesiton for this algorithm is:
+how passes do we need to do?
+The algorithm is monotone (spans of ancestral nodes only increase),
+so it is guaranteed to require only a finite number of passes,
+but it is also not hard to construct pathalogical cases that require an arbitrary number of passes.
+\figref{fig:num_passes} shows empirical results from simulated tree sequences,
+which suggest that \comment{XXX TODO}.
+
+\begin{figure}[!ht]
+    \caption{
+        Number of edges in the tree sequence (vertical axis)
+        after each pass of the algorithm (number of passes on the horizontal axis),
+        for tree sequences with different numbers of samples (different lines).
+        \comment{TODO}
+        \label{fig:num_passes}
+    }
+\end{figure}
 
 %% Find counter example to global minimum.
 
@@ -478,43 +605,183 @@ $4 \to 3$ and $3 \to 1$ in Figure~\ref{fig:conceptual}D.
 % * fig: how add edges reduces discrepancy (RESULTS)
 %       - compare to tsinfer
 % * Show: how add edges reduces discrepancy (RESULTS)
-% * THINK of a way to asynchronously computing discrepancy (???)
 
-\par \comment{This needs work. Choose $n_1$ or $i$ for node not both. Do you want it through the perspective of TS or through nodes? You wording is mixed on this}
- Now with an algorithm in place
- we need a metric to discern
- if trees modified with extend edges
- in fact correctly infer haplotypes in our original tree sequence.
-  % Robinson-Foulds Paper: https://www.sciencedirect.com/science/article/abs/pii/0025556481900432?via%3Dihub 
- An immediate choice of metric would be the Robinson-Foulds metric \comment{CITE} which compares nodes between individual pairs of trees.
- However, in an effort to infer coalescent haplotypes, our function chooses to compare nodes
- across the entire genome. 
- \comment{something something something...}
- 
- Inspired by Robinson-Foulds we define a function, called a \textit{discrepancy function} (see \algorithmref{alg:disc}), on a pair of tree sequences $\T_1$, $\T_2$ of equal length $L$.
- Let $N_{T_1}$ and $N_{T_2}$ be the set of nodes on $\T_1$ respectively $\T_2$.
- For a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$, we define their \textit{discrepancy} as a difference in their total spans over the genome.
- Each node $n\in\T$ has a given position along the genome and time, 
- so we can write each node as a tuple $n = (t_n, L_n)$ with position $L_n\subset \left[0,L\right)$ and time $t_n\in \R^{\geq 0}$.
- Computing the discrepancy between a random pair of nodes is not helpful, 
- so we must first identify which pairs of nodes would be most identical to one another or a `best match'.
- These `best matching' nodes should be close in terms of time and have equal descendant sample sets,
- ie. $s(i) = s(j)$ where $s$ is the function to compute the descendant sample set of $n_1$.
- 
- To find a best match for each node $i\in N_{T_1}$ \comment{(Should I do this by mentioning clades?)}
- we compute the \textit{shared span} between node $i\in N_{T_1}$ and every node in $N_{T_2}$.
- Then, the \textit{shared span} between two tree sequences, denoted $ss(\T_1,\T_2)$, is a $|N_{T_1}|\times |N_{T_2}|$ matrix $A$
- where each entry $a_{ij}$ represents the shared span between a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$.
- If a pair $(i,j)$ has equal descendant sample sets, $s(i) = s(j)$
- then $a_{ij} = |L_i \cap L_j|$.
- If the pair does not have an equal descendant sample set then we set $a_{ij}=0$.
- Matrix $A$ determines the \textit{best match} for every node $i\in N_{T_1}$
- via looking at the maximum in row $i$, $\alpha_i = \max_{j\in N_{T_2}} a_{ij}$.
- If this maximum is not unique, we use time difference to determine the best match pair.
- We then define the \textit{discrepancy} between $\T_1$ and $\T_2$ as 
- one minus the proportion of sum of the shared spans divided by the total node span of $\T_1$.
- 
- We note that the discrepancy function is a metric for detecting non-similarity between two tree sequences. However, we note that this function is not a metric in the mathematical sense, as it is not symmetric, nor is it reflexive. For example, given a tree sequence $\T$ and its simplification $\mathbb{S}$ and $\T\neq\mathbb{S}$ we have $\operatorname{discrepancy}(\mathbb{S}, \T)=0$. Additionally, given \figref{fig:conceptual_discrepancy}, $\operatorname{discrepancy}(T1, T2) \neq \operatorname{discrepancy}(T2, T1)$ \comment{actually compute this. We may just do it in this section instead of the appendix?}
+If we begin with a tree sequence containing unary nodes,
+it is straightforward to remove the portions of each node's span on which it is unary,
+apply \algorithmref{alg:extend},
+and quantify how much node span was correctly or incorrectly added.
+However, we are also interested in whether \algorithmref{alg:extend}
+improves \emph{inferred} tree sequences.
+Since we are not aware of any current methods for measuring (dis)agreement between tree sequences
+that take into account haplotype identity,
+we define a measure of \emph{discrepancy} to quantify this.
+
+It is helpful to first describe what we compute in the simple case.
+\figref{fig:node-spans}A shows the spans for each node in three tree sequences:
+for each node, the top point is the total span in a ``true'' tree sequence
+that was simulated with \texttt{msprime} \citep{msprime}
+in a way that included spans over which nodes are unary in the output
+\comment{(using which option?)}.
+The bottom point is the span of the node after \emph{simplifying} the tree sequence
+\citep{kelleher2018efficient},
+which removes all unary nodes from all trees.
+\comment{Usually (?)} between the two is the span of the node after applying \algorithmref{alg:extend}
+to the simplified tree sequence.
+So, the difference between the middle and bottom points is the amount by which
+the span of that node has been extended.
+\figref{fig:node-spans}B \comment{TODO} shows how much of this span is incorrect:
+for each node, it gives the percent of the span after running \algorithmref{alg:extend}
+that is incorrect (i.e., not present in the original tree sequence).
+The values in these plots (perhaps summed over nodes)
+therefore quantify how much the ancestral haplotypes represented by each node
+were correctly, and incorrectly, extended.
+They also tell us how much of the relationships in the original tree sequence
+are represented in the result.
+
+Now suppose that instead of comparing two tree sequences with the same set of nodes,
+we wish to compare two tree sequence for which we know the sample nodes are the same
+but are not given an identification between nodes otherwise
+(as for instance with a true, simulated tree sequence and one inferred from its genotypes).
+\comment{should have introduced ``samples'' before this}
+Call the two tree sequence $T_1$ and $T_2$, which should have the same genome length
+and the same set of sample nodes.
+We would like to measure (a) how much of $T_1$ is found in $T_2$;
+(b) how much of $T_1$ is \emph{not} found in $T_2$; and
+(c) how much of $T_2$ is not found in $T_1$.
+(Think of these three quantities as the size of the intersection
+and two differences between the tree sequences,
+thought of vaguely as sets.)
+Roughly speaking, we first identify matching nodes
+as those whose sets of descendant samples agree for the largest span along the genome,
+and then compute for how much of their spans do their descendant samples agree (or not).
+
+Concretely, suppose that the two tree sequences have the same set of breakpoints
+between trees,
+so that $T_1^{(1)}, \ldots, T_N^{(1)}$ are the trees in $\T_1$
+and $T_1^{(2)}, \ldots, T_N^{(2)}$ are the trees in $\T_2$.
+For a node $n$ and tree $T$
+let $S(T, n)$ denote the set of samples that inherit from $n$ in $T$,
+and for a pair of nodes $n_1$ and $n_2$ with $n_1$ in $\T_1$ and $n_2$ in $\T_2$,
+define
+\begin{align*}
+    m(n_1, n_2)
+    =
+    \sum_{k=1}^N (a_k - a_{k-1}) \ind_{S(T^{(1)}_k(n_1) = S(T^{(2)}_k(n_2)} ,
+\end{align*}
+which is the total span over which the samples below $n_1$ in $\T_1$
+matches the samples below $n_2$ in $\T_2$.
+Also let
+\begin{align*}
+    s(\T, n) = \sum_{k=1}^N (a_k - a_{k-1}) \ind_{n \in T_k} ,
+\end{align*}
+the total span that node $n$ is present in the marginal trees.
+The \emph{agreement} between $\T_1$ and $\T_2$ is then defined to be
+\begin{align*}
+    \agree(\T_1, \T_2)
+    =
+    \max_{\beta:N_1 \to N_2} \sum_{n \in N_1} m(n, \beta(n)) ,
+\end{align*}
+where the maximum is over all mappings nodes in $\T_1$ to nodes in $\T_2$.
+(Note that multiple nodes in $\T_1$ may be mapped to the same node in $\T_2$,
+and that there may be no nodes in $\T_1$ that are mapped to some nodes in $\T_2$.)
+Since the maximum is independent over nodes, we may define for each node $n_1 \in \T_1$
+it's \emph{best matching node} in $\T_2$ as
+\begin{align*}
+    \alpha(n_1) = \argmax_{n_2 \in N_2} m(n_1, n_2) ,
+\end{align*}
+so that
+\begin{align*}
+    \agree(\T_1, \T_2)
+    =
+    \sum_{n \in N_1} m(n, \alpha(n)) .
+\end{align*}
+If the best-matching node is unique, we define $\alpha(n_1)$ to be the node in $T_2$
+out of those minimizing $m(n_1, n_2)$ that minimizes $|t^{(1)}_{n_1} - t^{(2)}_{n_2}|$
+(and if \emph{this} is not unique, we pick an arbitrary one) --
+however, this potential ambiguity does not affect the definition of $\agree(\T_1, \T_2)$.
+We then define the \emph{discrepancy} of $\T_1$ from $\T_2$ by
+\begin{align*}
+    \dis(\T_1, \T_2)
+    =
+    \sum_{n \in N_1} (s(\T_1, n) - m(n, \alpha(n))) ,
+\end{align*}
+which is the total span of all nodes in $\T_1$
+for which their descendant samples do \emph{not} match those of their best match in $\T_2$.
+
+Other authors \citep{XXX} have used
+an average Robinson-Foulds distance \citep{robinson1981comparison}
+as a measure of disagreement between tree sequences.
+This could be computed in a very similar way:
+instead of $m(n, \alpha(n))$ define
+\begin{align*}
+    m'(n, \T_2) = \sum_{k=1}^N (a_k - a_{k-1}) \ind_{\exists n_2: s(T^{(2)}_k, n_2) = s(T^{(1)}_k, n)} ,
+\end{align*}
+the total span over which there is \emph{some} node in $\T_2$ whose set of descendant samples
+matches $s(T_1,n)$.
+Then the average Robinson-Foulds distance (averaged over locations in the genome)
+is
+\begin{align*}
+    \frac{1}{L} \left( \sum_{n_1 \in N_1} m'(n_1, \T_2)  + \sum_{n_2 \in N_2} m'(n_2, \T_1) \right).
+\end{align*}
+\comment{Check this!}
+In other words, we require a node in $\T_1$ to match the \emph{same} node in $\T_2$
+across all trees, but average Robinson-Foulds distance allows a different node to match
+on each tree.
+The other differences are that \emph{average} Rbonson-Foulds distance
+normalizes by sequence length, and is symmetrized.
+Robinson-Foulds distance between two trees
+was defined by \citet{robinson1981comparison}
+to the minimum number of edge contraction/expansion operations needed to move
+from one tree to the other
+(which they then show is equal to the number of edges that induce different splits on the labels).
+It would be interesting to define a similar metric on tree sequences,
+perhaps using the Subgraph-Prune-and-Regraft moves of \citet{singer}.
+
+The discrepancy $\dis(\T_1, \T_2)$ measures disagreement between \emph{topologies},
+but not times.
+If the tree sequence is dated, we can naturally use the ``best match'' $\alpha$
+to also compare times,
+for instance by returning the weighted root-mean-squared error on inferred times as
+\begin{align*}
+    \text{wRMSE}_t(\T_1, \T_2)
+    = \sqrt{\frac{
+        \sum_{n \in N_1} s(\T_1,n) \left(t^{(1)}_n - t^{(2)}_{\alpha(n)} \right)^2 
+    }{
+        \sum_{n \in N_1} s(\T_1,n)
+    } } .
+\end{align*}
+The mean is computed weighting by node span, so that a dating error
+is more serious for a node with a longer span.
+\comment{TODO: change the definition?
+In practice, time estimation errors seem to be closer to homoskedastic on a log scale,
+so this would probably be more informative if errors are computed on the log sale.}
+
+\comment{PREVIOUS VERSION: retrieve bits from below?}
+
+Inspired by Robinson-Foulds we define a function, called a \textit{discrepancy function} (see \algorithmref{alg:disc}), on a pair of tree sequences $\T_1$, $\T_2$ of equal length $L$.
+Let $N_{T_1}$ and $N_{T_2}$ be the set of nodes on $\T_1$ respectively $\T_2$.
+For a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$, we define their \textit{discrepancy} as a difference in their total spans over the genome.
+Each node $n\in\T$ has a given position along the genome and time, 
+so we can write each node as a tuple $n = (t_n, L_n)$ with position $L_n\subset \left[0,L\right)$ and time $t_n\in \R^{\geq 0}$.
+Computing the discrepancy between a random pair of nodes is not helpful, 
+so we must first identify which pairs of nodes would be most identical to one another or a `best match'.
+These `best matching' nodes should be close in terms of time and have equal descendant sample sets,
+ie. $s(i) = s(j)$ where $s$ is the function to compute the descendant sample set of $n_1$.
+
+To find a best match for each node $i\in N_{T_1}$ \comment{(Should I do this by mentioning clades?)}
+we compute the \textit{shared span} between node $i\in N_{T_1}$ and every node in $N_{T_2}$.
+Then, the \textit{shared span} between two tree sequences, denoted $ss(\T_1,\T_2)$, is a $|N_{T_1}|\times |N_{T_2}|$ matrix $A$
+where each entry $a_{ij}$ represents the shared span between a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$.
+If a pair $(i,j)$ has equal descendant sample sets, $s(i) = s(j)$
+then $a_{ij} = |L_i \cap L_j|$.
+If the pair does not have an equal descendant sample set then we set $a_{ij}=0$.
+Matrix $A$ determines the \textit{best match} for every node $i\in N_{T_1}$
+via looking at the maximum in row $i$, $\alpha_i = \max_{j\in N_{T_2}} a_{ij}$.
+If this maximum is not unique, we use time difference to determine the best match pair.
+We then define the \textit{discrepancy} between $\T_1$ and $\T_2$ as 
+one minus the proportion of sum of the shared spans divided by the total node span of $\T_1$.
+
+We note that the discrepancy function is a metric for detecting non-similarity between two tree sequences. However, we note that this function is not a metric in the mathematical sense, as it is not symmetric, nor is it reflexive. For example, given a tree sequence $\T$ and its simplification $\mathbb{S}$ and $\T\neq\mathbb{S}$ we have $\operatorname{discrepancy}(\mathbb{S}, \T)=0$. Additionally, given \figref{fig:conceptual_discrepancy}, $\operatorname{discrepancy}(T1, T2) \neq \operatorname{discrepancy}(T2, T1)$ \comment{actually compute this. We may just do it in this section instead of the appendix?}
  
 \comment{Do we want a complete walkthrough of Figure 3? Could be useful in an appendix} 
 
@@ -600,6 +867,43 @@ $$true\ proportion = \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname(tr)\left(
 %% 4. Discuss figures about total edge span added in both recombination and gene conversion events
 %% 5. Discuss the figures on edge reduction (include #3 part 1.)
 
+\subsection{Tree sequence compression and computation}
+
+In the simple example in \figref{fig:extending_diagram},
+extending haplotypes replaces three edges
+($0 \to 3$ and $3 \to 4$ on the left tree, and $0 \to 4$ on the right tree)
+by two edges ($0 \to 3$ and $3 \to 4$ on both trees).
+If all edge endpoints were unique, then we'd expect \emph{every} edge to be extendable
+on one of its ends
+(except those pendant to the root and some of those adjacent to chromosome ends),
+leading to a reduction in number of edges by 1/3.
+Experiments with an earlier version of the algorithm showed that
+if we only extend haplotypes on ``paths of length 1'' like this, 
+then this is achieved for long sequences.
+It is possible for \algorithmref{alg:extend} to add edges,
+but we still expect the number of edges to decrease by more than 1/3.
+Indeed,
+\figref{fig:num_edges} shows that \algorithmref{alg:extend} nearly cuts the number of edges
+in half, as long as the sequence is long enough.
+
+One might expect that a reduction in edges would also lead to a reduction in computation time
+(for instance, of the class of statistics described in \citet{ralph2020efficiently}.
+This turns out not to be the case, as shown in \figref{fig:num_edges}.
+The reason for this is clear if we
+return to the algorithms in \citet{ralph2020efficiently}:
+each edge added or removed requires an update
+to the state of the parent node \emph{and every node above it in the tree}.
+So, even if an edge extends for a long segment of genome,
+something has to happen to it every time the subtree below it changes.
+Extending haplotypes does not change at all the locations in the tree affected by subtree changes.
+\comment{If the increase in computation time holds up:}
+In fact, introducing unary nodes to branches
+\emph{increases} the distance from a typical node up to the root,
+and so increases the work required (and also computation time, as seen in \figref{fig:num_edges}).
+
+
+\subsection{Reconstructing haplotypes of true trees}
+
 When observing our algorithm, we have to observe that for general tree sequences that have been initially simplified, there are portions of the tree sequence that the extend haplotypes method will not be able to recover. We call these portions \textit{trapped unary spans}. Most of these spans occur in the oldest portions of the ancestry near roots of the tree sequence. Thus we must disregard these unary spans when observing the effects of extend haplotypes.
 First we have to determine how much of a tree sequence is trapped?
 For a tree sequence $\T$ simulated in `msprime` with genomic length $5\times 10^7$ with 1000 samples, recombination rate $10^{-8}$ and population size $10^4$, we found that trapped unary spans represented 49\%.
@@ -622,9 +926,16 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 %Total trapped unary span: 0.0 (0.0\%)
 %Total coalescing span: 99950000000.0
 
+\subsection{Extending haplotypes in inferred trees}
+
 \begin{figure}[bht]
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/node_spans_wo_trapped_unary_regions.pdf}
-	\caption{Node spans of simulated tree sequence (blue), simplified tree sequence (green), and extended tree sequence (red).}
+	\caption{
+        Node spans of simulated tree sequence (blue), simplified tree sequence (green), and extended tree sequence (red).
+        \comment{TODO: nodes should be in the same order in all three lines,
+        using the ordering from the true tree sequence.}
+        \comment{TODO: add plot with percent wrongly added by node?}
+    }
 	\label{fig:node-spans}
 \end{figure}
 
@@ -687,12 +998,17 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 \end{figure}
 
 \begin{figure}
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/num_trees_vs_Num_edges_subplot.pdf}
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/edge_reduction_prop_vs_SL.pdf}
+    \includegraphics[width=0.9\linewidth]{newplots_wo_ee/edge_reduction_prop_vs_SL}
+    \includegraphics{newplots_wo_ee/simp_vs_ext_tajimasD_runtime_SL}
     \caption{
-        Maybe: summaries of lengths and/or numbers of correctly and incorrectly added edges?
-        (See notebook.)
-        \label{fig:results_edges}
+        \textbf{(A)} Proportion reduction in number of edges
+        achieved by extending haplotypes (\algorithmref{alg:extend})
+        on tree sequences of various sequence lengths and numbers of samples.
+        See Supplementary \figref{sfig:num_edges} for the raw number of edges.
+        \textbf{(B)} Runtime for computation of Tajima's $D$
+        (using the \tskit method) on the same tree sequences as in (A).
+        \comment{TODO: remove shortest lengths and double-check runtime.}
+        \label{fig:num_edges}
     }
 \end{figure}
 
@@ -732,16 +1048,174 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 
 TODO
 
+In this paper, we have taken a ``historical'' view of the ARG --
+i.e., that each aspect of an inferred ARG is intended to represent
+a portion of some particular historical genome
+(for instance, the MRCA of some set of sampled genomes).
+Furthermore, \figref{fig:conceptual}A\&B implicitly takes the position
+that relationships \emph{not} depicted in the ARG are implied to not exist.
+This is slighly disingenuous -- an alternative and more accurate interpetation
+of the ARG of \figref{fig:conceptual}A\&B would be that we do not know
+how node 2 inherited from node 4 on the right-hand interval,
+rather than saying that it specifically did not pass through node 3.
+The ``simplification'' algorithm of \citet{XXX},
+or the Hudson algorithm for coalescent simulation
+as implemented in msprime \citep{kelleher2016efficient},
+each specifically discard information about any such ``non-coalescent'' nodes;
+so the correct interpretation of these ARGs is a lack of knowledge.
+In this paper, we have shown that this information can be largely replaced.
+
+
 \bibliography{references}
 
 \appendix
-%
-%\begin{figure}
-%    \caption{
-%        Supplementary figure: runtime of discrepancy function as a function of number of trees
-%        (which we modulate by changing sequence length).
-%        \label{fig:speed_discrepancy}
-%    }
-%\end{figure}
+
+\begin{figure}
+    \caption{
+        Supplementary figure: runtime of discrepancy function as a function of number of trees
+        (which we modulate by changing sequence length).
+        \label{fig:speed_discrepancy}
+    }
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/num_trees_vs_Num_edges_subplot.pdf}
+    \caption{
+        Raw numbers of edges before and after extending haplotypes
+        for the tree sequences shown in \figref{fig:num_edges}
+        \label{sfig:num_edges}
+    }
+\end{figure}
+
+\begin{algorithm2e}[!ht]
+	\SetStartEndCondition{ }{}{}%
+	\SetKwProg{Fn}{def}{\string:}{}
+	\SetKwFunction{Range}{range}%%
+	\SetKw{KwTo}{in}
+	\SetKwFor{For}{for}{\string:}{}%
+	\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+	\SetKwFor{While}{while}{:}{fintq}%
+	\SetKw{Break}{break}
+	\newcommand\forcond{$i$ \KwTo\Range{$n$}}
+	\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+	
+	\caption{Extends haplotypes across a tree sequence $TS$.
+    \comment{I think we can remove this now?}}
+	\label{alg:hap}
+	
+	\SetKwFunction{ex}{Extend Paths}
+	\SetKwFunction{fp}{Find Paths}
+	\DontPrintSemicolon
+	\LinesNotNumbered
+	%\SetAlgoNoEnd
+	\input{A tree sequence $\T$}
+	\output{New tree sequence,$\T'$}
+	\BlankLine
+	\Fn{\fp (tree sequence $\T$, forwards = \tn{True})}{
+	{
+		\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
+		{\BlankLine
+			$\T = \left(T_{|\T|},..., T_1\right)$\;
+		}
+	}
+		\For{pairs $(T_k, T_{k+1})\in \T\times\T$}{
+		Compute subforests $F_O\subseteq T_k$ and $F_I\subseteq\in T_{k+1}$.\;
+		\For{edges $e$ in $F_O$}{
+			Let $c$ be child node.\;
+			$p_c^{F_O} = [c]$\;
+			$p_c^{F_I} = [c]$\;
+			$\bar{p}_c = []$ Path to be inserted\;
+			\While{$\exists f\in F_O$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))=0$}{
+				$p = \tn{parent}(f)$\;
+				Append $p$ to $p_c^{F_O}$\;
+				$c = p$\;
+			}
+			\While{$\exists f\in F_I$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))<3$}{
+				$p =\tn{parent}(f)$\;
+				Append $p$ to $p_c^{F_I}$\;
+				$c = p$\;
+			}
+			\If{($p_c^{F_O}\cap p_c^{F_I})\backslash\{c\}\neq\emptyset$}{
+				Merge paths up to intersection point\;
+				$\bar{p}_c = \hat{p}_c^{F_I} \cup \hat{p}^{F_I}_c$\;
+				and sort by node time.\;
+			}
+			Insert $\bar{p}_c$ into $T_{k+1}$\;		
+		}
+	}\;
+	Update $\T$.\;
+	\KwRet{$\T$}\;
+}
+\BlankLine						
+\Fn{\ex ($\T$)}{
+	$\T' \gets $ \fp($\T$, forwards =\tn{True})\;
+	$\T' \gets $ \fp($\T$, forwards = \tn{False})\;
+	\While{Number of edges in $\T$ $\neq$ Number of edges in $\T'$}{
+		$\T' \gets $ \fp($\T$, fowards=\tn{True})\;
+		$\T' \gets $ \fp($\T$, fowards=\tn{False})\;
+		
+	}
+	\KwRet{$\T'$}\;
+}
+\end{algorithm2e}
+
+% Can most likely delete the extend-edges algorithm %%
+\begin{algorithm2e}[!ht] 
+	
+\SetStartEndCondition{ }{}{}%
+\SetKwProg{Fn}{def}{\string:}{}
+\SetKwFunction{Range}{range}%%
+\SetKw{KwTo}{in}
+\SetKwFor{For}{for}{\string:}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+\SetKwFor{While}{while}{:}{fintq}%
+\SetKw{Break}{break}
+\newcommand\forcond{$i$ \KwTo\Range{$n$}}
+\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+
+\caption{Extends edges across a tree sequence $TS$. 
+\comment{Can be removed, probably -- unless this seems a lot simpler?}}
+\label{alg:edge}
+
+\SetKwFunction{ex}{Extend Edges}
+\SetKwFunction{fwd}{Extend}
+\DontPrintSemicolon
+\LinesNotNumbered
+%\SetAlgoNoEnd
+\input{A tree sequence $\T$}
+\output{New tree sequence,$\T'$}
+
+\BlankLine 
+
+\Fn{\fwd (tree sequence $\T$, forwards = \tn{True})}{
+{	
+\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
+{\BlankLine
+	$\T = \left(T_{|\T|},..., T_1\right)$\;}
+}
+	\For{$T_k\in \T$}{
+	Find all edge pairs $(e_1,e_2)$ such that $e_1 = a\to b$ and $e_2 = b\to c$ for some nodes $a,b,c$.\;
+	\For{edges $f$ in $T_{k+1}$}{
+		\If{$f = a \to c$ and $b$ is not in $T_{k+1}$}{
+		Remove $f$ from $T_{k+1}$.\;
+		Add $e_1$ and $e_2$ to $T_{k+1}$.\;
+		Update $\T$.\;
+	}
+	}
+}\;						
+\KwRet{$\T$}\;
+}
+\BlankLine						
+\Fn{\ex ($\T$, iter=100)}{
+	\For{$*$ \KwTo \Range(iter)}{
+		$\T' \gets \T$.\fwd(fowards=\tn{True})\;
+		$\T' \gets \T$.\fwd(fowards=\tn{False})\;
+		\If{Number of edges in $\T$ = Number of edges in $\T'$}{
+			\Break\BlankLine}
+		}
+}
+\KwRet{$\T'$}\;
+\end{algorithm2e}
+
 
 \end{document}

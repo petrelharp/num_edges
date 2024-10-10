@@ -1,0 +1,28 @@
+\begin{thebibliography}{4}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{{\sc Brandt} {\em et~al.\/}(2022){\sc Brandt}, {\sc Wei}, {\sc Deng},
+  {\sc Vaughn} and {\sc Nielsen}}]{brandt2022evaluation}
+{\sc Brandt, D.}, {\sc X.~Wei}, {\sc Y.~Deng}, {\sc A.~H. Vaughn}, and {\sc
+  R.~Nielsen}, 2022 Evaluation of methods for estimating coalescence times
+  using ancestral recombination graphs.
+\newblock Genetics {\bf 221}: iyac044.
+
+\bibitem[{{\sc Kelleher} {\em et~al.\/}(2016){\sc Kelleher}, {\sc Etheridge}
+  and {\sc McVean}}]{kelleher2016efficient}
+{\sc Kelleher, J.}, {\sc A.~M. Etheridge}, and {\sc G.~McVean}, 2016 Efficient
+  coalescent simulation and genealogical analysis for large sample sizes.
+\newblock PLoS computational biology {\bf 12}: e1004842.
+
+\bibitem[{{\sc Ralph} {\em et~al.\/}(2020){\sc Ralph}, {\sc Thornton} and {\sc
+  Kelleher}}]{ralph2020efficiently}
+{\sc Ralph, P.}, {\sc K.~Thornton}, and {\sc J.~Kelleher}, 2020 Efficiently
+  summarizing relationships in large samples: A general duality between
+  statistics of genealogies and genomes.
+\newblock Genetics : genetics.303253.2020.
+
+\bibitem[{{\sc Robinson} and {\sc Foulds}(1981)}]{robinson1981comparison}
+{\sc Robinson, D.}, and {\sc L.~Foulds}, 1981 Comparison of phylogenetic trees.
+\newblock Mathematical Biosciences {\bf 53}: 131--147.
+
+\end{thebibliography}
