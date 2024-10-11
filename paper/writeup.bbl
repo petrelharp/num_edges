@@ -1,4 +1,4 @@
-\begin{thebibliography}{4}
+\begin{thebibliography}{10}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
 \bibitem[{{\sc Brandt} {\em et~al.\/}(2022){\sc Brandt}, {\sc Wei}, {\sc Deng},
@@ -8,11 +8,44 @@
   using ancestral recombination graphs.
 \newblock Genetics {\bf 221}: iyac044.
 
+\bibitem[{{\sc Chapman} and {\sc Thompson}(2003)}]{chapman2003model}
+{\sc Chapman, N.~H.}, and {\sc E.~A. Thompson}, 2003 A model for the length of
+  tracts of identity by descent in finite random mating populations.
+\newblock Theor Popul Biol {\bf 64}: 141--150.
+
+\bibitem[{{\sc Deng} {\em et~al.\/}(2024){\sc Deng}, {\sc Nielsen} and {\sc
+  Song}}]{deng2024robust}
+{\sc Deng, Y.}, {\sc R.~Nielsen}, and {\sc Y.~S. Song}, 2024 Robust and
+  accurate bayesian inference of genome-wide genealogies for large samples.
+\newblock bioRxiv .
+
+\bibitem[{{\sc Fisher}(1954)}]{fisher1954fuller}
+{\sc Fisher, R.~A.}, 1954 A fuller theory of `junctions' in inbreeding.
+\newblock Heredity {\bf 8}: 187--197.
+
 \bibitem[{{\sc Kelleher} {\em et~al.\/}(2016){\sc Kelleher}, {\sc Etheridge}
   and {\sc McVean}}]{kelleher2016efficient}
 {\sc Kelleher, J.}, {\sc A.~M. Etheridge}, and {\sc G.~McVean}, 2016 Efficient
   coalescent simulation and genealogical analysis for large sample sizes.
 \newblock PLoS computational biology {\bf 12}: e1004842.
+
+\bibitem[{{\sc Kelleher} {\em et~al.\/}(2024){\sc Kelleher}, {\sc Jeffery},
+  {\sc Wong}, {\sc Ralph}, {\sc Tsambos} {\em et~al.\/}}]{tskit}
+{\sc Kelleher, J.}, {\sc B.~Jeffery}, {\sc Y.~Wong}, {\sc P.~Ralph}, {\sc
+  G.~Tsambos}, {\sc S.~H. Zhan}, {\sc K.~R. Thornton}, {\sc D.~Goldstein}, {\sc
+  A.~W. Wohns}, {\sc D.~Mbuli-Robertson}, {\sc lkirk}, {\sc pyup.io bot}, {\sc
+  G.~Gower}, {\sc H.~van Kemenade}, {\sc M.~F. Rodrigues}, {\sc B.~Zhang}, {\sc
+  G.~Bisschop}, {\sc C.~Weiss}, {\sc D.~Palmer}, {\sc C.~Ellerman}, {\sc
+  J.~Guez}, {\sc N.~Pope}, {\sc S.~Karthikeyan}, {\sc I.~Rebollo}, {\sc
+  S.~Belsare}, {\sc A.~Kern}, and {\sc M.~Aspbury}, 2024 tskit-dev/tskit:
+  Python 0.5.8.
+
+\bibitem[{{\sc Kelleher} {\em et~al.\/}(2018){\sc Kelleher}, {\sc Thornton},
+  {\sc Ashander} and {\sc Ralph}}]{kelleher2018efficient}
+{\sc Kelleher, J.}, {\sc K.~R. Thornton}, {\sc J.~Ashander}, and {\sc P.~L.
+  Ralph}, 2018 Efficient pedigree recording for fast population genetics
+  simulation.
+\newblock PLOS Computational Biology {\bf 14}: 1--21.
 
 \bibitem[{{\sc Ralph} {\em et~al.\/}(2020){\sc Ralph}, {\sc Thornton} and {\sc
   Kelleher}}]{ralph2020efficiently}
@@ -24,5 +57,11 @@
 \bibitem[{{\sc Robinson} and {\sc Foulds}(1981)}]{robinson1981comparison}
 {\sc Robinson, D.}, and {\sc L.~Foulds}, 1981 Comparison of phylogenetic trees.
 \newblock Mathematical Biosciences {\bf 53}: 131--147.
+
+\bibitem[{{\sc Speidel} {\em et~al.\/}(2019){\sc Speidel}, {\sc Forest}, {\sc
+  Shi} and {\sc Myers}}]{speidel2019method}
+{\sc Speidel, L.}, {\sc M.~Forest}, {\sc S.~Shi}, and {\sc S.~R. Myers}, 2019 A
+  method for genome-wide genealogy estimation for thousands of samples.
+\newblock Nature Genetics {\bf 51}: 1321--1329.
 
 \end{thebibliography}

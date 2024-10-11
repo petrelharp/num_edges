@@ -115,8 +115,6 @@
 \correspondingauthoraffiliation{1}{Corresponding author: {plr@uoregon.edu}}
 \vspace{-33pt}% Only used for adjusting extra space in the left column of the first page
 
-\comment{idea: look at ratio of unary-to-not over time; does it change with
-    selection? or modes of recombination?}
 
 %%% OUTLINE
 % Intro: haplotypes, unary bits of non-coalescing nodes, ARGS, etcetera
@@ -187,11 +185,11 @@ There has been substantial recent progress
 in the problem of ``ARG inference'',
 which seeks to infer (portions of) the ``ancestral recombination graph'' (or, ARG)
 that describes how a set of genotypes samples are related to each other
-at each position of the genome \citep{XXX}.
+at each position of the genome \citep{speidel2019method,kelleher2019inferring,zhang2023biobankscale,deng2024robust,lewanski2024introduction}.
 One way of viewing the ARG is as a sequence of ``marginal trees'',
 i.e., the genealogical trees that describe how each portion of the genome
 was inherited by the focal genomes.
-This is reflected in methodology of some ARG inference methods \citep[e.g.,][]{Relate},
+This is reflected in methodology of some ARG inference methods \citep[e.g., Relate][]{speidel2019method},
 in metrics used to assess inference accuracy \citep{XXX},
 as well as in basic terminology.
 For instance, 
@@ -236,8 +234,10 @@ only those haplotypes that represent the focal set of genotyped samples
 can be unambiguously said to represent the same thing in both.
 So, most metrics only describe these relationships,
 which ignores the additional information carried by the structure of other haplotypes.
-For instance, \citet{XXX} compared true and inferred ARGs
-using average XXX distance between trees across a regular sequence of genomic positions,
+For instance, \citet{kelleher2019inferring} and \citet{zhang2023biobankscale}
+compared true and inferred ARGs
+using average Robinson-Foulds and Kendall-Colijn distances between trees
+across a regular sequence of genomic positions,
 using sampled genotypes as labels,
 while \citet{brandt2022evaluation} compared times to most recent common ancestor
 between pairs of sampled genomes.
@@ -245,6 +245,11 @@ Neither is affected by shared haplotype structure -
 two ARGs could be identiical by either measure
 but have completely different identity by descent (IBD) segment structure
 (as defined in the context of the ARG, \citep{XXX}).
+\citet{deng2021distribution} evaluated agreement of distributions of
+distances along the genome between tree topology changes,
+and \citet{zhang2023biobankscale} defined a generalization of Robinson-Foulds distance
+that is the total variation distance between the induced distribution on genotypes;
+neither of which measure sharing of haplotypes between adjacent trees.
 
 In this paper, we study various aspects of haplotype identity in ARGs.
 First, we describe a deterministic algorithm that
@@ -619,7 +624,7 @@ we define a measure of \emph{discrepancy} to quantify this.
 It is helpful to first describe what we compute in the simple case.
 \figref{fig:node-spans}A shows the spans for each node in three tree sequences:
 for each node, the top point is the total span in a ``true'' tree sequence
-that was simulated with \texttt{msprime} \citep{msprime}
+that was simulated with \texttt{msprime} \citep{kelleher2016efficient}
 in a way that included spans over which nodes are unary in the output
 \comment{(using which option?)}.
 The bottom point is the span of the node after \emph{simplifying} the tree sequence
@@ -708,7 +713,7 @@ We then define the \emph{discrepancy} of $\T_1$ from $\T_2$ by
 which is the total span of all nodes in $\T_1$
 for which their descendant samples do \emph{not} match those of their best match in $\T_2$.
 
-Other authors \citep{XXX} have used
+Other authors \citep[e.g.,]{kelleher2019inferring} have used
 an average Robinson-Foulds distance \citep{robinson1981comparison}
 as a measure of disagreement between tree sequences.
 This could be computed in a very similar way:
@@ -735,7 +740,7 @@ to the minimum number of edge contraction/expansion operations needed to move
 from one tree to the other
 (which they then show is equal to the number of edges that induce different splits on the labels).
 It would be interesting to define a similar metric on tree sequences,
-perhaps using the Subgraph-Prune-and-Regraft moves of \citet{singer}.
+perhaps using the Subgraph-Prune-and-Regraft moves used by Singer \citet{deng2024robust}.
 
 The discrepancy $\dis(\T_1, \T_2)$ measures disagreement between \emph{topologies},
 but not times.
@@ -1058,7 +1063,7 @@ This is slighly disingenuous -- an alternative and more accurate interpetation
 of the ARG of \figref{fig:conceptual}A\&B would be that we do not know
 how node 2 inherited from node 4 on the right-hand interval,
 rather than saying that it specifically did not pass through node 3.
-The ``simplification'' algorithm of \citet{XXX},
+The ``simplification'' algorithm of \citet{kelleher2018efficient},
 or the Hudson algorithm for coalescent simulation
 as implemented in msprime \citep{kelleher2016efficient},
 each specifically discard information about any such ``non-coalescent'' nodes;
