@@ -11,6 +11,25 @@
 }
 
 
+@inproceedings{robinson1979comparison,
+  abstract = {The results in a previous paper on the comparison of (unweighted) labelled trees are extended to the comparison of weighted labelled trees. An elementary operation is introduced which enables one to transform one weighted labelled tree into another. The operation makes it possible to compare different trees in a quantitative way in the sense of defining a ``distance'' between them. An application to a problem in molecular evolution is given.},
+  added-at = {2024-10-12T17:31:40.000+0200},
+  address = {Berlin, Heidelberg},
+  author = {Robinson, D. F. and Foulds, L. R.},
+  biburl = {https://www.bibsonomy.org/bibtex/2db73af3b4e4d087eacb2c2db7187106b/peter.ralph},
+  booktitle = {Combinatorial Mathematics VI},
+  editor = {Horadam, A. F. and Wallis, W. D.},
+  interhash = {d55661ac3c19b0a32941d7d6ae7bee79},
+  intrahash = {db73af3b4e4d087eacb2c2db7187106b},
+  isbn = {978-3-540-34857-3},
+  keywords = {phylogenetics tree_metrics},
+  pages = {119--126},
+  publisher = {Springer Berlin Heidelberg},
+  timestamp = {2024-10-12T17:31:40.000+0200},
+  title = {Comparison of weighted labelled trees},
+  year = 1979
+}
+
 @article{robinson1981comparison,
   title = {Comparison of phylogenetic trees},
   journal = {Mathematical Biosciences},
@@ -327,4 +346,61 @@ PMC8556732[pmcid]},
   url = {https://doi.org/10.1038/s41588-023-01379-x},
   volume = 55,
   year = 2023
+}
+
+@article{kuhner1994simulation,
+  abstract = {Using simulated data, we compared five methods of phylogenetic tree estimation: parsimony, compatibility, maximum likelihood, Fitch-Margoliash, and neighbor joining. For each combination of substitution rates and sequence length, 100 data sets were generated for each of 50 trees, for a total of 5,000 replications per condition. Accuracy was measured by two measures of the distance between the true tree and the estimate of the tree, one measure sensitive to accuracy of branch lengths and the other not. The distance-matrix methods (Fitch-Margoliash and neighbor joining) performed best when they were constrained from estimating negative branch lengths; all comparisons with other methods used this constraint. Parsimony and compatibility had similar results, with compatibility generally inferior; Fitch-Margoliash and neighbor joining had similar results, with neighbor joining generally slightly inferior. Maximum likelihood was the most successful method overall, although for short sequences Fitch-Margoliash and neighbor joining were sometimes better. Bias of the estimates was inferred by measuring whether the independent estimates of a tree for different data sets were closer to the true tree than to each other. Parsimony and compatibility had particular difficulty with inaccuracy and bias when substitution rates varied among different branches. When rates of evolution varied among different sites, all methods showed signs of inaccuracy and bias.},
+  added-at = {2024-10-12T17:30:09.000+0200},
+  address = {United States},
+  author = {Kuhner, M K and Felsenstein, J},
+  biburl = {https://www.bibsonomy.org/bibtex/293d0cb744f817495176d91375addaa76/peter.ralph},
+  comment = {8015439[pmid]},
+  doi = {10.1093/oxfordjournals.molbev.a040126},
+  interhash = {c6c1a5ce8ede32f9c5581bf88ea06ebf},
+  intrahash = {93d0cb744f817495176d91375addaa76},
+  issn = {07374038},
+  journal = {Molecular Biology and Evolution},
+  keywords = {phylogenetics simulation_study tree_metrics},
+  month = may,
+  number = 3,
+  pages = {459--468},
+  privnote = {8015439[pmid]},
+  timestamp = {2024-10-12T17:30:09.000+0200},
+  title = {A simulation comparison of phylogeny algorithms under equal and unequal evolutionary rates},
+  url = {https://pubmed.ncbi.nlm.nih.gov/8015439},
+  volume = 11,
+  year = 1994
+}
+
+@article{llabres2021generalized,
+author = {Llabr\'{e}s, Merc\`{e} and Rossell\'{o}, Francesc and Valiente, Gabriel},
+title = {The Generalized {Robinson}-{Foulds} Distance for Phylogenetic Trees},
+journal = {Journal of Computational Biology},
+volume = {28},
+number = {12},
+pages = {1181-1195},
+year = {2021},
+doi = {10.1089/cmb.2021.0342},
+note ={PMID: 34714118},
+URL = {https://doi.org/10.1089/cmb.2021.0342},
+abstract = { The Robinson-Foulds (RF) distance, one of the most widely used metrics for comparing phylogenetic trees, has the advantage of being intuitive, with a natural interpretation in terms of common splits, and it can be computed in linear time, but it has a very low resolution, and it may become trivial for phylogenetic trees with overlapping taxa, that is, phylogenetic trees that share some but not all of their leaf labels. In this article, we study the properties of the Generalized Robinson-Foulds (GRF) distance, a recently proposed metric for comparing any structures that can be described by multisets of multisets of labels, when applied to rooted phylogenetic trees with overlapping taxa, which are described by sets of clusters, that is, by sets of sets of labels. We show that the GRF distance has a very high resolution, it can also be computed in linear time, and it is not (uniformly) equivalent to the RF distance. }
+}
+
+@inproceedings{bocker2013generalized,
+  abstract = {The Robinson-Foulds (RF) metric is arguably the most widely used measure of phylogenetic tree similarity, despite its well-known shortcomings: For example, moving a single taxon in a tree can result in a tree that has maximum distance to the original one; but the two trees are identical if we remove the single taxon. To this end, we propose a natural extension of the RF metric that does not simply count identical clades but instead, also takes similar clades into consideration. In contrast to previous approaches, our model requires the matching between clades to respect the structure of the two trees, a property that the classical RF metric exhibits, too. We show that computing this generalized RF metric is, unfortunately, NP-hard. We then present a simple Integer Linear Program for its computation, and evaluate it by an all-against-all comparison of 100 trees from a benchmark data set. We find that matchings that respect the tree structure differ significantly from those that do not, underlining the importance of this natural condition.},
+  added-at = {2024-10-12T18:13:34.000+0200},
+  address = {Berlin, Heidelberg},
+  author = {B{\"o}cker, Sebastian and Canzar, Stefan and Klau, Gunnar W.},
+  biburl = {https://www.bibsonomy.org/bibtex/2814b9ec2942ca912e6cbce54bcd6ac10/peter.ralph},
+  booktitle = {Algorithms in Bioinformatics},
+  editor = {Darling, Aaron and Stoye, Jens},
+  interhash = {c695cc31b81c1040ec29f1ccb378af2b},
+  intrahash = {814b9ec2942ca912e6cbce54bcd6ac10},
+  isbn = {978-3-642-40453-5},
+  keywords = {tree_metrics},
+  pages = {156--169},
+  publisher = {Springer Berlin Heidelberg},
+  timestamp = {2024-10-12T18:13:34.000+0200},
+  title = {The Generalized {Robinson}-{Foulds} Metric},
+  year = 2013
 }

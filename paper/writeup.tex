@@ -224,7 +224,7 @@ even in the absence of new mutations,
 recombination between distinct haplotypes can create a novel haplotype
 whose relationships and origination time could be inferred.
 
-Haplotype identity has been relatively overlooked in the literature on ARG inference so far --
+Haplotype identity has been nearly overlooked in the literature on ARG inference so far --
 all metrics that have been used so far to measure accuracy of inferred ARGs
 depend only on the sequence of marginal trees,
 not on sharing of ancestral haplotype identities between them.
@@ -620,6 +620,8 @@ improves \emph{inferred} tree sequences.
 Since we are not aware of any current methods for measuring (dis)agreement between tree sequences
 that take into account haplotype identity,
 we define a measure of \emph{discrepancy} to quantify this.
+The method is implemented in the \texttt{tsdate} package \citep{wohns2022unified}
+as \comment{XXX}.
 
 It is helpful to first describe what we compute in the simple case.
 \figref{fig:node-spans}A shows the spans for each node in three tree sequences:
@@ -761,6 +763,8 @@ is more serious for a node with a longer span.
 In practice, time estimation errors seem to be closer to homoskedastic on a log scale,
 so this would probably be more informative if errors are computed on the log sale.}
 
+
+%%%%%%%%%%%%
 \comment{PREVIOUS VERSION: retrieve bits from below?}
 
 Inspired by Robinson-Foulds we define a function, called a \textit{discrepancy function} (see \algorithmref{alg:disc}), on a pair of tree sequences $\T_1$, $\T_2$ of equal length $L$.
@@ -1070,6 +1074,54 @@ each specifically discard information about any such ``non-coalescent'' nodes;
 so the correct interpretation of these ARGs is a lack of knowledge.
 In this paper, we have shown that this information can be largely replaced.
 
+
+\paragraph{Metrics on ARGs}
+\comment{collecting random notes here; TODO is tie them together}
+The discrepancy $\dis(\T_1,\T_2)$ is clearly not a metric in the mathematical sense
+(i.e., symmetric, nonzero distance between distinct points, and satisfying the triangle inequality).
+This is by design: in practice it is not possible to infer all aspects
+of the true ancestry of a set of samples (i.e., all their genetic ancestors who ever lived),
+and so we wanted to quantify
+``How much of the true relationships does this ARG represent?''
+However, the symmetrized version
+$d(\T_1,\T_2) = \dis(\T_1,\T_2) + \dis(\T_2, \T_1)$ is a metric.
+To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$,
+and view each ARG as a subset of the space $[0,L) \times N \times N$,
+where $N$ is the shared set of nodes.
+Then, discrepancy is the Lesbegue measure of the relative difference of the two sets:
+$|\T_1 \setminus \T_2|$,
+and so the symmetrized version is the measure of the symmetric difference,
+which is well-known to be a metric.
+If the two ARGs have the same number of nodes,
+then we take the minimum over the all bijections between their nodes,
+and minima over a finite number of metrics is also a metric.
+Finally, if they have a different number of nodes,
+then \comment{???}.
+
+The Robinson-Foulds distance \citep{robinson1981comparison}
+essentially counts the number of differing branches between two trees;
+the averaged Robinson-Foulds distance \citep{kelleher2019inferring} % TODO: first usage?
+combines this distance across marginal trees, weighted by span along the genome.
+The method we present here for measuring discrepancy between topologies of ARGs
+is a straightforward generalization
+that takes into account span along the genome of inferred ancestral haplotypes
+(and separates the metric into two pieces as discussed in the previous paragraph).
+However, the Robinson-Foulds metric has many undesireable properties --
+for instance, moving a single tip can result in a tree with maximum distance to the original --
+and there is a substantial literature giving generalizations
+\citep[reviewed by][]{llabres2021generalized}.
+Many of these generalizations \citep[e.g.,][]{bocker2013generalized}
+relax the requirement that the match between subtended sample sets be exact,
+and weight matches in some way by the size of the discrepancy.
+We considered such definitions as well, but kept to the simple case
+for computational tractability --
+the generalization of \citet{bocker2013generalized} is NP-hard to compute, even for a single tree.
+In the ARG literature, \citet{zhang2023biobankscale}
+defines a metric (called ``ARG total variation distance'') that includes branch lengths,
+in a way similar to \citet{robinson1979comparison} and \citet{kuhner1994simulation};
+however, it is still applied to ARGs as an average over marginal trees,
+without enforcement of identity across haplotypes;
+it would be useful to extend our discrepancy to include branch lengths.
 
 \bibliography{references}
 

@@ -1,5 +1,12 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{18}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{{\sc B{\"o}cker} {\em et~al.\/}(2013){\sc B{\"o}cker}, {\sc Canzar}
+  and {\sc Klau}}]{bocker2013generalized}
+{\sc B{\"o}cker, S.}, {\sc S.~Canzar}, and {\sc G.~W. Klau}, 2013 The
+  generalized {Robinson}-{Foulds} metric.
+\newblock In A.~Darling and J.~Stoye, editors, {\em Algorithms in
+  Bioinformatics\/}. Springer Berlin Heidelberg, Berlin, Heidelberg, 156--169.
 
 \bibitem[{{\sc Brandt} {\em et~al.\/}(2022){\sc Brandt}, {\sc Wei}, {\sc Deng},
   {\sc Vaughn} and {\sc Nielsen}}]{brandt2022evaluation}
@@ -18,6 +25,12 @@
 {\sc Deng, Y.}, {\sc R.~Nielsen}, and {\sc Y.~S. Song}, 2024 Robust and
   accurate bayesian inference of genome-wide genealogies for large samples.
 \newblock bioRxiv .
+
+\bibitem[{{\sc Deng} {\em et~al.\/}(2021){\sc Deng}, {\sc Song} and {\sc
+  Nielsen}}]{deng2021distribution}
+{\sc Deng, Y.}, {\sc Y.~S. Song}, and {\sc R.~Nielsen}, 2021 The distribution
+  of waiting distances in ancestral recombination graphs.
+\newblock Theoretical population biology {\bf 141}: 34--43.
 
 \bibitem[{{\sc Fisher}(1954)}]{fisher1954fuller}
 {\sc Fisher, R.~A.}, 1954 A fuller theory of `junctions' in inbreeding.
@@ -47,6 +60,32 @@
   simulation.
 \newblock PLOS Computational Biology {\bf 14}: 1--21.
 
+\bibitem[{{\sc Kelleher} {\em et~al.\/}(2019){\sc Kelleher}, {\sc Wong}, {\sc
+  Wohns}, {\sc Fadil}, {\sc Albers} {\em et~al.\/}}]{kelleher2019inferring}
+{\sc Kelleher, J.}, {\sc Y.~Wong}, {\sc A.~W. Wohns}, {\sc C.~Fadil}, {\sc
+  P.~K. Albers}, and {\sc G.~McVean}, 2019 Inferring whole-genome histories in
+  large population datasets.
+\newblock Nature Genetics {\bf 51}: 1330--1338.
+
+\bibitem[{{\sc Kuhner} and {\sc Felsenstein}(1994)}]{kuhner1994simulation}
+{\sc Kuhner, M.~K.}, and {\sc J.~Felsenstein}, 1994 A simulation comparison of
+  phylogeny algorithms under equal and unequal evolutionary rates.
+\newblock Molecular Biology and Evolution {\bf 11}: 459--468.
+
+\bibitem[{{\sc Lewanski} {\em et~al.\/}(2024){\sc Lewanski}, {\sc Grundler} and
+  {\sc Bradburd}}]{lewanski2024introduction}
+{\sc Lewanski, A.~L.}, {\sc M.~C. Grundler}, and {\sc G.~S. Bradburd}, 2024 The
+  era of the {ARG}: {An} introduction to ancestral recombination graphs and
+  their significance in empirical evolutionary genomics.
+\newblock PLOS Genetics {\bf 20}: 1--24.
+
+\bibitem[{{\sc Llabr\'{e}s} {\em et~al.\/}(2021){\sc Llabr\'{e}s}, {\sc
+  Rossell\'{o}} and {\sc Valiente}}]{llabres2021generalized}
+{\sc Llabr\'{e}s, M.}, {\sc F.~Rossell\'{o}}, and {\sc G.~Valiente}, 2021 The
+  generalized {Robinson}-{Foulds} distance for phylogenetic trees.
+\newblock Journal of Computational Biology {\bf 28}: 1181--1195.
+\newblock PMID: 34714118.
+
 \bibitem[{{\sc Ralph} {\em et~al.\/}(2020){\sc Ralph}, {\sc Thornton} and {\sc
   Kelleher}}]{ralph2020efficiently}
 {\sc Ralph, P.}, {\sc K.~Thornton}, and {\sc J.~Kelleher}, 2020 Efficiently
@@ -58,10 +97,24 @@
 {\sc Robinson, D.}, and {\sc L.~Foulds}, 1981 Comparison of phylogenetic trees.
 \newblock Mathematical Biosciences {\bf 53}: 131--147.
 
+\bibitem[{{\sc Robinson} and {\sc Foulds}(1979)}]{robinson1979comparison}
+{\sc Robinson, D.~F.}, and {\sc L.~R. Foulds}, 1979 Comparison of weighted
+  labelled trees.
+\newblock In A.~F. Horadam and W.~D. Wallis, editors, {\em Combinatorial
+  Mathematics VI\/}. Springer Berlin Heidelberg, Berlin, Heidelberg, 119--126.
+
 \bibitem[{{\sc Speidel} {\em et~al.\/}(2019){\sc Speidel}, {\sc Forest}, {\sc
   Shi} and {\sc Myers}}]{speidel2019method}
 {\sc Speidel, L.}, {\sc M.~Forest}, {\sc S.~Shi}, and {\sc S.~R. Myers}, 2019 A
   method for genome-wide genealogy estimation for thousands of samples.
 \newblock Nature Genetics {\bf 51}: 1321--1329.
+
+\bibitem[{{\sc Zhang} {\em et~al.\/}(2023){\sc Zhang}, {\sc Biddanda}, {\sc
+  Gunnarsson}, {\sc Cooper} and {\sc Palamara}}]{zhang2023biobankscale}
+{\sc Zhang, B.~C.}, {\sc A.~Biddanda}, {\sc {\'A}.~F. Gunnarsson}, {\sc
+  F.~Cooper}, and {\sc P.~F. Palamara}, 2023 Biobank-scale inference of
+  ancestral recombination graphs enables genealogical analysis of complex
+  traits.
+\newblock Nature Genetics {\bf 55}: 768--776.
 
 \end{thebibliography}
