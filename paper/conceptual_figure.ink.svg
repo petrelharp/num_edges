@@ -7,7 +7,7 @@
    viewBox="0 0 192.24413 121.4373"
    version="1.1"
    id="svg5"
-   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
    sodipodi:docname="conceptual_figure.ink.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -24,20 +24,24 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="true"
-     inkscape:zoom="1.0896797"
-     inkscape:cx="402.87067"
-     inkscape:cy="180.78707"
+     inkscape:zoom="1.5410398"
+     inkscape:cx="368.5823"
+     inkscape:cy="257.61826"
      inkscape:window-width="1920"
-     inkscape:window-height="1043"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-height="1010"
+     inkscape:window-x="2729"
+     inkscape:window-y="-6"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1">
     <inkscape:grid
        type="xygrid"
        id="grid132"
        originx="19.852093"
-       originy="-104.90092" />
+       originy="-104.90092"
+       spacingy="1"
+       spacingx="1"
+       units="mm"
+       visible="true" />
   </sodipodi:namedview>
   <defs
      id="defs2">
@@ -124,7 +128,7 @@
      id="layer1"
      transform="translate(19.852091,-104.90095)">
     <circle
-       style="fill:#1e90ff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:#94cbec;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
        id="circle5160"
        cx="113.22938"
        cy="153.19016"
@@ -143,16 +147,16 @@
     <g
        id="g5174"
        transform="translate(0,-60.325004)"
-       style="fill:#ca2828;fill-opacity:1">
+       style="fill:#c26a77;fill-opacity:1">
       <circle
-         style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+         style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
          id="circle5168"
          cx="144.97943"
          cy="213.51515"
          r="3.628113" />
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.6667px;line-height:125%;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif, Normal';font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;vector-effect:none;fill:#ca2828;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.6667px;line-height:125%;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif, Normal';font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;vector-effect:none;fill:#c26a77;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
          x="-35.885338"
          y="814.65356"
          id="text5172"
@@ -164,7 +168,7 @@
     </g>
     <path
        id="path2746"
-       style="fill:#1e90ff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
+       style="fill:#94cbec;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
        d="m 139.56768,155.36614 h -24.23767 v -4.84954 h 24.23767"
        sodipodi:nodetypes="cccc" />
     <g
@@ -212,7 +216,7 @@
          y="571.1369">L</tspan></text>
     <path
        id="path2772"
-       style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
+       style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
        d="M 171.3177,155.36614 H 147.08003 V 150.5166 H 171.3177"
        sodipodi:nodetypes="cccc" />
     <text
@@ -307,7 +311,7 @@
     </g>
     <path
        id="path2790"
-       style="fill:#1e90ff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round"
+       style="fill:#94cbec;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round"
        d="m 125.28017,134.19946 h -9.95016 v -4.84954 h 9.95016 z"
        sodipodi:nodetypes="ccccc" />
     <text
@@ -323,7 +327,7 @@
          y="571.1369">L</tspan></text>
     <path
        id="path2804"
-       style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round"
+       style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round"
        d="m 157.03019,144.7828 h -9.95016 v -4.84954 h 9.95016 z"
        sodipodi:nodetypes="ccccc" />
     <text
@@ -393,7 +397,7 @@
          y="571.1369">L</tspan></text>
     <path
        id="path2868"
-       style="fill:#1e90ff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
+       style="fill:#94cbec;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
        d="m 140.62601,127.32029 h -14.71266 v -4.84954 h 14.71266"
        sodipodi:nodetypes="cccc" />
     <text
@@ -409,12 +413,12 @@
          y="571.1369">R</tspan></text>
     <path
        id="path2890"
-       style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
+       style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
        d="m 171.3177,144.7828 h -13.65433 v -4.84954 h 13.65433"
        sodipodi:nodetypes="cccc" />
     <path
        id="path3570"
-       style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round"
+       style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round"
        d="m 125.28017,139.49113 h -9.95016 v -4.84954 h 9.95016 z"
        sodipodi:nodetypes="ccccc" />
     <text
@@ -445,7 +449,7 @@
          sodipodi:nodetypes="cccc" />
     </g>
     <circle
-       style="fill:#1e90ff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:#94cbec;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
        id="circle4961"
        cx="3.6918786"
        cy="152.66096"
@@ -455,7 +459,7 @@
        d="M 5.1419173,137.07338 4.0162386,148.84433"
        id="path4963" />
     <circle
-       style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
        id="circle4965"
        cx="16.391882"
        cy="152.66096"
@@ -510,13 +514,13 @@
        d="M -7.7671708,148.94645 0.42190463,116.49234 5.0089263,132.94709"
        id="path4983" />
     <circle
-       style="fill:#1e90ff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:#94cbec;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
        id="circle4985"
        cx="46.025215"
        cy="152.66096"
        r="3.628113" />
     <circle
-       style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
        id="circle4997"
        cx="58.72522"
        cy="152.66096"
@@ -633,7 +637,8 @@
        x="-35.885338"
        y="814.65356"
        id="text5039"
-       transform="matrix(0.26458333,0,0,0.26458333,54.220848,-61.321876)"><tspan
+       transform="matrix(0.26458333,0,0,0.26458333,54.220848,-61.321876)"
+       inkscape:highlight-color="#2e2585"><tspan
          sodipodi:role="line"
          id="tspan5037"
          x="-35.885338"
@@ -672,7 +677,7 @@
          x="-26.954054"
          y="4.6548319">B)</tspan></text>
     <circle
-       style="fill:#1e90ff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:#94cbec;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
        id="circle5121"
        cx="113.22938"
        cy="216.16098"
@@ -690,7 +695,7 @@
          y="814.65356">1</tspan></text>
     <path
        id="path3699"
-       style="fill:#1e90ff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
+       style="fill:#94cbec;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
        d="m 139.56768,218.33704 h -24.23767 v -4.84954 h 24.23767"
        sodipodi:nodetypes="cccc" />
     <text
@@ -716,7 +721,7 @@
          x="238.40915"
          y="571.1369">L</tspan></text>
     <circle
-       style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
        id="circle5129"
        cx="144.97943"
        cy="216.16098"
@@ -734,7 +739,7 @@
          y="814.65356">2</tspan></text>
     <path
        id="path3709"
-       style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
+       style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
        d="M 171.3177,218.33704 H 147.08003 V 213.4875 H 171.3177"
        sodipodi:nodetypes="cccc" />
     <text
@@ -841,7 +846,7 @@
        id="path3727" />
     <path
        id="path3737"
-       style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round"
+       style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round"
        d="m 157.03019,207.7537 h -9.95016 v -4.84954 h 9.95016 z"
        sodipodi:nodetypes="ccccc" />
     <text
@@ -932,17 +937,17 @@
          y="571.1369">L</tspan></text>
     <path
        id="path3769"
-       style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
+       style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
        d="m 171.3177,207.7537 h -13.65433 v -4.84954 h 13.65433"
        sodipodi:nodetypes="cccc" />
     <path
        id="path3771"
-       style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round"
+       style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round"
        d="m 125.28017,202.46203 h -9.95016 v -4.84954 h 9.95016 z"
        sodipodi:nodetypes="ccccc" />
     <path
        id="path3364"
-       style="fill:#1e90ff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
+       style="fill:#94cbec;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;marker-start:url(#marker1370);marker-end:url(#marker1370)"
        d="m 139.56764,197.17036 h -24.23765 v -4.84954 h 24.23765"
        sodipodi:nodetypes="cccc" />
     <text
@@ -1083,7 +1088,7 @@
     <g
        id="g7042">
       <circle
-         style="fill:#1e90ff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+         style="fill:#94cbec;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
          id="circle3875"
          cx="3.6918786"
          cy="216.16098"
@@ -1104,7 +1109,7 @@
          d="M 5.1419173,200.57342 4.0162386,212.34437"
          id="path4278" />
       <circle
-         style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+         style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
          id="circle3877"
          cx="16.391882"
          cy="216.16103"
@@ -1160,7 +1165,7 @@
          d="M -7.7671708,212.44649 0.42190463,179.99238 5.0089263,196.44713"
          id="path4276" />
       <circle
-         style="fill:#1e90ff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+         style="fill:#94cbec;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
          id="circle4386"
          cx="46.025215"
          cy="216.16103"
@@ -1204,7 +1209,7 @@
            x="-35.885338"
            y="814.65356">3</tspan></text>
       <circle
-         style="fill:#ca2828;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
+         style="fill:#c26a77;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-linecap:round;stroke-dasharray:none;stroke-dashoffset:0"
          id="circle4390"
          cx="58.72522"
          cy="216.16103"
@@ -1378,5 +1383,16 @@
          d="M 36.313694,223.81819 H 57.477481"
          id="path6177" />
     </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.6667px;line-height:125%;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif, Normal';font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;vector-effect:none;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       x="-35.885338"
+       y="814.65356"
+       id="text5133-7"
+       transform="matrix(0.26458333,0,0,0.26458333,153.15911,-60.856431)"><tspan
+         sodipodi:role="line"
+         id="tspan5131-1"
+         x="-35.885338"
+         y="814.65356">2</tspan></text>
   </g>
 </svg>

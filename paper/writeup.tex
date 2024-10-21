@@ -383,7 +383,7 @@ for node $n$.
 % Description of algorithm
 Given a tree sequence, our goal is to
 identify areas of implied inheritance of haplotypes.
-Generalizing from \figref{fig:conceptual} (or \figref{fig:extending_diagram}?),
+Generalizing from \figref{fig:extending_diagram},
 we do this by identifying paths of inheritance that are shared across a sequence of marginal trees
 but for which some of the intermediate nodes are missing.
 Concretely, suppose that 
@@ -416,7 +416,7 @@ and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
 \begin{center}
 	\includegraphics[width=5in]{edge_extend_method.pdf}
 \end{center}
-\caption{\comment{Change figure to say Extend halplotypes} A visualization of the \textit{extend haplotypes} method. Given two neighboring trees $T_1$ and $T_2$, $F_O$ in the tree $T_1$ contains the edge $3\to 0$. Starting at $0$, there is a path of edges $0 \to 3 \to 4$. The tree $T_2$ has edge $4 \to 0$ in $F_I$, and so there exists path $0 to 4$. These two paths share common end points, $0$ and $4$, and so we will extend path $0 \to 3 \to 4$ onto tree $T_2$, hence removing the edge $4\to 0$.
+\caption{A visualization of the \textit{extend haplotypes} method. Given two neighboring trees $T_1$ and $T_2$, there exists paths from root node $6$ to sample node $0$. $T_1$ contains the path $6\to 4\to 0$ while $T_2$ has path $6\to 5\to 0$. The intermediate nodes $4$ and $5$ do not appear in $T_2$ respectively $T_1$, and so we consider these two paths \textit{mergeable}. The extend haplotypes method joins these two paths, constructing the merged path $6\to 5\to 4\to 0$ for both $T_1$ and $T_2$.
     \label{fig:extending_diagram}
 }
 \end{figure}
@@ -426,7 +426,8 @@ and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
 		\includegraphics[width=0.4\linewidth, height=1.2in]{EH-Ex2.pdf}
 		\includegraphics[width=0.4\linewidth, height=1.2in]{EH-extended-Ex2.pdf}
 	\end{center}
-	\caption{\comment{Change figure to have the same arrow with 'Extend Haplotypes' in inkscape for unity's sake.}The extend haplotypes method between tree with more unary nodes. Given two neighboring trees, there exists paths $4\to 6\to8\to10$ and $5\to 9\to 10$ in $F_O$, and in $F_I$ we have paths $4\to 7\to 11\to 10$ and $5\to 12\to 10$. Both the out-forest and in-forest both contain paths with the same initial and terminal nodes, $4\to 10$ and $5\to 10$ respectively, we merge both paths and output the tree sequence on the right.}
+	\caption{\comment{DELETE}}
+%	\caption{\comment{Change figure to have the same arrow with 'Extend Haplotypes' in inkscape for unity's sake.}The extend haplotypes method between tree with more unary nodes. Given two neighboring trees, there exists paths $4\to 6\to8\to10$ and $5\to 9\to 10$ in $F_O$, and in $F_I$ we have paths $4\to 7\to 11\to 10$ and $5\to 12\to 10$. Both the out-forest and in-forest both contain paths with the same initial and terminal nodes, $4\to 10$ and $5\to 10$ respectively, we merge both paths and output the tree sequence on the right.}
 	\label{fig:complicated_extending_diagram}
 \end{figure}
 
@@ -956,7 +957,8 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 
 \begin{figure}
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_notlog.pdf}
-	\caption{Correct Unary Span for Extend Haplotypes}
+	\caption{\comment{DELETE}}
+%	\caption{Correct Unary Span for Extend Haplotypes}
 	\label{fig:correct-unary-span}
 \end{figure}
 
