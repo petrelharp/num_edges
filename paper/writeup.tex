@@ -416,7 +416,7 @@ and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
 \begin{center}
 	\includegraphics[width=5in]{edge_extend_method.pdf}
 \end{center}
-\caption{A visualization of the \textit{extend haplotypes} method. Given two neighboring trees $T_1$ and $T_2$, there exists paths from root node $6$ to sample node $0$. $T_1$ contains the path $6\to 4\to 0$ while $T_2$ has path $6\to 5\to 0$. The intermediate nodes $4$ and $5$ do not appear in $T_2$ respectively $T_1$, and so we consider these two paths \textit{mergeable}. The extend haplotypes method joins these two paths, constructing the merged path $6\to 5\to 4\to 0$ for both $T_1$ and $T_2$.
+\caption{A visualization of the \textit{extend haplotypes} method. Given two neighboring trees $T_1$ and $T_2$, there exists paths from root node $6$ to sample node $0$. $T_1$ contains the path $6\to 4\to 0$ while $T_2$ has path $6\to 5\to 0$. The intermediate nodes $4$ and $5$ do not appear in $T_2$ respectively $T_1$, and so we consider these two paths \textit{mergeable}. The extend haplotypes method joins these two paths, constructing the merged path $6\to 5\to 4\to 0$ for both $T_1$ and $T_2$. This new path extends the edge $4\to 0$ to $T_2$ as well as constructs a new edge $5\to 4$ in the tree sequence.
     \label{fig:extending_diagram}
 }
 \end{figure}
@@ -457,7 +457,7 @@ There is often more than one pair of mergeable paths in a tree transition;
 so, the algorithm merges pairs of mergeable paths,
 starting with pairs that add the smallest number of new edges,
 until no more are found.
-\comment{Maybe we need to highlight in a figure how new edges can be added.}
+
 
 \algorithmref{alg:extend} simplifies the algorithm in several ways --
 for instance, the bookeeping required to keep track of $T_k$ and $T_{k+1}$ is omitted.
@@ -473,7 +473,7 @@ doing the appropriate operations to insert the nodes along the path found in $T_
 into the path in $T_{k+1}$.
 To do this, some edges that end at $a_k$ will be extended to end at $a_{k+1}$;
 some edges that begin at $a_k$ will be postponed to begin at $a_{k+1}$,
-and some entirely new edges may be added.
+and some entirely new edges may be added, see \figref{fig:extending_diagram}.
 Furthermore, the trees $T_k$ and $T_{k+1}$ (and corresponding forests $F_O$ and $F_I$)
 need to be updated.
 
@@ -611,6 +611,8 @@ which suggest that \comment{XXX TODO}.
 % * fig: how add edges reduces discrepancy (RESULTS)
 %       - compare to tsinfer
 % * Show: how add edges reduces discrepancy (RESULTS)
+
+\comment{Rename Dissimilarity and Similarity}
 
 If we begin with a tree sequence containing unary nodes,
 it is straightforward to remove the portions of each node's span on which it is unary,
@@ -809,54 +811,56 @@ We note that the discrepancy function is a metric for detecting non-similarity b
     }
 	\end{center}
 \end{figure}
- 
- \begin{algorithm2e}[!ht]
- \SetStartEndCondition{ }{}{}%
- \SetKwProg{Fn}{def}{\string:}{}
- \SetKwFunction{Range}{range}%%
- \SetKw{KwTo}{in}
- \SetKwFor{For}{for}{\string:}{}%
- \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
- \SetKwFor{While}{while}{:}{fintq}%
- \SetKw{Break}{break}
- \newcommand\forcond{$i$ \KwTo\Range{$n$}}
- \SetKwComment{Comment}{}
- \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
- \DontPrintSemicolon\LinesNotNumbered
- 
- \caption{Discrepancy Function}\label{alg:disc}
- \input{$(T_1,T_2)$}
- \output{tree discrepancy, root-mean-square error}
- 
- \Fn{Shared Spans($T_1,T_2$)}{
- \For{pairs $(i,j)\in N_{T_1}\times N_{T_2}$}{
- 	$i = (t_i, L_i)$ and $j = (t_j, L_j)$ where $L_i, L_j\subset \left[0,L\right).\quad$ \Comment{Each node is a tuple (time, genome location).}
- 	\If{$(i,j)$ has equal sample sets, $s(i)=s(j)$}{
- 		Define $a_{ij}=|L_i\cap L_j|$.
- 	}
- 	\Else{Define $a_{ij}=0$.}
- Define matrix $A=\left[a_{ij}\right]\in M_{N_{T_1}\times N_{T_2}}(\R)$.\;
- }
- \KwRet{$A$}
- }
-\BlankLine
-\Fn{Discrepancy ($T_1,T_2$)}{
-\For{each node $i\in N_{T_1}$}{
-	Find nodes in $N_{T_2}$ which have the highest matching span.\;
-	$\operatorname{matches}_i = \argmax_{k\in N_{T_2}} a_{ik}.$\;
-	Let $j = \argmax_{k\in \operatorname{matches}_i}\frac{1}{1+|t_i-t_k|}$.\;
-	Define $\alpha_i = a_{ij}$.\;
-	\BlankLine
-}
-$$tree\ discrepancy = 1 - \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname{tr}\left(Shared Spans(T_1, T_1)\right)}$$\;
-\BlankLine\BlankLine
-$$rmse = \sqrt{\frac{\sum_{i\in N_{T_1}}|t_i - t_j|\alpha_i}{\operatorname{tr}\left(Shared Spans(T_1,T_1)\right)}}$$\;
-\BlankLine
-$$true\ proportion = \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname(tr)\left( Shared Spans(T_2, T_2)\right)}$$\;
-\BlankLine\BlankLine
-\KwRet{tree discrepancy, rmse, true proportion}
-}
-\end{algorithm2e}
+
+%\comment{Delete Discrepancy Algorithm!!}
+% 
+% \begin{algorithm2e}[!ht]
+% \SetStartEndCondition{ }{}{}%
+% \SetKwProg{Fn}{def}{\string:}{}
+% \SetKwFunction{Range}{range}%%
+% \SetKw{KwTo}{in}
+% \SetKwFor{For}{for}{\string:}{}%
+% \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+% \SetKwFor{While}{while}{:}{fintq}%
+% \SetKw{Break}{break}
+% \newcommand\forcond{$i$ \KwTo\Range{$n$}}
+% \SetKwComment{Comment}{}
+% \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+% \DontPrintSemicolon\LinesNotNumbered
+% 
+% \caption{Discrepancy Function}\label{alg:disc}
+% \input{$(T_1,T_2)$}
+% \output{tree discrepancy, root-mean-square error}
+% 
+% \Fn{Shared Spans($T_1,T_2$)}{
+% \For{pairs $(i,j)\in N_{T_1}\times N_{T_2}$}{
+% 	$i = (t_i, L_i)$ and $j = (t_j, L_j)$ where $L_i, L_j\subset \left[0,L\right).\quad$ \Comment{Each node is a tuple (time, genome location).}
+% 	\If{$(i,j)$ has equal sample sets, $s(i)=s(j)$}{
+% 		Define $a_{ij}=|L_i\cap L_j|$.
+% 	}
+% 	\Else{Define $a_{ij}=0$.}
+% Define matrix $A=\left[a_{ij}\right]\in M_{N_{T_1}\times N_{T_2}}(\R)$.\;
+% }
+% \KwRet{$A$}
+% }
+%\BlankLine
+%\Fn{Discrepancy ($T_1,T_2$)}{
+%\For{each node $i\in N_{T_1}$}{
+%	Find nodes in $N_{T_2}$ which have the highest matching span.\;
+%	$\operatorname{matches}_i = \argmax_{k\in N_{T_2}} a_{ik}.$\;
+%	Let $j = \argmax_{k\in \operatorname{matches}_i}\frac{1}{1+|t_i-t_k|}$.\;
+%	Define $\alpha_i = a_{ij}$.\;
+%	\BlankLine
+%}
+%$$tree\ discrepancy = 1 - \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname{tr}\left(Shared Spans(T_1, T_1)\right)}$$\;
+%\BlankLine\BlankLine
+%$$rmse = \sqrt{\frac{\sum_{i\in N_{T_1}}|t_i - t_j|\alpha_i}{\operatorname{tr}\left(Shared Spans(T_1,T_1)\right)}}$$\;
+%\BlankLine
+%$$true\ proportion = \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname(tr)\left( Shared Spans(T_2, T_2)\right)}$$\;
+%\BlankLine\BlankLine
+%\KwRet{tree discrepancy, rmse, true proportion}
+%}
+%\end{algorithm2e}
 
 
 \section{Results}
@@ -939,7 +943,7 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 \subsection{Extending haplotypes in inferred trees}
 
 \begin{figure}[bht]
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/node_spans_wo_trapped_unary_regions.pdf}
+	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/node_spans_wo_trapped_unary_regions_CDF.pdf}
 	\caption{
         Node spans of simulated tree sequence (blue), simplified tree sequence (green), and extended tree sequence (red).
         \comment{TODO: nodes should be in the same order in all three lines,
@@ -1130,6 +1134,10 @@ it would be useful to extend our discrepancy to include branch lengths.
 \appendix
 
 \begin{figure}
+	\includegraphics{dissimilarity.pdf}
+\end{figure}
+
+\begin{figure}
     \caption{
         Supplementary figure: runtime of discrepancy function as a function of number of trees
         (which we modulate by changing sequence length).
@@ -1146,135 +1154,144 @@ it would be useful to extend our discrepancy to include branch lengths.
     }
 \end{figure}
 
-\begin{algorithm2e}[!ht]
-	\SetStartEndCondition{ }{}{}%
-	\SetKwProg{Fn}{def}{\string:}{}
-	\SetKwFunction{Range}{range}%%
-	\SetKw{KwTo}{in}
-	\SetKwFor{For}{for}{\string:}{}%
-	\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-	\SetKwFor{While}{while}{:}{fintq}%
-	\SetKw{Break}{break}
-	\newcommand\forcond{$i$ \KwTo\Range{$n$}}
-	\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
-	
-	\caption{Extends haplotypes across a tree sequence $TS$.
-    \comment{I think we can remove this now?}}
-	\label{alg:hap}
-	
-	\SetKwFunction{ex}{Extend Paths}
-	\SetKwFunction{fp}{Find Paths}
-	\DontPrintSemicolon
-	\LinesNotNumbered
-	%\SetAlgoNoEnd
-	\input{A tree sequence $\T$}
-	\output{New tree sequence,$\T'$}
-	\BlankLine
-	\Fn{\fp (tree sequence $\T$, forwards = \tn{True})}{
-	{
-		\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
-		{\BlankLine
-			$\T = \left(T_{|\T|},..., T_1\right)$\;
-		}
-	}
-		\For{pairs $(T_k, T_{k+1})\in \T\times\T$}{
-		Compute subforests $F_O\subseteq T_k$ and $F_I\subseteq\in T_{k+1}$.\;
-		\For{edges $e$ in $F_O$}{
-			Let $c$ be child node.\;
-			$p_c^{F_O} = [c]$\;
-			$p_c^{F_I} = [c]$\;
-			$\bar{p}_c = []$ Path to be inserted\;
-			\While{$\exists f\in F_O$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))=0$}{
-				$p = \tn{parent}(f)$\;
-				Append $p$ to $p_c^{F_O}$\;
-				$c = p$\;
-			}
-			\While{$\exists f\in F_I$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))<3$}{
-				$p =\tn{parent}(f)$\;
-				Append $p$ to $p_c^{F_I}$\;
-				$c = p$\;
-			}
-			\If{($p_c^{F_O}\cap p_c^{F_I})\backslash\{c\}\neq\emptyset$}{
-				Merge paths up to intersection point\;
-				$\bar{p}_c = \hat{p}_c^{F_I} \cup \hat{p}^{F_I}_c$\;
-				and sort by node time.\;
-			}
-			Insert $\bar{p}_c$ into $T_{k+1}$\;		
-		}
-	}\;
-	Update $\T$.\;
-	\KwRet{$\T$}\;
-}
-\BlankLine						
-\Fn{\ex ($\T$)}{
-	$\T' \gets $ \fp($\T$, forwards =\tn{True})\;
-	$\T' \gets $ \fp($\T$, forwards = \tn{False})\;
-	\While{Number of edges in $\T$ $\neq$ Number of edges in $\T'$}{
-		$\T' \gets $ \fp($\T$, fowards=\tn{True})\;
-		$\T' \gets $ \fp($\T$, fowards=\tn{False})\;
-		
-	}
-	\KwRet{$\T'$}\;
-}
-\end{algorithm2e}
 
-% Can most likely delete the extend-edges algorithm %%
-\begin{algorithm2e}[!ht] 
-	
-\SetStartEndCondition{ }{}{}%
-\SetKwProg{Fn}{def}{\string:}{}
-\SetKwFunction{Range}{range}%%
-\SetKw{KwTo}{in}
-\SetKwFor{For}{for}{\string:}{}%
-\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-\SetKwFor{While}{while}{:}{fintq}%
-\SetKw{Break}{break}
-\newcommand\forcond{$i$ \KwTo\Range{$n$}}
-\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+\begin{tabular}[c|c|c|c|c|]
+	Initial & Iteration 1 & Iteration 2 & Iteration 3 & Iteration 4 \\
+	113463	&	76301	&	76059	&	76057	&	76057 \\
+	113266 & 76084	&	75835	&	75833	&	75833 \\
+	114489 & 76703 & 76436 & 76434 & 76434 \\
+	114086	& 76550	& 76294	& 76291	& 76291
+\end{tabular}
 
-\caption{Extends edges across a tree sequence $TS$. 
-\comment{Can be removed, probably -- unless this seems a lot simpler?}}
-\label{alg:edge}
-
-\SetKwFunction{ex}{Extend Edges}
-\SetKwFunction{fwd}{Extend}
-\DontPrintSemicolon
-\LinesNotNumbered
-%\SetAlgoNoEnd
-\input{A tree sequence $\T$}
-\output{New tree sequence,$\T'$}
-
-\BlankLine 
-
-\Fn{\fwd (tree sequence $\T$, forwards = \tn{True})}{
-{	
-\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
-{\BlankLine
-	$\T = \left(T_{|\T|},..., T_1\right)$\;}
-}
-	\For{$T_k\in \T$}{
-	Find all edge pairs $(e_1,e_2)$ such that $e_1 = a\to b$ and $e_2 = b\to c$ for some nodes $a,b,c$.\;
-	\For{edges $f$ in $T_{k+1}$}{
-		\If{$f = a \to c$ and $b$ is not in $T_{k+1}$}{
-		Remove $f$ from $T_{k+1}$.\;
-		Add $e_1$ and $e_2$ to $T_{k+1}$.\;
-		Update $\T$.\;
-	}
-	}
-}\;						
-\KwRet{$\T$}\;
-}
-\BlankLine						
-\Fn{\ex ($\T$, iter=100)}{
-	\For{$*$ \KwTo \Range(iter)}{
-		$\T' \gets \T$.\fwd(fowards=\tn{True})\;
-		$\T' \gets \T$.\fwd(fowards=\tn{False})\;
-		\If{Number of edges in $\T$ = Number of edges in $\T'$}{
-			\Break\BlankLine}
-		}
-}
-\KwRet{$\T'$}\;
-\end{algorithm2e}
+%\begin{algorithm2e}[!ht]
+%	\SetStartEndCondition{ }{}{}%
+%	\SetKwProg{Fn}{def}{\string:}{}
+%	\SetKwFunction{Range}{range}%%
+%	\SetKw{KwTo}{in}
+%	\SetKwFor{For}{for}{\string:}{}%
+%	\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+%	\SetKwFor{While}{while}{:}{fintq}%
+%	\SetKw{Break}{break}
+%	\newcommand\forcond{$i$ \KwTo\Range{$n$}}
+%	\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+%	
+%	\caption{Extends haplotypes across a tree sequence $TS$.
+%    \comment{I think we can remove this now?}}
+%	\label{alg:hap}
+%	
+%	\SetKwFunction{ex}{Extend Paths}
+%	\SetKwFunction{fp}{Find Paths}
+%	\DontPrintSemicolon
+%	\LinesNotNumbered
+%	%\SetAlgoNoEnd
+%	\input{A tree sequence $\T$}
+%	\output{New tree sequence,$\T'$}
+%	\BlankLine
+%	\Fn{\fp (tree sequence $\T$, forwards = \tn{True})}{
+%	{
+%		\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
+%		{\BlankLine
+%			$\T = \left(T_{|\T|},..., T_1\right)$\;
+%		}
+%	}
+%		\For{pairs $(T_k, T_{k+1})\in \T\times\T$}{
+%		Compute subforests $F_O\subseteq T_k$ and $F_I\subseteq\in T_{k+1}$.\;
+%		\For{edges $e$ in $F_O$}{
+%			Let $c$ be child node.\;
+%			$p_c^{F_O} = [c]$\;
+%			$p_c^{F_I} = [c]$\;
+%			$\bar{p}_c = []$ Path to be inserted\;
+%			\While{$\exists f\in F_O$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))=0$}{
+%				$p = \tn{parent}(f)$\;
+%				Append $p$ to $p_c^{F_O}$\;
+%				$c = p$\;
+%			}
+%			\While{$\exists f\in F_I$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))<3$}{
+%				$p =\tn{parent}(f)$\;
+%				Append $p$ to $p_c^{F_I}$\;
+%				$c = p$\;
+%			}
+%			\If{($p_c^{F_O}\cap p_c^{F_I})\backslash\{c\}\neq\emptyset$}{
+%				Merge paths up to intersection point\;
+%				$\bar{p}_c = \hat{p}_c^{F_I} \cup \hat{p}^{F_I}_c$\;
+%				and sort by node time.\;
+%			}
+%			Insert $\bar{p}_c$ into $T_{k+1}$\;		
+%		}
+%	}\;
+%	Update $\T$.\;
+%	\KwRet{$\T$}\;
+%}
+%\BlankLine						
+%\Fn{\ex ($\T$)}{
+%	$\T' \gets $ \fp($\T$, forwards =\tn{True})\;
+%	$\T' \gets $ \fp($\T$, forwards = \tn{False})\;
+%	\While{Number of edges in $\T$ $\neq$ Number of edges in $\T'$}{
+%		$\T' \gets $ \fp($\T$, fowards=\tn{True})\;
+%		$\T' \gets $ \fp($\T$, fowards=\tn{False})\;
+%		
+%	}
+%	\KwRet{$\T'$}\;
+%}
+%\end{algorithm2e}
+%
+%% Can most likely delete the extend-edges algorithm %%
+%\begin{algorithm2e}[!ht] 
+%	
+%\SetStartEndCondition{ }{}{}%
+%\SetKwProg{Fn}{def}{\string:}{}
+%\SetKwFunction{Range}{range}%%
+%\SetKw{KwTo}{in}
+%\SetKwFor{For}{for}{\string:}{}%
+%\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
+%\SetKwFor{While}{while}{:}{fintq}%
+%\SetKw{Break}{break}
+%\newcommand\forcond{$i$ \KwTo\Range{$n$}}
+%\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
+%
+%\caption{Extends edges across a tree sequence $TS$. 
+%\comment{Can be removed, probably -- unless this seems a lot simpler?}}
+%\label{alg:edge}
+%
+%\SetKwFunction{ex}{Extend Edges}
+%\SetKwFunction{fwd}{Extend}
+%\DontPrintSemicolon
+%\LinesNotNumbered
+%%\SetAlgoNoEnd
+%\input{A tree sequence $\T$}
+%\output{New tree sequence,$\T'$}
+%
+%\BlankLine 
+%
+%\Fn{\fwd (tree sequence $\T$, forwards = \tn{True})}{
+%{	
+%\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
+%{\BlankLine
+%	$\T = \left(T_{|\T|},..., T_1\right)$\;}
+%}
+%	\For{$T_k\in \T$}{
+%	Find all edge pairs $(e_1,e_2)$ such that $e_1 = a\to b$ and $e_2 = b\to c$ for some nodes $a,b,c$.\;
+%	\For{edges $f$ in $T_{k+1}$}{
+%		\If{$f = a \to c$ and $b$ is not in $T_{k+1}$}{
+%		Remove $f$ from $T_{k+1}$.\;
+%		Add $e_1$ and $e_2$ to $T_{k+1}$.\;
+%		Update $\T$.\;
+%	}
+%	}
+%}\;						
+%\KwRet{$\T$}\;
+%}
+%\BlankLine						
+%\Fn{\ex ($\T$, iter=100)}{
+%	\For{$*$ \KwTo \Range(iter)}{
+%		$\T' \gets \T$.\fwd(fowards=\tn{True})\;
+%		$\T' \gets \T$.\fwd(fowards=\tn{False})\;
+%		\If{Number of edges in $\T$ = Number of edges in $\T'$}{
+%			\Break\BlankLine}
+%		}
+%}
+%\KwRet{$\T'$}\;
+%\end{algorithm2e}
 
 
 \end{document}
