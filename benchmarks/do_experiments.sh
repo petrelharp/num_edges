@@ -1,6 +1,13 @@
 #!/bin/bash
 
 set -eo pipefail
+if [ -e "run_py.srun" ]
+then
+    PYTHON="sbatch run_py.srun"
+else
+    PYTHON="python"
+fi
+
 
 OUTDIR="one_pop_results"
 CSVFILE=${OUTDIR}.csv
@@ -15,14 +22,13 @@ then
             SEED=$RANDOM$RANDOM
             OUT=$OUTDIR/run_${L}_${N}_${SEED}
             echo "$OUT  ....."
-            python run_experiment.py --num_samples $N --length $L \
+            $PYTHON run_experiment.py --num_samples $N --length $L \
                 --seed $SEED one_pop.trees $OUT
             SEED=$((SEED + 1))
         done
     done
+
 else
     echo "${OUTDIR} already exists; doing nothing."
 fi
 
-python jsons-to-csv.py $OUTDIR $CSVFILE
-python plot_results.py $CSVFILE
