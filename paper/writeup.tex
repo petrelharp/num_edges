@@ -27,6 +27,7 @@
 \newcommand{\tn}{\textnormal}
 \newcommand{\ov}{\overline}
 \newcommand{\tskit}{\texttt{tskit}}
+\newcommand{\msprime}{\texttt{msprime}}
 \newcommand{\argmax}{\operatorname{argmax}}
 \newcommand{\dis}{\operatorname{dis}}
 \newcommand{\agree}{\operatorname{agree}}
@@ -629,13 +630,14 @@ as \comment{XXX}.
 It is helpful to first describe what we compute in the simple case.
 \figref{fig:node-spans}A shows the spans for each node in three tree sequences:
 for each node, the top point is the total span in a ``true'' tree sequence
-that was simulated with \texttt{msprime} \citep{kelleher2016efficient}
+that was simulated with \msprime \citep{kelleher2016efficient,baumdicker2021efficient}
 in a way that included spans over which nodes are unary in the output
-\comment{(using which option?)}.
+(by setting \texttt{coalescing\_segments\_only} to False).
 The bottom point is the span of the node after \emph{simplifying} the tree sequence
 \citep{kelleher2018efficient},
 which removes all unary nodes from all trees.
-\comment{Usually (?)} between the two is the span of the node after applying \algorithmref{alg:extend}
+\comment{Usually (?)} between the two points
+is the span of the node after applying \algorithmref{alg:extend}
 to the simplified tree sequence.
 So, the difference between the middle and bottom points is the amount by which
 the span of that node has been extended.
@@ -863,6 +865,44 @@ We note that the discrepancy function is a metric for detecting non-similarity b
 %\end{algorithm2e}
 
 
+\subsection{Simulations}
+
+To do this, we simulate ARGs containing full haplotypes using \msprime's 
+option \texttt{coalescing\_segments\_only} set to False.
+Although \msprime simulates many events that do not create a coalescence in some marginal tree,
+it only outputs information for nodes which contain a coalescence
+(i.e., are the MRCA of some pair of samples at some point on the genome).
+Furthermore, by default it only outputs those segments of the genome
+on which there is a coalescence.
+Said another way, by default all ancestral nodes in the ARG
+output by \msprime are the MRCA of some pair of samples at every point in the genome
+on which they are represented.
+However, here we are interested in those segments of genome
+on which the nodes are \emph{not} coalescent;
+i.e., where they are unary in the marginal trees.
+More concretely, we hope to recover those portions of ancestral haplotypes
+on which the nodes are unary, but adjacent to a region of the genome where the node is not unary.
+For instance, if a lineage carrying an ancestral segment of genome that spans $[a, c)$
+coalesces with another spanning $[b, d)$, with $a < b < c < d$,
+then the resulting node is only coalescent on $[b, c)$ but we hope using this algorithm
+to extend the node's span to $[a, b)$ and $[c, d)$
+(on which the node is unary).
+However, following this example, the first lineage might carry a segment $[x, y)$
+that is disjoint from $[a, d)$.
+We call these segments ``isolated non-coalescent segments'';
+they have also been called ``trapped unary spans'' \citep[by][]{XXX}.
+Such segments will not be recovered by our algorithm,
+and it seems likely that most such segments are unrecoverable by any method.
+So, when evaluating what proportion of the true ARG is represented in an inferred ARG
+we omit these isolated non-coalescent segments.
+To give an idea of what proportion of the full spans of ancestral nodes
+these isolated non-coalescent segments represent,
+a simulation of 1000 samples
+with genome length $5\times 10^7$, recombination rate $10^{-8}$, and population size $10^4$
+has about half the total span of all nodes in isolated, non-coalescent segments.
+For more discussion of these segments, see \citet{baumdicker2021efficient}.
+
+
 \section{Results}
 
 \comment{
@@ -918,10 +958,11 @@ and so increases the work required (and also computation time, as seen in \figre
 
 \subsection{Reconstructing haplotypes of true trees}
 
-When observing our algorithm, we have to observe that for general tree sequences that have been initially simplified, there are portions of the tree sequence that the extend haplotypes method will not be able to recover. We call these portions \textit{trapped unary spans}. Most of these spans occur in the oldest portions of the ancestry near roots of the tree sequence. Thus we must disregard these unary spans when observing the effects of extend haplotypes.
-First we have to determine how much of a tree sequence is trapped?
-For a tree sequence $\T$ simulated in `msprime` with genomic length $5\times 10^7$ with 1000 samples, recombination rate $10^{-8}$ and population size $10^4$, we found that trapped unary spans represented 49\%.
-This means that extend haplotypes can only affect 51\% of this tree sequence.
+Our first task is to confirm that the haplotypes extended by \algorithmref{alg:extend}
+are indeed correct.
+To do this, we simulate ARGs containing full haplotypes using \msprime
+as described in the Methods.
+
 When we apply our algorithm to the simplified given tree sequence, the ratio of unary span bordering coalescing between the extend tree sequence and the original is 0.4917. This means that \comment{something something something...}  
 See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figref{fig:node-spans}.
 
@@ -1033,18 +1074,22 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 
 \begin{figure}
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/sampling_dist_geneconversion.pdf}
-	\caption{Observation of Extendhapltypes with gene conversion = some number
-	Left: 
-	Middle:
-	Right: }
+	\caption{
+        Accuracy of \algorithmref{alg:extend}
+        on simulated ARGs with \comment{TODO, including gene conversion}.
+        The same quantities for simulated ARGs without gene conversion
+        are shown in Supplementary \figref{fig:accuracy_on_truth_no_gc}.
+    \label{fig:accuracy_on_truth}
+}
 \end{figure}
 
 \begin{figure}
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/sampling_dist_recomb.pdf}
-	\caption{Observation of Extendhapltypes with recombination = some number
-		Left: 
-		Middle:
-		Right: }
+	\caption{Accuracy of \algorithmref{alg:extend}
+        as in \figref{fig:accuracy_on_truth} except that simulations were done
+        without gene conversion.
+        \label{fig:accuracy_on_truth_no_gc}
+    }
 \end{figure}
 
 \subsection{Data}
