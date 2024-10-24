@@ -1,6 +1,7 @@
 #!/bin/bash
 
 OUTDIR="one_pop_results"
+CSVFILE=${OUTDIR}.csv
 if [ ! -e $OUTDIR ]
 then
     mkdir -p $OUTDIR
@@ -21,4 +22,5 @@ else
     echo "${OUTDIR} already exists; doing nothing."
 fi
 
-python plot_results.py $OUTDIR
+python jsons-to-csv.py $OUTDIR $CSVFILE
+python plot_results.py $CSVFILE
