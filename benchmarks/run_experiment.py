@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     rng = np.random.default_rng(seed=args.seed)
 
-    ts = tskit.load(args.input)
+    ts = tskit.load(args.input).trim()
 
     L = args.length
     if L is None:

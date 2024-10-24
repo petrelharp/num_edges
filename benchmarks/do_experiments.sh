@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eo pipefail
+
 OUTDIR="one_pop_results"
 CSVFILE=${OUTDIR}.csv
 if [ ! -e $OUTDIR ]
@@ -8,7 +10,7 @@ then
 
     for L in 1e6 5e6 1e7 5e7 1e8
     do
-        for N in 10 50 100 500 1000
+        for N in 100 500 1000 5000 10000
         do
             SEED=$RANDOM$RANDOM
             OUT=$OUTDIR/run_${L}_${N}_${SEED}
