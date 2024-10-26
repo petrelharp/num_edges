@@ -30,7 +30,7 @@
 \newcommand{\msprime}{\texttt{msprime}}
 \newcommand{\argmax}{\operatorname{argmax}}
 \newcommand{\dis}{\operatorname{dis}}
-\newcommand{\agree}{\operatorname{agree}}
+\newcommand{\similarity}{\operatorname{sim}}
 \newcommand{\comment}[1]{{\color{violet} \it #1}}
 
 \newcommand{\algorithmref}[2][]{%
@@ -591,7 +591,7 @@ The algorithm is monotone (spans of ancestral nodes only increase),
 so it is guaranteed to require only a finite number of passes,
 but it is also not hard to construct pathalogical cases that require an arbitrary number of passes.
 \figref{fig:num_passes} shows empirical results from simulated tree sequences,
-which suggest that \comment{XXX TODO}.
+which suggest that only at most five iterations are needed before the algorithm terminates. Indeed, for even larger sequences \ref{tab:edge-counts} shows that 99\% of all changes to an ARG occur after the first iteration with the algorithm completing after four iterations. \comment{ XXX Do we want to add more here? XXX}
 
 \begin{figure}[!ht]
     \caption{
@@ -605,7 +605,7 @@ which suggest that \comment{XXX TODO}.
 
 %% Find counter example to global minimum.
 
-\subsection{Discrepancy Function}
+\subsection{Dissimilarity Function}
 % * How to measure agreement that includes haplotypes
 % * Definition and Algorithm
 % * Supp fig: runtime ~ # trees, samples
@@ -623,7 +623,7 @@ However, we are also interested in whether \algorithmref{alg:extend}
 improves \emph{inferred} tree sequences.
 Since we are not aware of any current methods for measuring (dis)agreement between tree sequences
 that take into account haplotype identity,
-we define a measure of \emph{discrepancy} to quantify this.
+we define a measure of \emph{dissimilarity} to quantify this.
 The method is implemented in the \texttt{tsdate} package \citep{wohns2022unified}
 as \comment{XXX}.
 
@@ -651,7 +651,7 @@ They also tell us how much of the relationships in the original tree sequence
 are represented in the result.
 
 Now suppose that instead of comparing two tree sequences with the same set of nodes,
-we wish to compare two tree sequence for which we know the sample nodes are the same
+we wish to compare two tree sequences for which we know the sample nodes are the same
 but are not given an identification between nodes otherwise
 (as for instance with a true, simulated tree sequence and one inferred from its genotypes).
 \comment{should have introduced ``samples'' before this}
@@ -671,6 +671,7 @@ Concretely, suppose that the two tree sequences have the same set of breakpoints
 between trees,
 so that $T_1^{(1)}, \ldots, T_N^{(1)}$ are the trees in $\T_1$
 and $T_1^{(2)}, \ldots, T_N^{(2)}$ are the trees in $\T_2$.
+\comment{Should we include an addendum that we can do this for tree sequences with different break points its just a little more tedious?}
 For a node $n$ and tree $T$
 let $S(T, n)$ denote the set of samples that inherit from $n$ in $T$,
 and for a pair of nodes $n_1$ and $n_2$ with $n_1$ in $\T_1$ and $n_2$ in $\T_2$,
@@ -687,37 +688,37 @@ Also let
     s(\T, n) = \sum_{k=1}^N (a_k - a_{k-1}) \ind_{n \in T_k} ,
 \end{align*}
 the total span that node $n$ is present in the marginal trees.
-The \emph{agreement} between $\T_1$ and $\T_2$ is then defined to be
+The \emph{similarity} between $\T_1$ and $\T_2$ is then defined to be
 \begin{align*}
-    \agree(\T_1, \T_2)
+    \similarity(\T_1, \T_2)
     =
     \max_{\beta:N_1 \to N_2} \sum_{n \in N_1} m(n, \beta(n)) ,
 \end{align*}
-where the maximum is over all mappings nodes in $\T_1$ to nodes in $\T_2$.
+where the maximum is over all mappings of nodes in $\T_1$ to nodes in $\T_2$.
 (Note that multiple nodes in $\T_1$ may be mapped to the same node in $\T_2$,
 and that there may be no nodes in $\T_1$ that are mapped to some nodes in $\T_2$.)
 Since the maximum is independent over nodes, we may define for each node $n_1 \in \T_1$
 it's \emph{best matching node} in $\T_2$ as
 \begin{align*}
-    \alpha(n_1) = \argmax_{n_2 \in N_2} m(n_1, n_2) ,
+    \alpha(n_1) = \argmax_{n_2 \in N_2} \frac{1}{1+|t_{n_1}-t_{n_2}|}\max_{n_2\in N_2} m(n_1, n_2) ,
 \end{align*}
 so that
 \begin{align*}
-    \agree(\T_1, \T_2)
+    \similarity(\T_1, \T_2)
     =
     \sum_{n \in N_1} m(n, \alpha(n)) .
 \end{align*}
 If the best-matching node is unique, we define $\alpha(n_1)$ to be the node in $T_2$
-out of those minimizing $m(n_1, n_2)$ that minimizes $|t^{(1)}_{n_1} - t^{(2)}_{n_2}|$
+out of those maximizing $m(n_1, n_2)$ that minimizes $|t^{(1)}_{n_1} - t^{(2)}_{n_2}|$
 (and if \emph{this} is not unique, we pick an arbitrary one) --
-however, this potential ambiguity does not affect the definition of $\agree(\T_1, \T_2)$.
-We then define the \emph{discrepancy} of $\T_1$ from $\T_2$ by
+however, this potential ambiguity does not affect the definition of $\similarity(\T_1, \T_2)$.
+We then define the \emph{dissimilarity} of $\T_1$ from $\T_2$ by
 \begin{align*}
     \dis(\T_1, \T_2)
     =
-    \sum_{n \in N_1} (s(\T_1, n) - m(n, \alpha(n))) ,
+    \frac{\sum_{n \in N_1} (s(\T_1, n) - m(n, \alpha(n)))}{\sum_{n\in N_1} s(\T_1,n)} ,
 \end{align*}
-which is the total span of all nodes in $\T_1$
+which is the proportion of total span of all nodes in $\T_1$
 for which their descendant samples do \emph{not} match those of their best match in $\T_2$.
 
 Other authors \citep[e.g.,]{kelleher2019inferring} have used
@@ -735,11 +736,11 @@ is
 \begin{align*}
     \frac{1}{L} \left( \sum_{n_1 \in N_1} m'(n_1, \T_2)  + \sum_{n_2 \in N_2} m'(n_2, \T_1) \right).
 \end{align*}
-\comment{Check this!}
+\comment{Check this!}\comment{Not true. I believe you can have the problem again of two nodes in TS1 match with node in TS2}
 In other words, we require a node in $\T_1$ to match the \emph{same} node in $\T_2$
 across all trees, but average Robinson-Foulds distance allows a different node to match
-on each tree.
-The other differences are that \emph{average} Rbonson-Foulds distance
+on each tree. \comment{I don't think this is true nor do I understand how $m'$ is truely different than $m$. It seems like $m'$ is just the extension of $m$ to the level of tree sequences.}
+The other differences are that \emph{average} Robinson-Foulds distance
 normalizes by sequence length, and is symmetrized.
 Robinson-Foulds distance between two trees
 was defined by \citet{robinson1981comparison}
@@ -749,7 +750,7 @@ from one tree to the other
 It would be interesting to define a similar metric on tree sequences,
 perhaps using the Subgraph-Prune-and-Regraft moves used by Singer \citet{deng2024robust}.
 
-The discrepancy $\dis(\T_1, \T_2)$ measures disagreement between \emph{topologies},
+The dissimilarity $\dis(\T_1, \T_2)$ measures disagreement between \emph{topologies},
 but not times.
 If the tree sequence is dated, we can naturally use the ``best match'' $\alpha$
 to also compare times,
@@ -766,49 +767,51 @@ The mean is computed weighting by node span, so that a dating error
 is more serious for a node with a longer span.
 \comment{TODO: change the definition?
 In practice, time estimation errors seem to be closer to homoskedastic on a log scale,
-so this would probably be more informative if errors are computed on the log sale.}
+so this would probably be more informative if errors are computed on the log sale.} 
+
+We compute the dissimilarity of two tree sequences in \figref{fig:conceptual_discrepancy}.
 
 
 %%%%%%%%%%%%
-\comment{PREVIOUS VERSION: retrieve bits from below?}
-
-Inspired by Robinson-Foulds we define a function, called a \textit{discrepancy function} (see \algorithmref{alg:disc}), on a pair of tree sequences $\T_1$, $\T_2$ of equal length $L$.
-Let $N_{T_1}$ and $N_{T_2}$ be the set of nodes on $\T_1$ respectively $\T_2$.
-For a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$, we define their \textit{discrepancy} as a difference in their total spans over the genome.
-Each node $n\in\T$ has a given position along the genome and time, 
-so we can write each node as a tuple $n = (t_n, L_n)$ with position $L_n\subset \left[0,L\right)$ and time $t_n\in \R^{\geq 0}$.
-Computing the discrepancy between a random pair of nodes is not helpful, 
-so we must first identify which pairs of nodes would be most identical to one another or a `best match'.
-These `best matching' nodes should be close in terms of time and have equal descendant sample sets,
-ie. $s(i) = s(j)$ where $s$ is the function to compute the descendant sample set of $n_1$.
-
-To find a best match for each node $i\in N_{T_1}$ \comment{(Should I do this by mentioning clades?)}
-we compute the \textit{shared span} between node $i\in N_{T_1}$ and every node in $N_{T_2}$.
-Then, the \textit{shared span} between two tree sequences, denoted $ss(\T_1,\T_2)$, is a $|N_{T_1}|\times |N_{T_2}|$ matrix $A$
-where each entry $a_{ij}$ represents the shared span between a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$.
-If a pair $(i,j)$ has equal descendant sample sets, $s(i) = s(j)$
-then $a_{ij} = |L_i \cap L_j|$.
-If the pair does not have an equal descendant sample set then we set $a_{ij}=0$.
-Matrix $A$ determines the \textit{best match} for every node $i\in N_{T_1}$
-via looking at the maximum in row $i$, $\alpha_i = \max_{j\in N_{T_2}} a_{ij}$.
-If this maximum is not unique, we use time difference to determine the best match pair.
-We then define the \textit{discrepancy} between $\T_1$ and $\T_2$ as 
-one minus the proportion of sum of the shared spans divided by the total node span of $\T_1$.
-
-We note that the discrepancy function is a metric for detecting non-similarity between two tree sequences. However, we note that this function is not a metric in the mathematical sense, as it is not symmetric, nor is it reflexive. For example, given a tree sequence $\T$ and its simplification $\mathbb{S}$ and $\T\neq\mathbb{S}$ we have $\operatorname{discrepancy}(\mathbb{S}, \T)=0$. Additionally, given \figref{fig:conceptual_discrepancy}, $\operatorname{discrepancy}(T1, T2) \neq \operatorname{discrepancy}(T2, T1)$ \comment{actually compute this. We may just do it in this section instead of the appendix?}
- 
-\comment{Do we want a complete walkthrough of Figure 3? Could be useful in an appendix} 
+%\comment{PREVIOUS VERSION: retrieve bits from below?}
+%
+%Inspired by Robinson-Foulds we define a function, called a \textit{discrepancy function} (see \algorithmref{alg:disc}), on a pair of tree sequences $\T_1$, $\T_2$ of equal length $L$.
+%Let $N_{T_1}$ and $N_{T_2}$ be the set of nodes on $\T_1$ respectively $\T_2$.
+%For a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$, we define their \textit{discrepancy} as a difference in their total spans over the genome.
+%Each node $n\in\T$ has a given position along the genome and time, 
+%so we can write each node as a tuple $n = (t_n, L_n)$ with position $L_n\subset \left[0,L\right)$ and time $t_n\in \R^{\geq 0}$.
+%Computing the discrepancy between a random pair of nodes is not helpful, 
+%so we must first identify which pairs of nodes would be most identical to one another or a `best match'.
+%These `best matching' nodes should be close in terms of time and have equal descendant sample sets,
+%ie. $s(i) = s(j)$ where $s$ is the function to compute the descendant sample set of $n_1$.
+%
+%To find a best match for each node $i\in N_{T_1}$ \comment{(Should I do this by mentioning clades?)}
+%we compute the \textit{shared span} between node $i\in N_{T_1}$ and every node in $N_{T_2}$.
+%Then, the \textit{shared span} between two tree sequences, denoted $ss(\T_1,\T_2)$, is a $|N_{T_1}|\times |N_{T_2}|$ matrix $A$
+%where each entry $a_{ij}$ represents the shared span between a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$.
+%If a pair $(i,j)$ has equal descendant sample sets, $s(i) = s(j)$
+%then $a_{ij} = |L_i \cap L_j|$.
+%If the pair does not have an equal descendant sample set then we set $a_{ij}=0$.
+%Matrix $A$ determines the \textit{best match} for every node $i\in N_{T_1}$
+%via looking at the maximum in row $i$, $\alpha_i = \max_{j\in N_{T_2}} a_{ij}$.
+%If this maximum is not unique, we use time difference to determine the best match pair.
+%We then define the \textit{discrepancy} between $\T_1$ and $\T_2$ as 
+%one minus the proportion of sum of the shared spans divided by the total node span of $\T_1$.
+%
+%We note that the discrepancy function is a metric for detecting non-similarity between two tree sequences. However, we note that this function is not a metric in the mathematical sense, as it is not symmetric, nor is it reflexive. For example, given a tree sequence $\T$ and its simplification $\mathbb{S}$ and $\T\neq\mathbb{S}$ we have $\operatorname{discrepancy}(\mathbb{S}, \T)=0$. Additionally, given \figref{fig:conceptual_discrepancy}, $\operatorname{discrepancy}(T1, T2) \neq \operatorname{discrepancy}(T2, T1)$ \comment{actually compute this. We may just do it in this section instead of the appendix?}
+% 
+%\comment{Do we want a complete walkthrough of Figure 3? Could be useful in an appendix} 
 
 \begin{figure}[!ht]
 	\begin{center}
 \includegraphics[height=1.5in, width=3in]{discrepancy_func_method_t1.pdf}
 \includegraphics[height=1.5in, width=3in]{discrepancy_function_method_t2.pdf}
     \caption{
-        For two tree sequences $T1$ and $T2$ the \textit{discrepancy function}, $d(T1,T2)$, matches nodes in $T1$ with nodes in $T2$
-        based on identical sample sets. We then measure each pair of nodes' \textit{shared span} across the entire tree sequence.
-        In this example we have nodes $0$ through $7$ in $T1$ match with their identical counterpart. 
-        Node $8$ has no match in $T2$ as there are no nodes in $T2$ with sample set $\left\{1,2,3\right\}$.
-        \comment{make some reference to Discrepancy function section or appendix for more in depth calculation.}
+        For two tree sequences $T1$ and $T2$ the \emph{dissimilarity function}, $\dis(T1,T2)$, matches nodes in $T1$ to nodes in $T2$
+        based on identical sample sets.
+        In this example, node $8$ has no match in $T2$ as there are no nodes in $T2$ with sample set $\left\{1,2,3\right\}$.
+        Node $4$ has no match on $[4,5)$ and matches with node $9$ on $[5,6)$. On the rest of the genome, all of nodes match with their identical counterpart.
+        This makes the dissimilarity $\dis(T1,T2)=\frac{3}{46}$.
         \label{fig:conceptual_discrepancy}
     }
 	\end{center}
@@ -923,7 +926,7 @@ For more discussion of these segments, see \citet{baumdicker2021efficient}.
 
 \subsection{Tree sequence compression and computation}
 
-In the simple example in \figref{fig:extending_diagram},
+In the simple example in \figref{fig:conceptual},
 extending haplotypes replaces three edges
 ($0 \to 3$ and $3 \to 4$ on the left tree, and $0 \to 4$ on the right tree)
 by two edges ($0 \to 3$ and $3 \to 4$ on both trees).
@@ -934,7 +937,7 @@ leading to a reduction in number of edges by 1/3.
 Experiments with an earlier version of the algorithm showed that
 if we only extend haplotypes on ``paths of length 1'' like this, 
 then this is achieved for long sequences.
-It is possible for \algorithmref{alg:extend} to add edges,
+It is possible for \algorithmref{alg:extend} to add edges, as in \figref{extending_diagram},
 but we still expect the number of edges to decrease by more than 1/3.
 Indeed,
 \figref{fig:num_edges} shows that \algorithmref{alg:extend} nearly cuts the number of edges
@@ -1040,7 +1043,7 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 \begin{figure}
 	\begin{center}
 		\includegraphics[width=0.9\linewidth]{newplots_wo_ee/discrepancy_over_sample_5e7_new.pdf}
-		\caption{Left: Discrepancy \newline Right: True Proportion }
+		\caption{Left: Dissimilarity \newline Right: True Proportion }
 	\end{center}
 	\label{fig:discrepancy-over-sample}
 \end{figure}
@@ -1048,7 +1051,7 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 \begin{figure}
 	\begin{center}
 		\includegraphics[width=0.9\linewidth]{newplots_wo_ee/discrepancy_over_seqlen_1000s_new_5e7.pdf}
-		\caption{Left: Discrepancy \newline Right: True Proportion}
+		\caption{Left: Dissimilarity \newline Right: True Proportion}
 	\end{center}
 	\label{fig:discrepancy-over-seqlen}
 \end{figure}
@@ -1076,7 +1079,7 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/sampling_dist_geneconversion.pdf}
 	\caption{
         Accuracy of \algorithmref{alg:extend}
-        on simulated ARGs with \comment{TODO, including gene conversion}.
+        on simulated ARGs with sample size $10^2$, length $10^7$, gene conversion rate $10^{-8}$ and gene tract length = $10^3$.
         The same quantities for simulated ARGs without gene conversion
         are shown in Supplementary \figref{fig:accuracy_on_truth_no_gc}.
     \label{fig:accuracy_on_truth}
@@ -1087,7 +1090,7 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/sampling_dist_recomb.pdf}
 	\caption{Accuracy of \algorithmref{alg:extend}
         as in \figref{fig:accuracy_on_truth} except that simulations were done
-        without gene conversion.
+        without gene conversion. \comment{Add to supplement.}
         \label{fig:accuracy_on_truth_no_gc}
     }
 \end{figure}
@@ -1128,7 +1131,7 @@ In this paper, we have shown that this information can be largely replaced.
 
 \paragraph{Metrics on ARGs}
 \comment{collecting random notes here; TODO is tie them together}
-The discrepancy $\dis(\T_1,\T_2)$ is clearly not a metric in the mathematical sense
+The dissimilarity $\dis(\T_1,\T_2)$ is clearly not a metric in the mathematical sense
 (i.e., symmetric, nonzero distance between distinct points, and satisfying the triangle inequality).
 This is by design: in practice it is not possible to infer all aspects
 of the true ancestry of a set of samples (i.e., all their genetic ancestors who ever lived),
@@ -1139,7 +1142,7 @@ $d(\T_1,\T_2) = \dis(\T_1,\T_2) + \dis(\T_2, \T_1)$ is a metric.
 To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$,
 and view each ARG as a subset of the space $[0,L) \times N \times N$,
 where $N$ is the shared set of nodes.
-Then, discrepancy is the Lesbegue measure of the relative difference of the two sets:
+Then, dissimilarity is the Lesbegue measure of the relative difference of the two sets:
 $|\T_1 \setminus \T_2|$,
 and so the symmetrized version is the measure of the symmetric difference,
 which is well-known to be a metric.
@@ -1153,7 +1156,7 @@ The Robinson-Foulds distance \citep{robinson1981comparison}
 essentially counts the number of differing branches between two trees;
 the averaged Robinson-Foulds distance \citep{kelleher2019inferring} % TODO: first usage?
 combines this distance across marginal trees, weighted by span along the genome.
-The method we present here for measuring discrepancy between topologies of ARGs
+The method we present here for measuring dissimilarity between topologies of ARGs
 is a straightforward generalization
 that takes into account span along the genome of inferred ancestral haplotypes
 (and separates the metric into two pieces as discussed in the previous paragraph).
@@ -1163,7 +1166,7 @@ and there is a substantial literature giving generalizations
 \citep[reviewed by][]{llabres2021generalized}.
 Many of these generalizations \citep[e.g.,][]{bocker2013generalized}
 relax the requirement that the match between subtended sample sets be exact,
-and weight matches in some way by the size of the discrepancy.
+and weight matches in some way by the size of the dissimilarity.
 We considered such definitions as well, but kept to the simple case
 for computational tractability --
 the generalization of \citet{bocker2013generalized} is NP-hard to compute, even for a single tree.
@@ -1172,7 +1175,7 @@ defines a metric (called ``ARG total variation distance'') that includes branch 
 in a way similar to \citet{robinson1979comparison} and \citet{kuhner1994simulation};
 however, it is still applied to ARGs as an average over marginal trees,
 without enforcement of identity across haplotypes;
-it would be useful to extend our discrepancy to include branch lengths.
+it would be useful to extend our dissimilarity to include branch lengths.
 
 \bibliography{references}
 
@@ -1182,13 +1185,13 @@ it would be useful to extend our discrepancy to include branch lengths.
 	\includegraphics{dissimilarity.pdf}
 \end{figure}
 
-\begin{figure}
-    \caption{
-        Supplementary figure: runtime of discrepancy function as a function of number of trees
-        (which we modulate by changing sequence length).
-        \label{fig:speed_discrepancy}
-    }
-\end{figure}
+%\begin{figure}
+%    \caption{
+%        Supplementary figure: runtime of discrepancy function as a function of number of trees
+%        (which we modulate by changing sequence length).
+%        \label{fig:speed_discrepancy}
+%    }
+%\end{figure}
 
 \begin{figure}
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/num_trees_vs_Num_edges_subplot.pdf}
@@ -1199,14 +1202,29 @@ it would be useful to extend our discrepancy to include branch lengths.
     }
 \end{figure}
 
-
-\begin{tabular}[c|c|c|c|c|]
+\begin{center}
+\begin{table}[hbt]
+\begin{tabular}{|c|c|c|c|c|}
+	\hline
 	Initial & Iteration 1 & Iteration 2 & Iteration 3 & Iteration 4 \\
+	\hline
+	\hline
 	113463	&	76301	&	76059	&	76057	&	76057 \\
+	\hline
 	113266 & 76084	&	75835	&	75833	&	75833 \\
+	\hline
 	114489 & 76703 & 76436 & 76434 & 76434 \\
-	114086	& 76550	& 76294	& 76291	& 76291
+	\hline
+	114086	& 76550	& 76294	& 76291	& 76291\\
+	\hline
 \end{tabular}
+\caption{Number of edges for each iteration of \textit{extend haplotypes} applied to 
+simulated tree sequences with sample size $10^4$ and length $5\times 10^7$. 
+Each of the simulations terminated by the fourth iteration, however 99\% of the edges
+are removed within the first iteration.}
+\label{tab:edge-counts}
+\end{table}
+\end{center}
 
 %\begin{algorithm2e}[!ht]
 %	\SetStartEndCondition{ }{}{}%
