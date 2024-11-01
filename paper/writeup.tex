@@ -27,6 +27,7 @@
 \newcommand{\tn}{\textnormal}
 \newcommand{\ov}{\overline}
 \newcommand{\tskit}{\texttt{tskit}}
+\newcommand{\tsinfer}{\texttt{tsinfer}}
 \newcommand{\msprime}{\texttt{msprime}}
 \newcommand{\argmax}{\operatorname{argmax}}
 \newcommand{\dis}{\operatorname{dis}}
@@ -70,10 +71,10 @@
 
 
 % NOTE: these are in alphabetical order for now; we can revisit that ordering
-\author[$\dagger$]{Ava Bamforth}
 \author[$\dagger$]{Halley Fritze}
-\author[$\ddagger$]{Jerome Kelleher}
 \author[$\dagger$]{Nathaniel Pope}
+\author[$\dagger$]{Ava Bamforth}
+\author[$\ddagger$]{Jerome Kelleher}
 \author[$\ast$,$\dagger$,S]{Peter Ralph}
 
 \affil[$\ast$]{Institute of Evolution and Ecology and Department of Biology, University of Oregon, Eugene, Oregon}
@@ -908,12 +909,9 @@ For more discussion of these segments, see \citet{baumdicker2021efficient}.
 
 \section{Results}
 
-\comment{
-    Idea: look at statistical properties of unary regions:
-    look at how much 'unary regions' there is in simulation
-    and how much we can put back in,
-    as a function of time.
-}
+% Outline:
+% 1. benchmarking: edge reduction and runtime
+% 2. correctness:
 
 %% TO DO:
 %% 1. Discuss trapped unary spans more
@@ -924,7 +922,10 @@ For more discussion of these segments, see \citet{baumdicker2021efficient}.
 %% 4. Discuss figures about total edge span added in both recombination and gene conversion events
 %% 5. Discuss the figures on edge reduction (include #3 part 1.)
 
+%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Tree sequence compression and computation}
+
+\comment{TODO: put in benchmarking figures}
 
 In the simple example in \figref{fig:conceptual},
 extending haplotypes replaces three edges
@@ -937,38 +938,44 @@ leading to a reduction in number of edges by 1/3.
 Experiments with an earlier version of the algorithm showed that
 if we only extend haplotypes on ``paths of length 1'' like this, 
 then this is achieved for long sequences.
-It is possible for \algorithmref{alg:extend} to add edges, as in \figref{extending_diagram},
+It is possible for \algorithmref{alg:extend} to add edges, as in \figref{fig:extending_diagram},
 but we still expect the number of edges to decrease by more than 1/3.
 Indeed,
 \figref{fig:num_edges} shows that \algorithmref{alg:extend} nearly cuts the number of edges
 in half, as long as the sequence is long enough.
 
-One might expect that a reduction in edges would also lead to a reduction in computation time
-(for instance, of the class of statistics described in \citet{ralph2020efficiently}.
-This turns out not to be the case, as shown in \figref{fig:num_edges}.
-The reason for this is clear if we
-return to the algorithms in \citet{ralph2020efficiently}:
+This reduction in edges can also lead to a reduction in computation time.
+Indeed, \figref{fig:num_edges} shows that computation time is reduced by 10--20\%
+for a typical statistic (here, Tajima's $D$),
+computed in an efficient iterative manner along the genome as implemented in \tskit.
+This is actually somewhat surprising:
+as described in \citet{ralph2020efficiently},
 each edge added or removed requires an update
 to the state of the parent node \emph{and every node above it in the tree}.
 So, even if an edge extends for a long segment of genome,
-something has to happen to it every time the subtree below it changes.
-Extending haplotypes does not change at all the locations in the tree affected by subtree changes.
-\comment{If the increase in computation time holds up:}
-In fact, introducing unary nodes to branches
-\emph{increases} the distance from a typical node up to the root,
-and so increases the work required (and also computation time, as seen in \figref{fig:num_edges}).
+something has to happen to it every time the subtree below it changes,
+which is not affected by extending haplotypes.
 
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Accuracy with true trees}
 
-\subsection{Reconstructing haplotypes of true trees}
+Our next task is to confirm that the haplotypes extended by \algorithmref{alg:extend}
+are indeed correct -- i.e., that in addition to compression, we are also gaining information.
+To do this, 
+we simulate ARGs containing full haplotypes using \msprime{},
+apply the simplification algorithm to reduce these so that there are no unary nodes
+(i.e., any node present in a marginal tree is a coalescent node or a sample),
+and then apply \algorithmref{alg:extend} to the result
+(see Methods for more detail).
+The method can potentially extend the spans of each node
+(spans on which the node will be unary);
+and we can quantify how much of these extended spans were in the original ARG
+(and thus correctly extended).
 
-Our first task is to confirm that the haplotypes extended by \algorithmref{alg:extend}
-are indeed correct.
-To do this, we simulate ARGs containing full haplotypes using \msprime
-as described in the Methods.
-
-When we apply our algorithm to the simplified given tree sequence, the ratio of unary span bordering coalescing between the extend tree sequence and the original is 0.4917. This means that \comment{something something something...}  
-See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figref{fig:node-spans}.
-
+\comment{TODO: figure out if we can remove this from figures. If so, move this to Methods.}
+Some stuff can't be inferred since it's "isolated unary";
+for instance with 1,000 samples, 5e7 that's about half the ARG.
+Etcetera.
 
 %$msprime.sim_ancestry(1000, sequence_length=5e7, recombination_rate=1e-8, population_size=1e4, coalescing_segments_only=False, random_seed=1)$
 %From the above output we see that ratio of unary span bordering coalescing between 
@@ -984,7 +991,11 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 %Total trapped unary span: 0.0 (0.0\%)
 %Total coalescing span: 99950000000.0
 
-\subsection{Extending haplotypes in inferred trees}
+As seen in \figref{fig:node-spans},
+Look, we add lots of stuff
+and most most of it is right;
+this applies to both recent and ancient nodes;
+we're typically extending the span of a node by like maybe 50\%. 
 
 \begin{figure}[bht]
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/node_spans_wo_trapped_unary_regions_CDF.pdf}
@@ -992,22 +1003,106 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
         Node spans of simulated tree sequence (blue), simplified tree sequence (green), and extended tree sequence (red).
         \comment{TODO: nodes should be in the same order in all three lines,
         using the ordering from the true tree sequence.}
-        \comment{TODO: add plot with percent wrongly added by node?}
+        \comment{TODO: somehow communicate per-node amount/proportion of correctly and incorrectly added span}
     }
 	\label{fig:node-spans}
 \end{figure}
+
+\comment{merge this in}
+The first thing we see is that coalescent nodes are unary
+over a substantial portion of their spans:
+since the \texttt{simplify} operations removes these unary spans,
+the ``simplified'' line on the right of Figure~\ref{fig:discrepancy} shows
+the proportion of nodes' spans on which they are not unary.
+For instance, on an ARG of 10 samples on a sequence of length $5 \times 10^7$,
+only about 15\% of the total spans are retained after simplification;
+this rises to around 50\% for 1,000 samples (top right plot)
+
+We can also use measures of dissimiliarity and similarity to quantify summaries across nodes:
+these are shown in \figref{} (purple lines only)
+Points:
+proportion left after smiplify varies a LOT: from 15\% to 95\%.
+    (goes up with L: with longer sequence length, greater opportunity for distant chunks to be on the same lineage)
+extending adds hardly any wrong stuff (left plots); and adds a substantial chunk: with large samples, adds like half of the missing stuff
+
+It's also interesting to  note that inference
+(see \figref{fig:inferred_edge_counts})
+(a) increases number of edges;
+(b) but inferred-simplifies have even more suggesting unary stuff is parsimonious;
+(c) but then extending reduces to below the original.
+
+
+\begin{figure}
+	\begin{center}
+		% \includegraphics[width=0.8\linewidth]{newplots_wo_ee/discrepancy_over_sample_5e7_new.pdf}
+		% \includegraphics[width=0.8\linewidth]{newplots_wo_ee/discrepancy_over_seqlen_1000s_new_5e7.pdf}
+        \includegraphics[width=\textwidth]{dissimilarity.pdf}
+	\end{center}
+    \caption{
+        Accuracy and sensitivity of extended haplotypes
+        across a range of sample sizes, on a sequence of length $5\times10^7$ (top)
+        and sequence lengths, with 1,000 \comment{diploid?} samples (bottom).
+        For each, a simulated ARG containing unary haplotype spans
+        was (i) \emph{simplified}, removing the unary spans,
+        and (ii) \emph{inferred}, using \tsinfer{} on genotypes;
+        then each of these had its haplotypes \emph{extended}.
+        The inferred, then simplified, ARG is also shown.
+        \textbf{Left:} Discrepancy to the true ARG,
+        as proportion of haplotypes that are not represented in the true ARG
+        (equation~\eqref{eq:discrepancy}).
+        \textbf{Right:} Agreement to the true ARG,
+        as proportion of the true ARG that is represented.
+        The largest number of trees in the bottom row corresponds
+        to the sequence length in the top row;
+        see text for more details.
+        \comment{TODO: make "inferred simplified" green (dotted) not red}
+        \comment{TODO: label "inferred extended" "inferred simplfieid extended"??}
+        \comment{TODO: also add a "inferred extended" line}
+    }
+    \label{fig:discrepancy}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/edge_counts_5e7.pdf}
+    \caption{
+        number of edges, 5e7, 1,000 samples
+        \label{fig:inferred_edge_counts}
+    }
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%
+\subsection{Inferred ARGs}
+
+So far, we have demonstrated that there is potentially ample information
+in the coalescent-only trees to extend haplotypes.
+Does this work with \emph{inferred} ARGs?
+Indeed, most ARG inference methods provide inferred ARGS already containing unary nodes;
+to what degree are they taking advantage of this information already?
+Here, we study the behavior of \tsinfer{},
+leaving a comparison of different ARG inference methods for future work.
+To study this, we simulated ARGs containing unary-spanning haplotypes (as above),
+then performed various operations to them,
+reporting proportions of correct and incorrect haplotype spans in Figure~\ref{fig:discrepancy}.
+
+Main points: in \figref{fig:discrepancy}
+(green line) tsinfer gets a lot right (above 60\% with 1000 samples; bottom-right plot)
+    and does a lot better with more samples;
+    also, gets 10\%--25\% wrong (left panels)
+    with longer sequence, larger proportion is wrong (bottom-left panel)
+(red dotted)
+    simplifying removes a lot of the wrong stuff
+    but also a lot of the right stuff
+(red solid)
+    similarly extending the simplified one adds a bunch of right and also wrong stuff
+    
+
+
 
 \begin{figure}[bht]
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_log.pdf}
 	\caption{Correct Unary Span for Extend Haplotypes (log)}
 	\label{fig:correct-unary-span-log}
-\end{figure}
-
-\begin{figure}
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_notlog.pdf}
-	\caption{\comment{DELETE}}
-%	\caption{Correct Unary Span for Extend Haplotypes}
-	\label{fig:correct-unary-span}
 \end{figure}
 
 \begin{figure}
@@ -1039,41 +1134,6 @@ See \figref{fig:correct-unary-span-log}, \figref{fig:correct-unary-span}, \figre
 %
 %With tsinfer: (1) simulate and tsinfer; (2) do the above either with or without simplifying the tsinfer'ed trees.
 %(but also take into account that there's wrong stuff in tsinfer'ed tree: look at whether it reduces discrepancy!)
-
-\begin{figure}
-	\begin{center}
-		\includegraphics[width=0.9\linewidth]{newplots_wo_ee/discrepancy_over_sample_5e7_new.pdf}
-		\caption{Left: Dissimilarity \newline Right: True Proportion }
-	\end{center}
-	\label{fig:discrepancy-over-sample}
-\end{figure}
-
-\begin{figure}
-	\begin{center}
-		\includegraphics[width=0.9\linewidth]{newplots_wo_ee/discrepancy_over_seqlen_1000s_new_5e7.pdf}
-		\caption{Left: Dissimilarity \newline Right: True Proportion}
-	\end{center}
-	\label{fig:discrepancy-over-seqlen}
-\end{figure}
-
-\begin{figure}
-    \includegraphics[width=0.9\linewidth]{newplots_wo_ee/edge_reduction_prop_vs_SL}
-    \includegraphics{newplots_wo_ee/simp_vs_ext_tajimasD_runtime_SL}
-    \caption{
-        \textbf{(A)} Proportion reduction in number of edges
-        achieved by extending haplotypes (\algorithmref{alg:extend})
-        on tree sequences of various sequence lengths and numbers of samples.
-        See Supplementary \figref{sfig:num_edges} for the raw number of edges.
-        \textbf{(B)} Runtime for computation of Tajima's $D$
-        (using the \tskit method) on the same tree sequences as in (A).
-        \comment{TODO: remove shortest lengths and double-check runtime.}
-        \label{fig:num_edges}
-    }
-\end{figure}
-
-\begin{figure}
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/edge_counts_5e7.pdf}
-\end{figure}
 
 \begin{figure}
 	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/sampling_dist_geneconversion.pdf}
@@ -1177,13 +1237,12 @@ however, it is still applied to ARGs as an average over marginal trees,
 without enforcement of identity across haplotypes;
 it would be useful to extend our dissimilarity to include branch lengths.
 
+\paragraph{Inference methods}
+\comment{Possibly an overview of what the different inference methods do with unary spans?}
+
 \bibliography{references}
 
 \appendix
-
-\begin{figure}
-	\includegraphics{dissimilarity.pdf}
-\end{figure}
 
 %\begin{figure}
 %    \caption{
@@ -1193,17 +1252,8 @@ it would be useful to extend our dissimilarity to include branch lengths.
 %    }
 %\end{figure}
 
-\begin{figure}
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/num_trees_vs_Num_edges_subplot.pdf}
-    \caption{
-        Raw numbers of edges before and after extending haplotypes
-        for the tree sequences shown in \figref{fig:num_edges}
-        \label{sfig:num_edges}
-    }
-\end{figure}
-
-\begin{center}
 \begin{table}[hbt]
+\begin{center}
 \begin{tabular}{|c|c|c|c|c|}
 	\hline
 	Initial & Iteration 1 & Iteration 2 & Iteration 3 & Iteration 4 \\
@@ -1223,8 +1273,8 @@ simulated tree sequences with sample size $10^4$ and length $5\times 10^7$.
 Each of the simulations terminated by the fourth iteration, however 99\% of the edges
 are removed within the first iteration.}
 \label{tab:edge-counts}
-\end{table}
 \end{center}
+\end{table}
 
 %\begin{algorithm2e}[!ht]
 %	\SetStartEndCondition{ }{}{}%
@@ -1355,6 +1405,13 @@ are removed within the first iteration.}
 %}
 %\KwRet{$\T'$}\;
 %\end{algorithm2e}
+
+\begin{figure}
+	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_notlog.pdf}
+	\caption{\comment{DELETE}}
+%	\caption{Correct Unary Span for Extend Haplotypes}
+	\label{fig:correct-unary-span}
+\end{figure}
 
 
 \end{document}
