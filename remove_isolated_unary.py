@@ -119,7 +119,8 @@ def remove_isolated_unary(ts, debug=False):
             for (left, right), new_parent in overlaps_map((e.left, e.right), node_map[e.parent]):
                 remapped = True
                 assert max(e.left, left) < min(e.right, right), f"max({e.left}, {left}) < min({e.right}, {right}) "
-                edges.add_row(parent=new_parent, child=e.child, left=max(e.left, left), right=min(e.right, right))
+                if new_parent != tskit.NULL:
+                    edges.add_row(parent=new_parent, child=e.child, left=max(e.left, left), right=min(e.right, right))
             if not remapped:
                 edges.append(e)
     tables.sort()
@@ -147,5 +148,5 @@ if __name__ == "__main__":
     infile = sys.argv[1]
     outfile = sys.argv[2]
     ts = tskit.load(infile)
-    rts = remove_isolated_unary(ts, debug=True)
+    rts = remove_isolated_unary(ts)
     rts.dump(outfile)
