@@ -81,13 +81,14 @@ def get_node_map(ts, remove_intervals):
     for n in to_remap:
         if parent[n] != tskit.NULL and last_start[n] < pos:
             # parent changed!
-            node_map[n].append(([float(last_start[n]), pos], int(u)))
+            node_map[n].append(([float(last_start[n]), pos], int(parent[n])))
     return node_map
 
-def check_node_map(node_map):
+def check_node_map(ts, node_map):
     for n in node_map:
         for (a, b), x in node_map[n]:
             assert a < b, f"{n}: ({a}, {b}) -> {x}"
+            assert ts.nodes_time[x] > ts.nodes_time[n], f"{n} (t={ts.nodes_time[n]}): ({a}, {b}) -> {x} (t={ts.nodes_time[x]})"
 
 def overlaps(a, b):
     return b[1] > a[0] and a[1] > b[0]
@@ -108,7 +109,7 @@ def remove_isolated_unary(ts, debug=False):
     remove_intervals = get_intervals(ts)
     node_map = get_node_map(ts, remove_intervals)
     if debug:
-        check_node_map(node_map)
+        check_node_map(ts, node_map)
     tables = ts.dump_tables()
     edges = tables.edges
     edges.clear()
@@ -146,5 +147,5 @@ if __name__ == "__main__":
     infile = sys.argv[1]
     outfile = sys.argv[2]
     ts = tskit.load(infile)
-    rts = remove_isolated_unary(ts)
+    rts = remove_isolated_unary(ts, debug=True)
     rts.dump(outfile)
