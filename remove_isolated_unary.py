@@ -1,6 +1,14 @@
+#!/usr/bin/env python
+
+import sys
 import tskit, msprime
 import numpy as np
 
+usage = f"""
+Usage:
+    python {sys.argv[0]} (input .trees filename) (output .trees filename)
+
+"""
 
 def get_intervals(ts):
     last_start = np.full(ts.num_nodes, 0.0)
@@ -130,3 +138,13 @@ if False: # for testing
             for a in ts.samples():
                 for b in ts.samples():
                     assert t1.mrca(a, b) == t2.mrca(a, b), f"{a}, {b}: {t1.tmrca(a, b)} != {t2.tmrca(a, b)}"
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print(usage)
+        exit(0)
+    infile = sys.argv[1]
+    outfile = sys.argv[2]
+    ts = tskit.load(infile)
+    rts = remove_isolated_unary(ts)
+    rts.dump(outfile)
