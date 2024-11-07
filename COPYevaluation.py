@@ -336,6 +336,7 @@ def tree_discrepancy(ts, other):
     ts_times = ts.nodes_time[row_ind[match]]
     other_times = other.nodes_time[col_ind[match]]
     time_difference = np.absolute(np.asarray(ts_times - other_times))
+    # log_time_difference = np.log(np.asarray(ts_times)) - np.log(np.asarray(other_times))
     # If a node x in `ts` has no match then we set time_difference to zero
     # This node then does not effect the rmse
     for j in range(len(shared_spans.data[match])):
