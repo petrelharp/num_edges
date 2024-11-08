@@ -54,7 +54,15 @@
 	}%
 }
 
-
+\newcommand*{\tabref}[2][]{%
+	\hyperref[{#2}]{%
+		Table~\ref*{#2}%
+		\ifx\\#1\\%
+		\else
+		\,#1%
+		\fi
+	}%
+}
 
 
 \title{
@@ -423,16 +431,6 @@ and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
 }
 \end{figure}
 
-\begin{figure}[!ht]
-	\begin{center}
-		\includegraphics[width=0.4\linewidth, height=1.2in]{EH-Ex2.pdf}
-		\includegraphics[width=0.4\linewidth, height=1.2in]{EH-extended-Ex2.pdf}
-	\end{center}
-	\caption{\comment{DELETE}}
-%	\caption{\comment{Change figure to have the same arrow with 'Extend Haplotypes' in inkscape for unity's sake.}The extend haplotypes method between tree with more unary nodes. Given two neighboring trees, there exists paths $4\to 6\to8\to10$ and $5\to 9\to 10$ in $F_O$, and in $F_I$ we have paths $4\to 7\to 11\to 10$ and $5\to 12\to 10$. Both the out-forest and in-forest both contain paths with the same initial and terminal nodes, $4\to 10$ and $5\to 10$ respectively, we merge both paths and output the tree sequence on the right.}
-	\label{fig:complicated_extending_diagram}
-\end{figure}
-
 A relatively efficient algorithm to do this is described in \algorithmref{alg:extend}, 
 and implemented in \tskit{} as \texttt{extend\_haplotypes}.
 The algorithm considers each tree transition from $T_k$ to $T_{k+1}$ in turn, updating its internal state
@@ -586,24 +584,12 @@ need to be updated.
 
 Since the algorithm needs to take multiple passes over the tree sequence
 in each direction,
-an important practical quesiton for this algorithm is:
+an important practical question for this algorithm is:
 how passes do we need to do?
 The algorithm is monotone (spans of ancestral nodes only increase),
 so it is guaranteed to require only a finite number of passes,
-but it is also not hard to construct pathalogical cases that require an arbitrary number of passes.
-\figref{fig:num_passes} shows empirical results from simulated tree sequences,
-which suggest that only at most five iterations are needed before the algorithm terminates. Indeed, for even larger sequences \ref{tab:edge-counts} shows that 99\% of all changes to an ARG occur after the first iteration with the algorithm completing after four iterations. \comment{ XXX Do we want to add more here? XXX}
-
-\begin{figure}[!ht]
-    \caption{
-        Number of edges in the tree sequence (vertical axis)
-        after each pass of the algorithm (number of passes on the horizontal axis),
-        for tree sequences with different numbers of samples (different lines).
-        \comment{TODO}
-        \label{fig:num_passes}
-    }
-\end{figure}
-
+but it is also not hard to construct pathological cases that require an arbitrary number of passes.
+Counting edges for every iteration suggest that only at most five iterations are needed before the algorithm terminates. Indeed, for even larger sequences \tabref{tab:edge-counts} shows that 99\% of all changes to an ARG occur after the first iteration with the algorithm completing after four iterations. 
 %% Find counter example to global minimum.
 
 \subsection{Dissimilarity Function}
@@ -613,8 +599,6 @@ which suggest that only at most five iterations are needed before the algorithm 
 % * fig: how add edges reduces discrepancy (RESULTS)
 %       - compare to tsinfer
 % * Show: how add edges reduces discrepancy (RESULTS)
-
-\comment{Rename Dissimilarity and Similarity}
 
 If we begin with a tree sequence containing unary nodes,
 it is straightforward to remove the portions of each node's span on which it is unary,
@@ -668,11 +652,13 @@ Roughly speaking, we first identify matching nodes
 as those whose sets of descendant samples agree for the largest span along the genome,
 and then compute for how much of their spans do their descendant samples agree (or not).
 
-Concretely, suppose that the two tree sequences have the same set of breakpoints
+Concretely, our method can be applied to any two tree sequences,
+ as in the case of \figref{fig:conceptual_discrepancy},
+ where we consider the pair of trees which exist at that break point.
+However, suppose that the two tree sequences have the same set of breakpoints
 between trees,
 so that $T_1^{(1)}, \ldots, T_N^{(1)}$ are the trees in $\T_1$
 and $T_1^{(2)}, \ldots, T_N^{(2)}$ are the trees in $\T_2$.
-\comment{Should we include an addendum that we can do this for tree sequences with different break points its just a little more tedious?}
 For a node $n$ and tree $T$
 let $S(T, n)$ denote the set of samples that inherit from $n$ in $T$,
 and for a pair of nodes $n_1$ and $n_2$ with $n_1$ in $\T_1$ and $n_2$ in $\T_2$,
@@ -701,7 +687,7 @@ and that there may be no nodes in $\T_1$ that are mapped to some nodes in $\T_2$
 Since the maximum is independent over nodes, we may define for each node $n_1 \in \T_1$
 it's \emph{best matching node} in $\T_2$ as
 \begin{align*}
-    \alpha(n_1) = \argmax_{n_2 \in N_2} \frac{1}{1+|t_{n_1}-t_{n_2}|}\max_{n_2\in N_2} m(n_1, n_2) ,
+    \alpha(n_1) = \argmax_{n_2 \in N_2} m(n_1, n_2) ,
 \end{align*}
 so that
 \begin{align*}
@@ -717,7 +703,7 @@ We then define the \emph{dissimilarity} of $\T_1$ from $\T_2$ by
 \begin{align*}
     \dis(\T_1, \T_2)
     =
-    \frac{\sum_{n \in N_1} (s(\T_1, n) - m(n, \alpha(n)))}{\sum_{n\in N_1} s(\T_1,n)} ,
+    \sum_{n \in N_1} (s(\T_1, n) - m(n, \alpha(n))),
 \end{align*}
 which is the proportion of total span of all nodes in $\T_1$
 for which their descendant samples do \emph{not} match those of their best match in $\T_2$.
@@ -737,10 +723,9 @@ is
 \begin{align*}
     \frac{1}{L} \left( \sum_{n_1 \in N_1} m'(n_1, \T_2)  + \sum_{n_2 \in N_2} m'(n_2, \T_1) \right).
 \end{align*}
-\comment{Check this!}\comment{Not true. I believe you can have the problem again of two nodes in TS1 match with node in TS2}
 In other words, we require a node in $\T_1$ to match the \emph{same} node in $\T_2$
 across all trees, but average Robinson-Foulds distance allows a different node to match
-on each tree. \comment{I don't think this is true nor do I understand how $m'$ is truely different than $m$. It seems like $m'$ is just the extension of $m$ to the level of tree sequences.}
+on each tree.
 The other differences are that \emph{average} Robinson-Foulds distance
 normalizes by sequence length, and is symmetrized.
 Robinson-Foulds distance between two trees
@@ -759,16 +744,13 @@ for instance by returning the weighted root-mean-squared error on inferred times
 \begin{align*}
     \text{wRMSE}_t(\T_1, \T_2)
     = \sqrt{\frac{
-        \sum_{n \in N_1} s(\T_1,n) \left(t^{(1)}_n - t^{(2)}_{\alpha(n)} \right)^2 
+        \sum_{n \in N_1} s(\T_1,n) \left(\log t^{(1)}_n - \log t^{(2)}_{\alpha(n)} \right)^2 
     }{
         \sum_{n \in N_1} s(\T_1,n)
     } } .
 \end{align*}
 The mean is computed weighting by node span, so that a dating error
-is more serious for a node with a longer span.
-\comment{TODO: change the definition?
-In practice, time estimation errors seem to be closer to homoskedastic on a log scale,
-so this would probably be more informative if errors are computed on the log sale.} 
+is more serious for a node with a longer span. 
 
 We compute the dissimilarity of two tree sequences in \figref{fig:conceptual_discrepancy}.
 
@@ -998,7 +980,7 @@ this applies to both recent and ancient nodes;
 we're typically extending the span of a node by like maybe 50\%. 
 
 \begin{figure}[bht]
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/node_spans_wo_trapped_unary_regions_CDF.pdf}
+	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/figure-4-2.pdf}
 	\caption{
         Node spans of simulated tree sequence (blue), simplified tree sequence (green), and extended tree sequence (red).
         \comment{TODO: nodes should be in the same order in all three lines,
@@ -1006,6 +988,10 @@ we're typically extending the span of a node by like maybe 50\%.
         \comment{TODO: somehow communicate per-node amount/proportion of correctly and incorrectly added span}
     }
 	\label{fig:node-spans}
+\end{figure}
+
+\begin{figure}
+	\includegraphics{newplots_wo_ee/figure-4.pdf}
 \end{figure}
 
 \comment{merge this in}
@@ -1036,7 +1022,7 @@ It's also interesting to  note that inference
 	\begin{center}
 		% \includegraphics[width=0.8\linewidth]{newplots_wo_ee/discrepancy_over_sample_5e7_new.pdf}
 		% \includegraphics[width=0.8\linewidth]{newplots_wo_ee/discrepancy_over_seqlen_1000s_new_5e7.pdf}
-        \includegraphics[width=\textwidth]{dissimilarity.pdf}
+        \includegraphics[width=\textwidth]{newplots_wo_ee/dissimilarity.pdf}
 	\end{center}
     \caption{
         Accuracy and sensitivity of extended haplotypes
@@ -1063,12 +1049,16 @@ It's also interesting to  note that inference
 \end{figure}
 
 \begin{figure}
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/edge_counts_5e7.pdf}
-    \caption{
-        number of edges, 5e7, 1,000 samples
-        \label{fig:inferred_edge_counts}
-    }
+	\includegraphics{newplots_wo_ee/figure5.pdf}
 \end{figure}
+
+%\begin{figure}
+%	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/edge_counts_5e7.pdf}
+%    \caption{
+%        number of edges, 5e7, 1,000 samples
+%        \label{fig:inferred_edge_counts}
+%    }
+%\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%
@@ -1098,18 +1088,18 @@ Main points: in \figref{fig:discrepancy}
     
 
 
-
-\begin{figure}[bht]
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_log.pdf}
-	\caption{Correct Unary Span for Extend Haplotypes (log)}
-	\label{fig:correct-unary-span-log}
-\end{figure}
-
-\begin{figure}
-%	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/avg_edge_count_over_iters_5e7_1000s.pdf}
-	\caption{The average number of edges for an extended tree sequence per iteration of the extend haplotypes algorithm.}
-	\label{fig:edges-per-iteration}
-\end{figure}
+%
+%\begin{figure}[bht]
+%	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_log.pdf}
+%	\caption{Correct Unary Span for Extend Haplotypes (log)}
+%	\label{fig:correct-unary-span-log}
+%\end{figure}
+%
+%\begin{figure}
+%%	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/avg_edge_count_over_iters_5e7_1000s.pdf}
+%	\caption{The average number of edges for an extended tree sequence per iteration of the extend haplotypes algorithm.}
+%	\label{fig:edges-per-iteration}
+%\end{figure}
 
 % (AVA)
 % * reduction in edges ~ sequence length
@@ -1135,25 +1125,25 @@ Main points: in \figref{fig:discrepancy}
 %With tsinfer: (1) simulate and tsinfer; (2) do the above either with or without simplifying the tsinfer'ed trees.
 %(but also take into account that there's wrong stuff in tsinfer'ed tree: look at whether it reduces discrepancy!)
 
-\begin{figure}
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/sampling_dist_geneconversion.pdf}
-	\caption{
-        Accuracy of \algorithmref{alg:extend}
-        on simulated ARGs with sample size $10^2$, length $10^7$, gene conversion rate $10^{-8}$ and gene tract length = $10^3$.
-        The same quantities for simulated ARGs without gene conversion
-        are shown in Supplementary \figref{fig:accuracy_on_truth_no_gc}.
-    \label{fig:accuracy_on_truth}
-}
-\end{figure}
-
-\begin{figure}
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/sampling_dist_recomb.pdf}
-	\caption{Accuracy of \algorithmref{alg:extend}
-        as in \figref{fig:accuracy_on_truth} except that simulations were done
-        without gene conversion. \comment{Add to supplement.}
-        \label{fig:accuracy_on_truth_no_gc}
-    }
-\end{figure}
+%\begin{figure}
+%	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/sampling_dist_geneconversion.pdf}
+%	\caption{
+%        Accuracy of \algorithmref{alg:extend}
+%        on simulated ARGs with sample size $10^2$, length $10^7$, gene conversion rate $10^{-8}$ and gene tract length = $10^3$.
+%        The same quantities for simulated ARGs without gene conversion
+%        are shown in Supplementary \figref{fig:accuracy_on_truth_no_gc}.
+%    \label{fig:accuracy_on_truth}
+%}
+%\end{figure}
+%
+%\begin{figure}
+%	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/sampling_dist_recomb.pdf}
+%	\caption{Accuracy of \algorithmref{alg:extend}
+%        as in \figref{fig:accuracy_on_truth} except that simulations were done
+%        without gene conversion. \comment{Add to supplement.}
+%        \label{fig:accuracy_on_truth_no_gc}
+%    }
+%\end{figure}
 
 \subsection{Data}
 % * 1. Simulate data
@@ -1406,12 +1396,6 @@ are removed within the first iteration.}
 %\KwRet{$\T'$}\;
 %\end{algorithm2e}
 
-\begin{figure}
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_notlog.pdf}
-	\caption{\comment{DELETE}}
-%	\caption{Correct Unary Span for Extend Haplotypes}
-	\label{fig:correct-unary-span}
-\end{figure}
 
 
 \end{document}
