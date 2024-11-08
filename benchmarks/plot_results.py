@@ -24,11 +24,25 @@ sdf = df.groupby(["length", "num_samples"]).agg({
 }).astype({'length': int, 'num_samples': int})
 sdf.reset_index(drop=True, inplace=True)
 
+# from Halley
+colors = {'blue': (46,37,133),
+          'red': (194,106,119),
+          'lgreen': (93,168,153),
+          'gold': (220,205,125),
+          'green': (51, 117,56),
+          'lblue': (148,203,236),
+          'magenta': (159,74,150),
+          'wine': (126,41,84),
+         }
+for x in colors:
+    colors[x] = [u/256 for u in colors[x]] + [1.0]
 
 length_vals = np.unique(df.length)
-length_cols = plt.colormaps["viridis"](np.linspace(0, 1, len(length_vals)))
+# length_cols = plt.colormaps["viridis"](np.linspace(0, 1, len(length_vals)))
+length_cols = np.array([colors[n] for n in ['blue', 'green', 'lblue', 'lgreen', 'gold']])
 ns_vals = np.unique(df.num_samples)
-ns_cols = plt.colormaps["plasma"](np.linspace(0, 1, len(ns_vals)))
+# ns_cols = plt.colormaps["plasma"](np.linspace(0, 1, len(ns_vals)))
+ns_cols = np.array([colors[n] for n in ['wine', 'magenta', 'red', 'gold', 'blue']])
 
 # combined number of edges & runtime for Tajimas D
 fname = f"{basename}_absolute_values.pdf"
@@ -133,7 +147,7 @@ for L, this_df in df.groupby("length"):
     sub_df = this_df.sort_values("num_samples")
     j,  = np.where(L == length_vals)
     ax2.scatter(sub_df.num_edges_before, sub_df.extend_time, marker="o", label=f"length={L:g}",
-                c=ns_cols[j])
+                c=length_cols[j])
 
 for L, this_df in sdf.groupby("length"):
     sub_df = this_df.sort_values("num_samples")
