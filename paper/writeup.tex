@@ -1106,16 +1106,24 @@ Main points: in \figref{fig:discrepancy}
 % * speed increase ~ sequence length
 % * proprotion of added edges that are true ~ sequeence length
 
-%\begin{figure}
-%	\includegraphics[width=0.9\textwidth]{newplots_wo_ee/simp_vs_ext_tajimasD_runtime_numtrees.pdf}
-%    \caption{
-%        Two-part figure, showing reduction in number of edges (left) and increase in speed of stats comptuation (right)
-%        as a function of number of trees (modulated by sequence length),
-%        on reasonably big simulated sequences.
-%        For "speed": plot ratio of runtime before/after extending.
-%        \label{fig:speed_and_edges}
-%    }
-%\end{figure}
+\begin{figure}
+    \includegraphics{benchmarks/one_pop_results_ratios}
+    \caption{
+        Ratio of
+        \textbf{(A)} number of edges, and
+        \textbf{(B)} runtime for computing Tajima's $D$;
+        before and after extending haplotypes.
+        For instance, extending haplotypes reduces number of edges by about 50\%
+        and statistic computation runtime by about 20\%
+        for long sequences.
+        Horizontal axis shows sequence length;
+        colors show numbers of samples;
+        with lines showing averages across replicates.
+        The original tree sequence was simulated with an expanding population;
+        see text for details. \comment{TODO}
+        \label{fig:speed_and_edges}
+    }
+\end{figure}
 
 %Simple experiment:
 %(1) simulate, simplify, and extend;
@@ -1234,6 +1242,45 @@ it would be useful to extend our dissimilarity to include branch lengths.
 
 \appendix
 
+\begin{figure}
+    \includegraphics{benchmarks/one_pop_results_absolute_values}
+    \caption{
+        \label{fig:speed_and_edges_absolute}
+    }
+\end{figure}
+
+\begin{figure}
+    \includegraphics{benchmarks/one_pop_results_timing}
+    \caption{
+        \label{fig:speed_and_edges_timing}
+    }
+\end{figure}
+
+\begin{figure}
+    \includegraphics{benchmarks/constant_pop_results_ratios}
+    \caption{
+        As in \figref{fig:speed_and_edges} except that
+        the original tree sequence was simulated with an constant population;
+        see text for details. \comment{TODO}
+        \label{fig:speed_and_edges_constant}
+    }
+\end{figure}
+
+\begin{figure}
+    \includegraphics{benchmarks/constant_pop_results_absolute_values}
+    \caption{
+        \label{fig:speed_and_edges_absolute_constant}
+    }
+\end{figure}
+
+\begin{figure}
+    \includegraphics{benchmarks/constant_pop_results_timing}
+    \caption{
+        \label{fig:speed_and_edges_timing_constant}
+    }
+\end{figure}
+
+
 %\begin{figure}
 %    \caption{
 %        Supplementary figure: runtime of discrepancy function as a function of number of trees
@@ -1241,6 +1288,7 @@ it would be useful to extend our dissimilarity to include branch lengths.
 %        \label{fig:speed_discrepancy}
 %    }
 %\end{figure}
+
 
 \begin{table}[hbt]
 \begin{center}
