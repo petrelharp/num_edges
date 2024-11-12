@@ -1,5 +1,20 @@
-\begin{thebibliography}{18}
+\begin{thebibliography}{20}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{{\sc Baumdicker} {\em et~al.\/}(2021){\sc Baumdicker}, {\sc
+  Bisschop}, {\sc Goldstein}, {\sc Gower}, {\sc Ragsdale} {\em
+  et~al.\/}}]{baumdicker2021efficient}
+{\sc Baumdicker, F.}, {\sc G.~Bisschop}, {\sc D.~Goldstein}, {\sc G.~Gower},
+  {\sc A.~P. Ragsdale}, {\sc G.~Tsambos}, {\sc S.~Zhu}, {\sc B.~Eldon}, {\sc
+  E.~C. Ellerman}, {\sc J.~G. Galloway}, {\sc A.~L. Gladstein}, {\sc
+  G.~Gorjanc}, {\sc B.~Guo}, {\sc B.~Jeffery}, {\sc W.~W. Kretzschumar}, {\sc
+  K.~Lohse}, {\sc M.~Matschiner}, {\sc D.~Nelson}, {\sc N.~S. Pope}, {\sc C.~D.
+  Quinto-Cortés}, {\sc M.~F. Rodrigues}, {\sc K.~Saunack}, {\sc T.~Sellinger},
+  {\sc K.~Thornton}, {\sc H.~van Kemenade}, {\sc A.~W. Wohns}, {\sc Y.~Wong},
+  {\sc S.~Gravel}, {\sc A.~D. Kern}, {\sc J.~Koskela}, {\sc P.~L. Ralph}, and
+  {\sc J.~Kelleher}, 2021 Efficient ancestry and mutation simulation with
+  msprime 1.0.
+\newblock Genetics {\bf 220}: iyab229.
 
 \bibitem[{{\sc B{\"o}cker} {\em et~al.\/}(2013){\sc B{\"o}cker}, {\sc Canzar}
   and {\sc Klau}}]{bocker2013generalized}
@@ -108,6 +123,14 @@
 {\sc Speidel, L.}, {\sc M.~Forest}, {\sc S.~Shi}, and {\sc S.~R. Myers}, 2019 A
   method for genome-wide genealogy estimation for thousands of samples.
 \newblock Nature Genetics {\bf 51}: 1321--1329.
+
+\bibitem[{{\sc Wohns} {\em et~al.\/}(2022){\sc Wohns}, {\sc Wong}, {\sc
+  Jeffery}, {\sc Akbari}, {\sc Mallick} {\em et~al.\/}}]{wohns2022unified}
+{\sc Wohns, A.~W.}, {\sc Y.~Wong}, {\sc B.~Jeffery}, {\sc A.~Akbari}, {\sc
+  S.~Mallick}, {\sc R.~Pinhasi}, {\sc N.~Patterson}, {\sc D.~Reich}, {\sc
+  J.~Kelleher}, and {\sc G.~McVean}, 2022 A unified genealogy of modern and
+  ancient genomes.
+\newblock Science {\bf 375}: eabi8264.
 
 \bibitem[{{\sc Zhang} {\em et~al.\/}(2023){\sc Zhang}, {\sc Biddanda}, {\sc
   Gunnarsson}, {\sc Cooper} and {\sc Palamara}}]{zhang2023biobankscale}

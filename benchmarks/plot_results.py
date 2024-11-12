@@ -46,7 +46,7 @@ ns_cols = np.array([colors[n] for n in ['wine', 'magenta', 'red', 'gold', 'blue'
 
 # combined number of edges & runtime for Tajimas D
 fname = f"{basename}_absolute_values.pdf"
-fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(9, 5))
+fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(6.5, 3))
 
 ax0.set_xlabel("sequence length")
 ax1.set_xlabel("sequence length")
@@ -84,7 +84,7 @@ plt.savefig(fname)
 
 # combined number of edges & runtime for Tajimas D
 fname = f"{basename}_ratios.pdf"
-fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(9, 5))
+fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(6.5, 3))
 
 ax0.set_xlabel("sequence length")
 ax1.set_xlabel("sequence length")
@@ -120,7 +120,7 @@ plt.savefig(fname)
 
 # timing plots
 fname = f"{basename}_timing.pdf"
-fig, (ax0, ax1, ax2) = plt.subplots(1, 3, figsize=(9, 4), sharey=True)
+fig, (ax0, ax1, ax2) = plt.subplots(1, 3, figsize=(6.5, 3), sharey=True)
 
 ax0.set_xlabel("number of samples")
 ax0.set_ylabel("runtime (s)")

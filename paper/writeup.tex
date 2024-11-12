@@ -78,10 +78,8 @@
 %  which extends R-F to measure haplotypes
 
 
-% NOTE: these are in alphabetical order for now; we can revisit that ordering
 \author[$\dagger$]{Halley Fritze}
 \author[$\dagger$]{Nathaniel Pope}
-\author[$\dagger$]{Ava Bamforth}
 \author[$\ddagger$]{Jerome Kelleher}
 \author[$\ast$,$\dagger$,S]{Peter Ralph}
 
@@ -93,8 +91,8 @@
 
 \keywords{genealogy, tree sequence, haplotypes}
 
-\runningtitle{Junctions in tree sequences}
-\runningauthor{Bamforth \textit{et al.}}
+\runningtitle{Haplotypes in ARGs}
+\runningauthor{Fritze \textit{et al.}}
 
 %%%%%%%%%%
 \begin{abstract}
@@ -102,16 +100,13 @@
     it is an old observation that the ``junction'' between two distinct haplotypes
     produced by recombination is inherited as a Mendelian marker.
     In this paper, we describe how this recombination-mediated information
-    can in many cases be recovered from inference based solely on
-    polymorphic markers (i.e., information produced by mutation),
+    can in many cases be recovered from inference based solely on polymorphic markers,
     which produces unary nodes along the branches of the marginal genealogical trees.
-    The resulting inferred ARGs, represented as tree sequences,
-    are smaller, faster to compute with,
-    and potentially contain substantially more information
-    about the age of ancestral haplotypes,
+    The resulting inferred ARGs are smaller, faster to compute with,
+    and contain substantially more information
     than inferred ARGs without these unary nodes.
     We provide efficient algorithms to identify this ancestral haplotype information,
-    new metrics of agreement/disagreement between inferred ARGs,
+    new metrics of agreement and disagreement between inferred ARGs,
     and explore some consequences for ARGs inferred from real data.
 \end{abstract}
 
@@ -589,8 +584,11 @@ how passes do we need to do?
 The algorithm is monotone (spans of ancestral nodes only increase),
 so it is guaranteed to require only a finite number of passes,
 but it is also not hard to construct pathological cases that require an arbitrary number of passes.
-Counting edges for every iteration suggest that only at most five iterations are needed before the algorithm terminates. Indeed, for even larger sequences \tabref{tab:edge-counts} shows that 99\% of all changes to an ARG occur after the first iteration with the algorithm completing after four iterations. 
-%% Find counter example to global minimum.
+Counting edges for every iteration suggest that only at most five iterations are needed before the algorithm terminates.
+Indeed, for even larger sequences \tabref{tab:edge-counts}
+shows that 99\% of all changes to an ARG occur after the first iteration,
+with the algorithm completing after four iterations. 
+
 
 \subsection{Dissimilarity Function}
 % * How to measure agreement that includes haplotypes
@@ -888,6 +886,19 @@ with genome length $5\times 10^7$, recombination rate $10^{-8}$, and population 
 has about half the total span of all nodes in isolated, non-coalescent segments.
 For more discussion of these segments, see \citet{baumdicker2021efficient}.
 
+We used simulations of several scenarios.
+To include the effects of heterogeneous recombination rate,
+in some we used stdpopsim \citep{stdpopsim} 
+to simulate chromosome 1 of \textit{Canis familiaris}
+using the CanFam3 genetic map from \citet{campell2016}.
+\emph{``Constant dog''} simulations simulated this chromosome in a 
+population of (constant) size $10^4$.
+\emph{``Expanding dog''} simulations were similar, but
+used a discrete-time Wright--Fisher model to simulate
+a small population of 100 that expanded to 1,000 individuals ten generations ago,
+which then doubled every generation to reach 512,000 individuals.
+All jobs used for recording runtime were run on an Intel Xeon Gold 6148 processor.
+\comment{TODO: describe sims for inference?}
 
 \section{Results}
 
@@ -907,7 +918,6 @@ For more discussion of these segments, see \citet{baumdicker2021efficient}.
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Tree sequence compression and computation}
 
-\comment{TODO: put in benchmarking figures}
 
 In the simple example in \figref{fig:conceptual},
 extending haplotypes replaces three edges
@@ -923,11 +933,33 @@ then this is achieved for long sequences.
 It is possible for \algorithmref{alg:extend} to add edges, as in \figref{fig:extending_diagram},
 but we still expect the number of edges to decrease by more than 1/3.
 Indeed,
-\figref{fig:num_edges} shows that \algorithmref{alg:extend} nearly cuts the number of edges
+\figref{fig:speed_and_edges} shows that \algorithmref{alg:extend} nearly cuts the number of edges
 in half, as long as the sequence is long enough.
 
+\begin{figure}
+    \centering
+    \includegraphics{benchmarks/one_pop_results_ratios}
+    \caption{
+        Ratio of
+        \textbf{(A)} number of edges, and
+        \textbf{(B)} runtime for computing Tajima's $D$;
+        before and after extending haplotypes.
+        For instance, extending haplotypes reduces number of edges by about 50\%
+        and statistic computation runtime by about 20\%
+        for long sequences.
+        Horizontal axis shows sequence length;
+        colors show numbers of samples;
+        with lines showing averages across replicates.
+        The original tree sequence was simulated with the ``expanding dog'' expanding population
+        and subset to various sizes;
+        see Methods for details. 
+        Absolute values are shown in Supplementary \figref{fig:speed_and_edges_other}.
+        \label{fig:speed_and_edges}
+    }
+\end{figure}
+
 This reduction in edges can also lead to a reduction in computation time.
-Indeed, \figref{fig:num_edges} shows that computation time is reduced by 10--20\%
+Indeed, \figref{fig:speed_and_edges} shows that computation time is reduced by 10--20\%
 for a typical statistic (here, Tajima's $D$),
 computed in an efficient iterative manner along the genome as implemented in \tskit.
 This is actually somewhat surprising:
@@ -937,6 +969,15 @@ to the state of the parent node \emph{and every node above it in the tree}.
 So, even if an edge extends for a long segment of genome,
 something has to happen to it every time the subtree below it changes,
 which is not affected by extending haplotypes.
+
+Supplementary \figref{fig:speed_and_edges_constant} shows these results are not specific
+to the demographic scenario.
+Supplementary Figures~\ref{fig:speed_and_edges_other}
+and~\ref{fig:speed_and_edges_other_constant}
+also show that our implementation of \algorithmref{alg:extend} is quite efficient,
+running at chromosome scale in seconds to minutes for hundreds or thousands of samples,
+or minutes to hours for tens of thousands of samples
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Accuracy with true trees}
@@ -954,11 +995,6 @@ The method can potentially extend the spans of each node
 and we can quantify how much of these extended spans were in the original ARG
 (and thus correctly extended).
 
-\comment{TODO: figure out if we can remove this from figures. If so, move this to Methods.}
-Some stuff can't be inferred since it's "isolated unary";
-for instance with 1,000 samples, 5e7 that's about half the ARG.
-Etcetera.
-
 %$msprime.sim_ancestry(1000, sequence_length=5e7, recombination_rate=1e-8, population_size=1e4, coalescing_segments_only=False, random_seed=1)$
 %From the above output we see that ratio of unary span bordering coalescing between 
 %- ExtendPaths/Truth = 0.4917
@@ -974,48 +1010,62 @@ Etcetera.
 %Total coalescing span: 99950000000.0
 
 As seen in \figref{fig:node-spans},
-Look, we add lots of stuff
-and most most of it is right;
-this applies to both recent and ancient nodes;
-we're typically extending the span of a node by like maybe 50\%. 
+the vast majority of span added by extending haplotypes is correct.
+In this example (which is typical),
+99\% of all added span is correct;
+95\% of nodes have no incorrectly added span;
+and those incorrectly added spans are nearly always a small fraction of the original span.
+The added information is significant:
+the algorithm typically increases spans (i.e., lengths of ancestral haplotypes)
+by around 50\%.
 
 \begin{figure}[bht]
-	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/figure-4-2.pdf}
+	\includegraphics{newplots_wo_ee/figure-4.pdf}
 	\caption{
-        Node spans of simulated tree sequence (blue), simplified tree sequence (green), and extended tree sequence (red).
-        \comment{TODO: nodes should be in the same order in all three lines,
-        using the ordering from the true tree sequence.}
-        \comment{TODO: somehow communicate per-node amount/proportion of correctly and incorrectly added span}
+        The effect of extending haplotypes on per-node spans
+        in an ARG simulated \comment{TODO HOW}.
+        \textbf{(A)}
+        Distribution of total amount of span added across nodes by \algorithmref{alg:extend};
+        note the log scale on the $y$ axis.
+        \textbf{(B)}
+        Amount of incorrectly added span, plotted against total span, by node.
+        95\% of nodes have no incorrect span; of the remainder,
+        nearly all have less than 5\% incorrectly added;
+        see Supplementary \figref{fig:incorrect_ratio}.
+        Plots \textbf{(C)} and \textbf{(D)} show total spans per node,
+        ordered by total span in the original ARG (which includes unary nodes).
+        Dark blue dots in both show the spans in this original ARG.
+        In \textbf{(C)}, lighter green dots show
+        span after removing unary spans using \textit{simplify},
+        while in \textbf{(D)},
+        lighter red dots show span after extending haplotypes,
+        i.e., applying \algorithmref{alg:extend} to the simplified ARG.
     }
 	\label{fig:node-spans}
 \end{figure}
 
-\begin{figure}
-	\includegraphics{newplots_wo_ee/figure-4.pdf}
-\end{figure}
+These statistics are also reflected at the genomic scale, using measures of dissimilarity.
+\figref{fig:dissimilarity} shows in purple total amounts of span removed by simplification
+and re-inferred by \algorithmref{alg:extend} (correctly and incorrectly).
+(Lines in green involve re-inference of the ARG; discussed next.)
+The top row shows the proportion of the given ARG that does not match the original,
+showing that the total amount of mis-matching span
+produced by extending haplotypes is very small ($\approx 1\%$).
+(Simplification does not produce dissimilarity.)
+The bottom row shows the proprtional of the original ARG that is represented in the given ARG.
+This shows that a large proportion of the ARG can be removed by simplifiction,
+indicating that coalescent nodes are unary
+over a substantial portion of their spans.
+(Since the \texttt{simplify} operations removes these unary portions of haplotypes,
+the ``simplified'' line (``SS'') on the right of Figure~\ref{fig:dissimilarity} shows
+the proportion of nodes' spans on which they are not unary.)
+However, \algorithmref{alg:extend} can correctly replace most of these portions of haplotypes,
+especially with larger sample sizes and sequence lengths
+(the ``simplified--extended'' line; ``SSE'').
+For instance, with 1,000 samples and a $5 \times 10^7$bp genome,
+haplotypes are unary on about half their spans (on average),
+and extending haplotypes can infer more than half of this span from coalescent information only.
 
-\comment{merge this in}
-The first thing we see is that coalescent nodes are unary
-over a substantial portion of their spans:
-since the \texttt{simplify} operations removes these unary spans,
-the ``simplified'' line on the right of Figure~\ref{fig:discrepancy} shows
-the proportion of nodes' spans on which they are not unary.
-For instance, on an ARG of 10 samples on a sequence of length $5 \times 10^7$,
-only about 15\% of the total spans are retained after simplification;
-this rises to around 50\% for 1,000 samples (top right plot)
-
-We can also use measures of dissimiliarity and similarity to quantify summaries across nodes:
-these are shown in \figref{} (purple lines only)
-Points:
-proportion left after smiplify varies a LOT: from 15\% to 95\%.
-    (goes up with L: with longer sequence length, greater opportunity for distant chunks to be on the same lineage)
-extending adds hardly any wrong stuff (left plots); and adds a substantial chunk: with large samples, adds like half of the missing stuff
-
-It's also interesting to  note that inference
-(see \figref{fig:inferred_edge_counts})
-(a) increases number of edges;
-(b) but inferred-simplifies have even more suggesting unary stuff is parsimonious;
-(c) but then extending reduces to below the original.
 
 
 \begin{figure}
@@ -1042,14 +1092,15 @@ It's also interesting to  note that inference
         to the sequence length in the top row;
         see text for more details.
         \comment{TODO: make "inferred simplified" green (dotted) not red}
-        \comment{TODO: label "inferred extended" "inferred simplfieid extended"??}
         \comment{TODO: also add a "inferred extended" line}
+        \comment{TODO: instead of `SS` have `S` ; and instead of `SSE` have `SE`.}
     }
-    \label{fig:discrepancy}
+    \label{fig:dissimilarity}
 \end{figure}
 
 \begin{figure}
 	\includegraphics{newplots_wo_ee/figure5.pdf}
+    \caption{I think this is being removed?}
 \end{figure}
 
 %\begin{figure}
@@ -1072,10 +1123,27 @@ to what degree are they taking advantage of this information already?
 Here, we study the behavior of \tsinfer{},
 leaving a comparison of different ARG inference methods for future work.
 To study this, we simulated ARGs containing unary-spanning haplotypes (as above),
-then performed various operations to them,
-reporting proportions of correct and incorrect haplotype spans in Figure~\ref{fig:discrepancy}.
+then re-inferred ARGs from their genotypes and performed various operations on the results.
 
-Main points: in \figref{fig:discrepancy}
+First, \figref{fig:dissimilarity} shows that \tsinfer{}
+has a substantial portion of already--extended haplotypes:
+comparing the ``inferred'' (``I''; dotted) line to the ``inferred-simplified'' (``IS''; dashed) line
+we see that inclusion of these unary spans increases the amount of correctly inferred material
+by around 20\% (bottom panels),
+but that roughly 10\% of the unary spans in the inferred ARG are incorrect (top panels).
+Applying \algorithmref{alg:extend} to the inferred-and-then-simplified ARG
+(``ISE''; solid green line)
+produces an ARG with both less correct and incorrect span.
+It is also helpful to note that accuracy
+(i.e., proportion of the true ARG that is inferred; bottom panels)
+greatly increases with larger sample sizes,
+possibly due to resolution of polytomies.
+(Recall that due to computational constraints,
+``correct'' and ``incorrect'' spans are determined here by \emph{exact} match
+of subtending samples.)
+
+reporting proportions of correct and incorrect haplotype spans in Figure~\ref{fig:dissimilarity}.
+Main points: in \figref{fig:dissimilarity}
 (green line) tsinfer gets a lot right (above 60\% with 1000 samples; bottom-right plot)
     and does a lot better with more samples;
     also, gets 10\%--25\% wrong (left panels)
@@ -1086,6 +1154,12 @@ Main points: in \figref{fig:discrepancy}
 (red solid)
     similarly extending the simplified one adds a bunch of right and also wrong stuff
     
+
+It's also interesting to  note that inference
+(see \figref{fig:inferred_edge_counts})
+(a) increases number of edges;
+(b) but inferred-simplifies have even more suggesting unary stuff is parsimonious;
+(c) but then extending reduces to below the original.
 
 
 %
@@ -1105,25 +1179,6 @@ Main points: in \figref{fig:discrepancy}
 % * reduction in edges ~ sequence length
 % * speed increase ~ sequence length
 % * proprotion of added edges that are true ~ sequeence length
-
-\begin{figure}
-    \includegraphics{benchmarks/one_pop_results_ratios}
-    \caption{
-        Ratio of
-        \textbf{(A)} number of edges, and
-        \textbf{(B)} runtime for computing Tajima's $D$;
-        before and after extending haplotypes.
-        For instance, extending haplotypes reduces number of edges by about 50\%
-        and statistic computation runtime by about 20\%
-        for long sequences.
-        Horizontal axis shows sequence length;
-        colors show numbers of samples;
-        with lines showing averages across replicates.
-        The original tree sequence was simulated with an expanding population;
-        see text for details. \comment{TODO}
-        \label{fig:speed_and_edges}
-    }
-\end{figure}
 
 %Simple experiment:
 %(1) simulate, simplify, and extend;
@@ -1167,15 +1222,51 @@ Main points: in \figref{fig:discrepancy}
 
 \section{Discussion}
 
-TODO
+We began work on this paper with the simple observation that the simple transformation
+of \figref{fig:extending_diagram} would reduce the number of edges
+in the succinct tree sequence representation of the ARG.
+This is essentially a recombination-based parsimony argument,
+and we have shown that this line of reasoning
+leads to ARGs that are substantially more compact and faster to operate on,
+and that contain more accurate information about true ancestral relationships.
+These extended ancestral haplotypes manifest as unary nodes in the marginal trees.
+Although a number of ARG inference methods may be taking advantage of this information,
+it is our impression that this source of information is not widely appreciated in the community.
+In fact, the field's focus on marginal trees rather than haplotypes
+meant that to study accuracy of this method,
+we had to invent new haplotype-aware measures of (dis)agreement between ARGs.
 
-In this paper, we have taken a ``historical'' view of the ARG --
+There are good reasons to think that lengthening the spans of ancestral haplotypes
+could lead to substantial gains in accuracy of ARG inference.
+For instance, information about inferring the age of a particular mutation
+derives almost entirely from constraints at nearby, linked sites.
+Extending ancestral haplotypes from one site into neighboring regions
+conceptually allows information from those marginal trees
+to inform age inference at that site as well.
+
+We have also explored the degree to which \tsinfer{} already makes use of this information,
+and whether this algorithm can be used to improve inference.
+The results do not provide a clear ordering:
+for instance, although \tsinfer-produced ARGs
+have a substantial portion of correctly inferred unary haplotypes,
+removing this with simplification decreases both dissimilarity
+(i.e., proportion of ``wrong'' haplotypes)
+and the proportion of the truth that is correctly inferred.
+Extending haplotypes restores a large amount of this correctly inferred span,
+but also introduces incorrect spans.
+Further work is needed to determine how the balance of ``true and false positive rates''
+affects downstream uses.
+The efficient computational tools we have implemented (in \tskit{})
+should facilitate this exploration.
+
+\paragraph{Ignorance and omission in the ARG}
+As motivation, we presented above a ``historical'' view of the ARG --
 i.e., that each aspect of an inferred ARG is intended to represent
 a portion of some particular historical genome
 (for instance, the MRCA of some set of sampled genomes).
 Furthermore, \figref{fig:conceptual}A\&B implicitly takes the position
 that relationships \emph{not} depicted in the ARG are implied to not exist.
-This is slighly disingenuous -- an alternative and more accurate interpetation
+An alternative interpetation
 of the ARG of \figref{fig:conceptual}A\&B would be that we do not know
 how node 2 inherited from node 4 on the right-hand interval,
 rather than saying that it specifically did not pass through node 3.
@@ -1185,7 +1276,6 @@ as implemented in msprime \citep{kelleher2016efficient},
 each specifically discard information about any such ``non-coalescent'' nodes;
 so the correct interpretation of these ARGs is a lack of knowledge.
 In this paper, we have shown that this information can be largely replaced.
-
 
 \paragraph{Metrics on ARGs}
 \comment{collecting random notes here; TODO is tie them together}
@@ -1241,18 +1331,21 @@ it would be useful to extend our dissimilarity to include branch lengths.
 \bibliography{references}
 
 \appendix
+\renewcommand{\thefigure}{S\arabic{figure}}
+\setcounter{figure}{0}
 
 \begin{figure}
     \includegraphics{benchmarks/one_pop_results_absolute_values}
-    \caption{
-        \label{fig:speed_and_edges_absolute}
-    }
-\end{figure}
-
-\begin{figure}
     \includegraphics{benchmarks/one_pop_results_timing}
     \caption{
-        \label{fig:speed_and_edges_timing}
+        \textbf{(Above:)}
+        Absolute values for ratios shown in \figref{fig:speed_and_edges}:
+        \textbf{(left)} numbers of edges; and
+        \textbf{(right)} runtime.
+        \textbf{(Below:)} runtime for the \texttt{extend\_haplotypes}
+        implementation of \algorithmref{alg:extend} provided in the \tskit{} library.
+        For other details, see \figref{fig:speed_and_edges}.
+        \label{fig:speed_and_edges_other}
     }
 \end{figure}
 
@@ -1260,23 +1353,22 @@ it would be useful to extend our dissimilarity to include branch lengths.
     \includegraphics{benchmarks/constant_pop_results_ratios}
     \caption{
         As in \figref{fig:speed_and_edges} except that
-        the original tree sequence was simulated with an constant population;
-        see text for details. \comment{TODO}
+        the original tree sequence was simulated with an constant population
+        of size $10^4$ (using the ``constant dog'' scenario);
+        see Methods for details.
+        Absolute values are shown in Supplementary \figref{fig:speed_and_edges_constant_other}.
         \label{fig:speed_and_edges_constant}
     }
 \end{figure}
 
 \begin{figure}
     \includegraphics{benchmarks/constant_pop_results_absolute_values}
-    \caption{
-        \label{fig:speed_and_edges_absolute_constant}
-    }
-\end{figure}
-
-\begin{figure}
     \includegraphics{benchmarks/constant_pop_results_timing}
     \caption{
-        \label{fig:speed_and_edges_timing_constant}
+        As in \figref{fig:speed_and_edges_other} except that
+        the original tree sequence was simulated with an constant population
+        of size $10^4$ (using the ``constant dog'' scenario).
+        \label{fig:speed_and_edges_other_constant}
     }
 \end{figure}
 
