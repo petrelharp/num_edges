@@ -76,7 +76,7 @@ for ns, this_df in sdf.groupby("num_samples"):
     ax1.plot(sub_df.length, sub_df.runtime_after,
              c=ns_cols[j])
 
-ax1.legend()
+ax1.legend(fontsize="x-small")
 
 plt.tight_layout()
 plt.savefig(fname)
@@ -112,7 +112,7 @@ for ns, this_df in sdf.groupby("num_samples"):
 
 ax0.set_ylim((0, max(1, 1.05 * np.max(df.num_edges_after / df.num_edges_before))))
 ax1.set_ylim((0, max(1, 1.05 * np.max(df.runtime_after / df.runtime_before))))
-ax0.legend()
+ax0.legend(fontsize="x-small")
 
 plt.tight_layout()
 plt.savefig(fname)
@@ -161,9 +161,9 @@ for ns, this_df in sdf.groupby("num_samples"):
     ax1.plot(sub_df.length, sub_df.extend_time, label=f"samples={ns}",
              c=ns_cols[j])
 
-ax0.legend()
-ax1.legend()
-ax2.legend()
+ax0.legend(fontsize='xx-small')
+ax1.legend(fontsize='xx-small')
+ax2.legend(fontsize='xx-small')
 
 plt.tight_layout()
 plt.savefig(fname)
