@@ -273,7 +273,7 @@ should remain unchanged when possible.
 These extended ancestral haplotypes manifest as unary nodes in the marginal trees.
 To quantify how accurate the new information is,
 we define and describe how to compute new measures of (dis-)agreement between ARGs
-that are motivated by the XXX distance between trees
+that are motivated by the Robinson-Foulds distance between trees
 but account for haplotype identity.
 These measures show that the vast majority of these extended haplotypes are correct,
 and that substantial information about haplotypes is contained in these nodes
@@ -380,7 +380,7 @@ and \emph{edges} $E$ which represent relationships between nodes over different 
 Each node $n \in N$ has a \emph{time} $t_n$,
 which is the amount of time in the past that the individual who carried that segment of genome lived.
 Some nodes are \emph{samples}, meaning that we know them from data. 
-Typically, samples are exclusively leaves of $T$, however it is not the case that all samples are leaves.
+Typically, samples are exclusively leaves of $\T$, however it is not the case that all samples are leaves.
 Each edge $e \in E$ describes inheritance between a parent node $p_e$ and child node $c_e$,
 over a segment of genome $[\ell_e, r_e)$.
 (The tree sequence includes substantially more information, including genotypes, but we will not use that in this paper.)
@@ -598,7 +598,7 @@ shows that 99\% of all changes to an ARG occur after the first iteration,
 with the algorithm completing after four iterations. 
 
 
-\subsection{Dissimilarity Function}
+\subsection{Dissimilarity between ARGs}
 % * How to measure agreement that includes haplotypes
 % * Definition and Algorithm
 % * Supp fig: runtime ~ # trees, samples
@@ -615,19 +615,20 @@ improves \emph{inferred} tree sequences.
 Since we are not aware of any current methods for measuring (dis)agreement between tree sequences
 that take into account haplotype identity,
 we define a measure of \emph{dissimilarity} to quantify this.
-The method is implemented in the \texttt{tsdate} package \citep{wohns2022unified}
-as \comment{XXX}.
+The method is implemented in the \texttt{tscompare} package.
 
 It is helpful to first describe what we compute in the simple case.
 \figref[C\&D]{fig:node-spans} shows the spans for each node in three tree sequences:
-for each node, the dark blue point is the total span in a ``true'' tree sequence
+for each node the total span in a ``true'' tree sequence, 
+given by the line,
 that was simulated with \msprime \citep{kelleher2016efficient,baumdicker2021efficient}
 in a way that included spans over which nodes are unary in the output
 (by setting \texttt{coalescing\_segments\_only} to False).
-The green point is the span of the node after \emph{simplifying} the tree sequence
+\figref[C]{fig:node-spans} shows the span of each node after \emph{simplifying} the tree sequence 
 \citep{kelleher2018efficient},
-which removes all unary nodes from all trees.
-The red point
+which removes all unary nodes from all trees
+thus reducing the node spans for some nodes in the sequence.
+In \figref[D]{fig:node-spans}
 is the span of the node after applying \algorithmref{alg:extend}
 to the simplified tree sequence.
 \algorithmref{alg:extend} cannot reduce node span, resulting in node spans 
@@ -705,11 +706,14 @@ If the best-matching node is unique, we define $\alpha(n_1)$ to be the node in $
 out of those maximizing $m(n_1, n_2)$ that minimizes $|t^{(1)}_{n_1} - t^{(2)}_{n_2}|$
 (and if \emph{this} is not unique, we pick an arbitrary one) --
 however, this potential ambiguity does not affect the definition of $\similarity(\T_1, \T_2)$.
+Let $\|\T_1\|=\sum_{n\in N_1}s(\T_1,n)$ be the total sum of nodes spans for nodes in $\T_1$.
 We then define the \emph{dissimilarity} of $\T_1$ from $\T_2$ by
 \begin{align*}
     \dis(\T_1, \T_2)
     =
-    \sum_{n \in N_1} (s(\T_1, n) - m(n, \alpha(n))),
+    \sum_{n \in N_1} (s(\T_1, n) - m(n, \alpha(n))) 
+    = 
+    \Vert \T_1\Vert -\similarity(\T_1,\T_2),
 \end{align*}
 which is the proportion of total span of all nodes in $\T_1$
 for which their descendant samples do \emph{not} match those of their best match in $\T_2$.
@@ -752,61 +756,30 @@ for instance by returning the weighted root-mean-squared error on inferred times
     = \sqrt{\frac{
         \sum_{n \in N_1} s(\T_1,n) \left(\log\left(1+ t^{(1)}_n\right) - \log\left(1+ t^{(2)}_{\alpha(n)}\right) \right)^2 
     }{
-        \sum_{n \in N_1} s(\T_1,n)
+        \Vert{\T_1}\Vert
     } } .
 \end{align}
 The mean is computed weighting by node span, so that a dating error
 is more serious for a node with a longer span. 
 
-The implementation of this method, called \emph{tree\_dissimilarity} \comment{change?}, in \texttt{tsdate}
-produces three values after computation: 
-the relative dissimilarity, weighted root-mean-square-error, and true proportion represented. 
-The \emph{relative dissimilarity} is defined to be the dissimilarity proportional
+The implementation of this method in \texttt{tscompare}
+additionally produces relative values:
+the ancestral recombination graph robinson-foulds value (relative dissimilarity)  and true proportion represented. 
+The \emph{ancestral recombination graph robinson-foulds} (ARF) is defined to be the dissimilarity proportional
  to the total span of nodes in $\T_1$,
  \begin{align}\label{eqn:dissimilarity}
- 	\overline{\dis}(\T_1,\T_2)=\frac{\dis(\T_1,\T_2)}{\sum_{n\in N_1} s(\T_1,n)}
- 	=1-\frac{\similarity(\T_1,\T_2)}{\sum_{n\in N_1} s(\T_1,n)}.
+ 	\operatorname{ARF}(\T_1,\T_2)=\frac{\dis(\T_1,\T_2)}{\Vert \T_1 \Vert}
+ 	=1-\frac{\similarity(\T_1,\T_2)}{\Vert \T_1\Vert}.
 \end{align}
-The \emph{weighted root-mean-square-error} is given in \eqnref{eqn:wrmse}.
-The \emph{true proportion represented} is similarity between two trees relative 
+The \emph{true proportion represented} (TPR) is similarity between two trees relative 
 to the total span of nodes in $\T_2$,
 \begin{align}\label{eqn:true-proportion}
-	\overline{\similarity}(\T_1,\T_2) = \frac{\similarity(\T_1,\T_2)}{\sum_{n\in N_2}s(\T_2,n)}.
+	\operatorname{TPR}(\T_1,\T_2) = \frac{\similarity(\T_1,\T_2)}
+	{\Vert \T_2\Vert}.
 \end{align}
 The outputs framed as proportions relative to one of the given tree sequences is more easily understood
 for comparing pairs of tree sequences than the original dissimilarity and similarity, whose units are length of spans.
-We compute the tree\_dissimilarity of two tree sequences in \figref{fig:conceptual_discrepancy}.
-
-
-%%%%%%%%%%%%
-%\comment{PREVIOUS VERSION: retrieve bits from below?}
-%
-%Inspired by Robinson-Foulds we define a function, called a \textit{discrepancy function} (see \algorithmref{alg:disc}), on a pair of tree sequences $\T_1$, $\T_2$ of equal length $L$.
-%Let $N_{T_1}$ and $N_{T_2}$ be the set of nodes on $\T_1$ respectively $\T_2$.
-%For a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$, we define their \textit{discrepancy} as a difference in their total spans over the genome.
-%Each node $n\in\T$ has a given position along the genome and time, 
-%so we can write each node as a tuple $n = (t_n, L_n)$ with position $L_n\subset \left[0,L\right)$ and time $t_n\in \R^{\geq 0}$.
-%Computing the discrepancy between a random pair of nodes is not helpful, 
-%so we must first identify which pairs of nodes would be most identical to one another or a `best match'.
-%These `best matching' nodes should be close in terms of time and have equal descendant sample sets,
-%ie. $s(i) = s(j)$ where $s$ is the function to compute the descendant sample set of $n_1$.
-%
-%To find a best match for each node $i\in N_{T_1}$ \comment{(Should I do this by mentioning clades?)}
-%we compute the \textit{shared span} between node $i\in N_{T_1}$ and every node in $N_{T_2}$.
-%Then, the \textit{shared span} between two tree sequences, denoted $ss(\T_1,\T_2)$, is a $|N_{T_1}|\times |N_{T_2}|$ matrix $A$
-%where each entry $a_{ij}$ represents the shared span between a pair of nodes $(i,j)\in N_{T_1}\times N_{T_2}$.
-%If a pair $(i,j)$ has equal descendant sample sets, $s(i) = s(j)$
-%then $a_{ij} = |L_i \cap L_j|$.
-%If the pair does not have an equal descendant sample set then we set $a_{ij}=0$.
-%Matrix $A$ determines the \textit{best match} for every node $i\in N_{T_1}$
-%via looking at the maximum in row $i$, $\alpha_i = \max_{j\in N_{T_2}} a_{ij}$.
-%If this maximum is not unique, we use time difference to determine the best match pair.
-%We then define the \textit{discrepancy} between $\T_1$ and $\T_2$ as 
-%one minus the proportion of sum of the shared spans divided by the total node span of $\T_1$.
-%
-%We note that the discrepancy function is a metric for detecting non-similarity between two tree sequences. However, we note that this function is not a metric in the mathematical sense, as it is not symmetric, nor is it reflexive. For example, given a tree sequence $\T$ and its simplification $\mathbb{S}$ and $\T\neq\mathbb{S}$ we have $\operatorname{discrepancy}(\mathbb{S}, \T)=0$. Additionally, given \figref{fig:conceptual_discrepancy}, $\operatorname{discrepancy}(T1, T2) \neq \operatorname{discrepancy}(T2, T1)$ \comment{actually compute this. We may just do it in this section instead of the appendix?}
-% 
-%\comment{Do we want a complete walkthrough of Figure 3? Could be useful in an appendix} 
+We compute dissimilarity and ARF of two tree sequences in \figref{fig:conceptual_discrepancy}.
 
 \begin{figure}[!ht]
 	\begin{center}
@@ -816,64 +789,14 @@ We compute the tree\_dissimilarity of two tree sequences in \figref{fig:conceptu
         For two tree sequences $T1$ and $T2$ the \emph{dissimilarity}, $\dis(T1,T2)$, matches nodes in $T1$ to nodes in $T2$
         based on identical sample sets.
         In this example, node $8$ has no match in $T2$ as there are no nodes in $T2$ with sample set $\left\{1,2,3\right\}$.
-        Node $4$ has no match on $[4,5)$ and matches with node $9$ on $[5,6)$. On the rest of the genome, all of nodes match with their identical counterpart.
-        This makes the dissimilarity $\dis(T1,T2)=3$ and the \emph{relative similarity} $\overline{\dis}(T1,T2)=\frac{3}{46}$.
+        Node $4$ has no match on $[4,5)$ and matches with node $9$ on $[5,6)$. Thus the maximal mapping for 4 should be to itself. On the rest of the genome, all of nodes match with their identical counterpart.
+        This makes the dissimilarity $\dis(T1,T2)=3$ and $\operatorname{ARF}(T1,T2)=\frac{3}{46}$.
         \label{fig:conceptual_discrepancy}
     }
 	\end{center}
 \end{figure}
 
-%\comment{Delete Discrepancy Algorithm!!}
-% 
-% \begin{algorithm2e}[!ht]
-% \SetStartEndCondition{ }{}{}%
-% \SetKwProg{Fn}{def}{\string:}{}
-% \SetKwFunction{Range}{range}%%
-% \SetKw{KwTo}{in}
-% \SetKwFor{For}{for}{\string:}{}%
-% \SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-% \SetKwFor{While}{while}{:}{fintq}%
-% \SetKw{Break}{break}
-% \newcommand\forcond{$i$ \KwTo\Range{$n$}}
-% \SetKwComment{Comment}{}
-% \AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
-% \DontPrintSemicolon\LinesNotNumbered
-% 
-% \caption{Discrepancy Function}\label{alg:disc}
-% \input{$(T_1,T_2)$}
-% \output{tree discrepancy, root-mean-square error}
-% 
-% \Fn{Shared Spans($T_1,T_2$)}{
-% \For{pairs $(i,j)\in N_{T_1}\times N_{T_2}$}{
-% 	$i = (t_i, L_i)$ and $j = (t_j, L_j)$ where $L_i, L_j\subset \left[0,L\right).\quad$ \Comment{Each node is a tuple (time, genome location).}
-% 	\If{$(i,j)$ has equal sample sets, $s(i)=s(j)$}{
-% 		Define $a_{ij}=|L_i\cap L_j|$.
-% 	}
-% 	\Else{Define $a_{ij}=0$.}
-% Define matrix $A=\left[a_{ij}\right]\in M_{N_{T_1}\times N_{T_2}}(\R)$.\;
-% }
-% \KwRet{$A$}
-% }
-%\BlankLine
-%\Fn{Discrepancy ($T_1,T_2$)}{
-%\For{each node $i\in N_{T_1}$}{
-%	Find nodes in $N_{T_2}$ which have the highest matching span.\;
-%	$\operatorname{matches}_i = \argmax_{k\in N_{T_2}} a_{ik}.$\;
-%	Let $j = \argmax_{k\in \operatorname{matches}_i}\frac{1}{1+|t_i-t_k|}$.\;
-%	Define $\alpha_i = a_{ij}$.\;
-%	\BlankLine
-%}
-%$$tree\ discrepancy = 1 - \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname{tr}\left(Shared Spans(T_1, T_1)\right)}$$\;
-%\BlankLine\BlankLine
-%$$rmse = \sqrt{\frac{\sum_{i\in N_{T_1}}|t_i - t_j|\alpha_i}{\operatorname{tr}\left(Shared Spans(T_1,T_1)\right)}}$$\;
-%\BlankLine
-%$$true\ proportion = \frac{\sum_{i\in N_{T_1}} \alpha_i}{\operatorname(tr)\left( Shared Spans(T_2, T_2)\right)}$$\;
-%\BlankLine\BlankLine
-%\KwRet{tree discrepancy, rmse, true proportion}
-%}
-%\end{algorithm2e}
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Simulations}
 
 To do this, we simulate ARGs containing full haplotypes using \msprime's 
@@ -923,15 +846,10 @@ used a discrete-time Wright--Fisher model to simulate
 a small population of 100 that expanded to 1,000 individuals ten generations ago,
 which then doubled every generation to reach 512,000 individuals.
 All jobs used for recording runtime were run on an Intel Xeon Gold 6148 processor.
-To observe the accuracy of our method, we compute node spans for a correctly and 
-incorrectly added for a tree sequence simulated with
- 1,000 samples over a genome of length $10^8$.
  Additionally, we compare accuracy between sequences modified from a ``true'' tree sequence
- using our dissimilarity method. 
- These tree sequences range from 10 to 1,000 samples with genome length $5\times 10^7$
- as well as having 1,000 samples and ranging the genome length from $10^6$ to $5\times 10^7$.
-All jobs used for recording node span and (dis)similarity for true and inferred ARGs
- were run on an Intel Core i5-1035G4 processor.
+ using our dissimilarity methods. 
+ These tree sequences have a population of 1,000 and recombination rate of $10^{-8}$ with samples ranging from 10 to 1,000 and genome length ranging from $10^6$ to $5\times 10^7$.
+
 
 \section{Results}
 
@@ -995,13 +913,12 @@ This reduction in edges can also lead to a reduction in computation time.
 Indeed, \figref{fig:speed_and_edges} shows that computation time is reduced by 10--20\%
 for a typical statistic (here, Tajima's $D$),
 computed in an efficient iterative manner along the genome as implemented in \tskit.
-This is actually somewhat surprising:
+This may at first be somewhat surprising:
+This makes sense because
 as described in \citet{ralph2020efficiently},
 each edge added or removed requires an update
-to the state of the parent node \emph{and every node above it in the tree}.
-So, even if an edge extends for a long segment of genome,
-something has to happen to it every time the subtree below it changes,
-which is not affected by extending haplotypes.
+to the state of the parent node and nodes above it,
+and extending haplotypes yields a tree sequence with fewer edge removals and insertions. 
 
 Supplementary \figref{fig:speed_and_edges_constant} shows these results are not specific
 to the demographic scenario.
@@ -1052,11 +969,12 @@ The added information is significant:
 the algorithm typically increases spans (i.e., lengths of ancestral haplotypes)
 by around 50\%.
 
-\begin{figure}[bht]
+\begin{figure}[!bht]
 	\includegraphics{newplots_wo_ee/figure-4.pdf}
 	\caption{
         The effect of extending haplotypes on per-node spans
-        in an ARG simulated with $10^4$ \comment{diploid?} samples on a sequence of length $10^8$.
+        in an ARG simulated with $10^4$ diploid samples, $10^4$ population, and 
+        recombination rate of $10^{-8}$ on a sequence of length $10^8$.
         \textbf{(A)}
         Distribution of total amount of span added across nodes by \algorithmref{alg:extend};
         note the log scale on the $y$ axis.
@@ -1078,14 +996,14 @@ by around 50\%.
 \end{figure}
 
 These statistics are also reflected at the genomic scale, using measures of dissimilarity.
-\figref{fig:dissimilarity} shows in purple total amounts of span removed by simplification
+Line ``SE'' in \figref{fig:dissimilarity} shows total amounts of span removed by simplification
 and re-inferred by \algorithmref{alg:extend} (correctly and incorrectly).
-(Lines in green involve re-inference of the ARG; discussed next.)
-The top row shows the proportion of the given ARG that does not match the original,
+(Lines labeled with ``I'' involve re-inference of the ARG; discussed next.)
+The top row shows the proportion of the given ARG that does not match the original (ARF),
 showing that the total amount of mis-matching span
 produced by extending haplotypes is very small ($\approx 1\%$).
 (Simplification does not produce dissimilarity.)
-The bottom row shows the proprtional of the original ARG that is represented in the given ARG.
+The bottom row shows the proprtional of the original ARG that is represented in the given ARG (TRP).
 This shows that a large proportion of the ARG can be removed by simplifiction,
 indicating that coalescent nodes are unary
 over a substantial portion of their spans.
@@ -1101,27 +1019,25 @@ and extending haplotypes can infer more than half of this span from coalescent i
 
 
 
-\begin{figure}
+\begin{figure}[!hbt]
 	\begin{center}
-        \includegraphics[width=\textwidth]{newplots_wo_ee/dissimilarity.pdf}
+        \includegraphics[width=\textwidth]{figure5.pdf}
 	\end{center}
     \caption{
         Accuracy and sensitivity of extended haplotypes
         across a range of sample sizes, on a sequence of length $5\times10^7$ (top)
-        and sequence lengths, with 1,000 \comment{diploid?} samples (bottom).
+        and sequence lengths, with 1,000 diploid samples (bottom).
         For each, a simulated ARG containing unary haplotype spans
         was (i) \emph{simplified}, removing the unary spans,
         and (ii) \emph{inferred}, using \tsinfer{} on genotypes;
         then each of these had its haplotypes \emph{extended}.
         The inferred, then simplified, ARG is also shown.
-        \textbf{Left:} Discrepancy to the true ARG,
+        \textbf{Top row:} ARF, the dissimilarity to the true ARG,
         as proportion of haplotypes that are not represented in the true ARG
         (\eqnref{eqn:dissimilarity}).
-        \textbf{Right:} Agreement to the true ARG,
+        \textbf{Bottom row:} TPR, agreement to the true ARG
         as proportion of the true ARG that is represented.
-        The largest number of trees in the bottom row corresponds
-        to the sequence length in the top row;
-        see text for more details.  }     
+        }     
     \label{fig:dissimilarity}
 \end{figure}
 
@@ -1141,13 +1057,16 @@ then re-inferred ARGs from their genotypes and performed various operations on t
 
 First, \figref{fig:dissimilarity} shows that \tsinfer{}
 has a substantial portion of already--extended haplotypes:
-comparing the ``inferred'' (``I''; dotted) line to the ``inferred-simplified'' (``IS''; dashed) line
+comparing the ``inferred'' (``I''; dotted green) line to the ``inferred-simplified'' (``IS''; dashed green) line
 we see that inclusion of these unary spans increases the amount of correctly inferred material
 by around 20\% (bottom panels),
 but that roughly 10\% of the unary spans in the inferred ARG are incorrect (top panels).
+Furthermore, comparing to the inferred-extend(``IE''; red) line, we see that extending the tree sequence output with tsinfer adds relatively little span.
 Applying \algorithmref{alg:extend} to the inferred-and-then-simplified ARG
 (``ISE''; solid green line)
 produces an ARG with both less correct and incorrect span.
+Additionally, the ``IE'' and ``ISE'' ARGs 
+contain approximately the same number of edges (difference of $\approx 1\%$).
 It is also helpful to note that accuracy
 (i.e., proportion of the true ARG that is inferred; bottom panels)
 greatly increases with larger sample sizes,
@@ -1156,84 +1075,25 @@ possibly due to resolution of polytomies.
 ``correct'' and ``incorrect'' spans are determined here by \emph{exact} match
 of subtending samples.)
 
-reporting proportions of correct and incorrect haplotype spans in Figure~\ref{fig:dissimilarity}.
-Main points: in \figref{fig:dissimilarity}
-(green line) tsinfer gets a lot right (above 60\% with 1000 samples; bottom-right plot)
-    and does a lot better with more samples;
-    also, gets 10\%--25\% wrong (left panels)
-    with longer sequence, larger proportion is wrong (bottom-left panel)
-(red dotted)
-    simplifying removes a lot of the wrong stuff
-    but also a lot of the right stuff
-(red solid)
-    similarly extending the simplified one adds a bunch of right and also wrong stuff
-    
-
-It's also interesting to  note that inference
-(see \figref{fig:inferred_edge_counts})
-(a) increases number of edges;
-(b) but inferred-simplifies have even more suggesting unary stuff is parsimonious;
-(c) but then extending reduces to below the original.
-\comment{Also say something about IE line...}
-
-
+%reporting proportions of correct and incorrect haplotype spans in Figure~\ref{fig:dissimilarity}.
+%Main points: in \figref{fig:dissimilarity}
+%(green line) tsinfer gets a lot right (above 60\% with 1000 samples; bottom-right plot)
+%    and does a lot better with more samples;
+%    also, gets 10\%--25\% wrong (left panels)
+%    with longer sequence, larger proportion is wrong (bottom-left panel)
+%(red dotted)
+%    simplifying removes a lot of the wrong stuff
+%    but also a lot of the right stuff
+%(red solid)
+%    similarly extending the simplified one adds a bunch of right and also wrong stuff
+%    
 %
-%\begin{figure}[bht]
-%	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/better_unary_spans_ep_log.pdf}
-%	\caption{Correct Unary Span for Extend Haplotypes (log)}
-%	\label{fig:correct-unary-span-log}
-%\end{figure}
-%
-%\begin{figure}
-%%	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/avg_edge_count_over_iters_5e7_1000s.pdf}
-%	\caption{The average number of edges for an extended tree sequence per iteration of the extend haplotypes algorithm.}
-%	\label{fig:edges-per-iteration}
-%\end{figure}
+%It's also interesting to  note that inference
+%(see \figref{fig:inferred_edge_counts})
+%(a) increases number of edges;
+%(b) but inferred-simplifies have even more suggesting unary stuff is parsimonious;
+%(c) but then extending reduces to below the original.
 
-% (AVA)
-% * reduction in edges ~ sequence length
-% * speed increase ~ sequence length
-% * proprotion of added edges that are true ~ sequeence length
-
-%Simple experiment:
-%(1) simulate, simplify, and extend;
-%(2) let $x$ be total matching span of simplified tree (here equal to the total span); $y$ total matching span of extended tree in truth and $z$ total not-matching span;
-%then $z$ is "total wrongly added stuff" and $y-x$ is "total rightly added stuff".
-%
-%With tsinfer: (1) simulate and tsinfer; (2) do the above either with or without simplifying the tsinfer'ed trees.
-%(but also take into account that there's wrong stuff in tsinfer'ed tree: look at whether it reduces discrepancy!)
-
-%\begin{figure}
-%	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/sampling_dist_geneconversion.pdf}
-%	\caption{
-%        Accuracy of \algorithmref{alg:extend}
-%        on simulated ARGs with sample size $10^2$, length $10^7$, gene conversion rate $10^{-8}$ and gene tract length = $10^3$.
-%        The same quantities for simulated ARGs without gene conversion
-%        are shown in Supplementary \figref{fig:accuracy_on_truth_no_gc}.
-%    \label{fig:accuracy_on_truth}
-%}
-%\end{figure}
-%
-%\begin{figure}
-%	\includegraphics[width=0.9\linewidth]{newplots_wo_ee/sampling_dist_recomb.pdf}
-%	\caption{Accuracy of \algorithmref{alg:extend}
-%        as in \figref{fig:accuracy_on_truth} except that simulations were done
-%        without gene conversion. \comment{Add to supplement.}
-%        \label{fig:accuracy_on_truth_no_gc}
-%    }
-%\end{figure}
-
-\subsection{Data}
-% * 1. Simulate data
-% * 2. Run tsinfer
-% * 3. Compare d(x,truth) for x in tsinfer, tsinfer+add edge, tsinfer+add edge + simplify, tsinfer+simplify
-
-% * How much unary edges?
-% * How much can we add?
-
-% * apply to real data:
-%     - % fewer edges
-%     - % fewer distinct ancestors (ancestral paths?) of sample at some time
 
 \section{Discussion}
 
@@ -1264,9 +1124,9 @@ and whether this algorithm can be used to improve inference.
 The results do not provide a clear ordering:
 for instance, although \tsinfer-produced ARGs
 have a substantial portion of correctly inferred unary haplotypes,
-removing this with simplification decreases both dissimilarity
+removing this with simplification decreases both ARF
 (i.e., proportion of ``wrong'' haplotypes)
-and the proportion of the truth that is correctly inferred.
+and TPR (the proportion of the truth that is correctly inferred).
 Extending haplotypes restores a large amount of this correctly inferred span,
 but also introduces incorrect spans.
 Further work is needed to determine how the balance of ``true and false positive rates''
@@ -1293,7 +1153,6 @@ so the correct interpretation of these ARGs is a lack of knowledge.
 In this paper, we have shown that this information can be largely replaced.
 
 \paragraph{Metrics on ARGs}
-\comment{collecting random notes here; TODO is tie them together}
 The dissimilarity $\dis(\T_1,\T_2)$ is clearly not a metric in the mathematical sense
 (i.e., symmetric, nonzero distance between distinct points, and satisfying the triangle inequality).
 This is by design: in practice it is not possible to infer all aspects
@@ -1307,17 +1166,13 @@ and view each ARG as a subset of the space $[0,L) \times N \times N$,
 where $N$ is the shared set of nodes.
 Then, dissimilarity is the Lesbegue measure of the relative difference of the two sets:
 $|\T_1 \setminus \T_2|$,
-and so the symmetrized version is the measure of the symmetric difference,
+and so the symmetrized version is the measure of the symmetric difference
+$|\T_1\Delta\T_2|$,
 which is well-known to be a metric.
 If the two ARGs have the same number of nodes,
 then we take the minimum over the all bijections between their nodes,
 and minima over a finite number of metrics is also a metric.
-Finally, if they have a different number of nodes,
-say $|N_1|<|N_2|$ we can take matching maps $\varphi\colon\T_1\to\T_2$ (not surjective)
-and $\psi\colon T_2\to T_1$ (not injective)
-and compute the dissimilarity as symmetric difference between $|\T_1\setminus \T_2|_{\varphi}|$
-and $|\T_2\setminus \T_1|_\psi|$. This should still be a metric \comment{?????}
-then \comment{???} .
+This also holds for two tree sequences with different sizes of nodes, $|N_1|\neq|N_2|$ as we can take the minimum over all possible matchings $T_1\to\T_2$ and $\T_2\to\T_1$.
 
 The Robinson-Foulds distance \citep{robinson1981comparison}
 essentially counts the number of differing branches between two trees;
@@ -1345,20 +1200,21 @@ without enforcement of identity across haplotypes;
 it would be useful to extend our dissimilarity to include branch lengths.
 
 \paragraph{Inference methods}
-\comment{Possibly an overview of what the different inference methods do with unary spans?}
+Clearly, there is ample information in genomic data to infer the extent of ancestral haplotypes even where they are unary,
+and this has the potential to significantly inform downstream methods, especially dating.
+However, currently not all ARG inference methods return ARGs with unary nodes.
+For instance, we have seen that tsinfer returns ARGs to which the method presented here adds little -
+so, seems to be already taking advantage of this source of information.
+Singer [cite] returns ARGs without any unary nodes,
+although these are reconstructable using the times of the recombination nodes.
+On the other hand, locally building trees separately in each segment of genome
+simply does not provide this sort of haplotype-based information (although it might be added using a method like ours).
 
 \bibliography{references}
 
 \appendix
 \renewcommand{\thefigure}{S\arabic{figure}}
 \setcounter{figure}{0}
-
-\begin{figure}
-	\includegraphics{newplots_wo_ee/figure-4b-supplement}
-	\caption{Distribution of incorrectly added span percentages
-		 for the simulated tree sequence in \figref{fig:node-spans}.}
-	\label{fig:incorrect_ratio}
-\end{figure}
 
 \begin{figure}
     \includegraphics{benchmarks/one_pop_results_absolute_values}
@@ -1398,6 +1254,14 @@ it would be useful to extend our dissimilarity to include branch lengths.
     }
 \end{figure}
 
+\begin{figure}[!hbt]
+	\includegraphics{newplots_wo_ee/figure-4b-supplement}
+	\caption{Distribution of incorrectly added span percentages
+		for the simulated tree sequence in \figref{fig:node-spans}.}
+	\label{fig:incorrect_ratio}
+\end{figure}
+
+
 
 %\begin{figure}
 %    \caption{
@@ -1408,7 +1272,7 @@ it would be useful to extend our dissimilarity to include branch lengths.
 %\end{figure}
 
 
-\begin{table}[hbt]
+\begin{table}[!hbt]
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|}
 	\hline
@@ -1431,137 +1295,5 @@ are removed within the first iteration.}
 \label{tab:edge-counts}
 \end{center}
 \end{table}
-
-%\begin{algorithm2e}[!ht]
-%	\SetStartEndCondition{ }{}{}%
-%	\SetKwProg{Fn}{def}{\string:}{}
-%	\SetKwFunction{Range}{range}%%
-%	\SetKw{KwTo}{in}
-%	\SetKwFor{For}{for}{\string:}{}%
-%	\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-%	\SetKwFor{While}{while}{:}{fintq}%
-%	\SetKw{Break}{break}
-%	\newcommand\forcond{$i$ \KwTo\Range{$n$}}
-%	\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
-%	
-%	\caption{Extends haplotypes across a tree sequence $TS$.
-%    \comment{I think we can remove this now?}}
-%	\label{alg:hap}
-%	
-%	\SetKwFunction{ex}{Extend Paths}
-%	\SetKwFunction{fp}{Find Paths}
-%	\DontPrintSemicolon
-%	\LinesNotNumbered
-%	%\SetAlgoNoEnd
-%	\input{A tree sequence $\T$}
-%	\output{New tree sequence,$\T'$}
-%	\BlankLine
-%	\Fn{\fp (tree sequence $\T$, forwards = \tn{True})}{
-%	{
-%		\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
-%		{\BlankLine
-%			$\T = \left(T_{|\T|},..., T_1\right)$\;
-%		}
-%	}
-%		\For{pairs $(T_k, T_{k+1})\in \T\times\T$}{
-%		Compute subforests $F_O\subseteq T_k$ and $F_I\subseteq\in T_{k+1}$.\;
-%		\For{edges $e$ in $F_O$}{
-%			Let $c$ be child node.\;
-%			$p_c^{F_O} = [c]$\;
-%			$p_c^{F_I} = [c]$\;
-%			$\bar{p}_c = []$ Path to be inserted\;
-%			\While{$\exists f\in F_O$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))=0$}{
-%				$p = \tn{parent}(f)$\;
-%				Append $p$ to $p_c^{F_O}$\;
-%				$c = p$\;
-%			}
-%			\While{$\exists f\in F_I$ such that $\tn{child}(f)=c$ and $\tn{deg}(\tn{parent}(f))<3$}{
-%				$p =\tn{parent}(f)$\;
-%				Append $p$ to $p_c^{F_I}$\;
-%				$c = p$\;
-%			}
-%			\If{($p_c^{F_O}\cap p_c^{F_I})\backslash\{c\}\neq\emptyset$}{
-%				Merge paths up to intersection point\;
-%				$\bar{p}_c = \hat{p}_c^{F_I} \cup \hat{p}^{F_I}_c$\;
-%				and sort by node time.\;
-%			}
-%			Insert $\bar{p}_c$ into $T_{k+1}$\;		
-%		}
-%	}\;
-%	Update $\T$.\;
-%	\KwRet{$\T$}\;
-%}
-%\BlankLine						
-%\Fn{\ex ($\T$)}{
-%	$\T' \gets $ \fp($\T$, forwards =\tn{True})\;
-%	$\T' \gets $ \fp($\T$, forwards = \tn{False})\;
-%	\While{Number of edges in $\T$ $\neq$ Number of edges in $\T'$}{
-%		$\T' \gets $ \fp($\T$, fowards=\tn{True})\;
-%		$\T' \gets $ \fp($\T$, fowards=\tn{False})\;
-%		
-%	}
-%	\KwRet{$\T'$}\;
-%}
-%\end{algorithm2e}
-%
-%% Can most likely delete the extend-edges algorithm %%
-%\begin{algorithm2e}[!ht] 
-%	
-%\SetStartEndCondition{ }{}{}%
-%\SetKwProg{Fn}{def}{\string:}{}
-%\SetKwFunction{Range}{range}%%
-%\SetKw{KwTo}{in}
-%\SetKwFor{For}{for}{\string:}{}%
-%\SetKwIF{If}{ElseIf}{Else}{if}{:}{elif}{else:}{}%
-%\SetKwFor{While}{while}{:}{fintq}%
-%\SetKw{Break}{break}
-%\newcommand\forcond{$i$ \KwTo\Range{$n$}}
-%\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
-%
-%\caption{Extends edges across a tree sequence $TS$. 
-%\comment{Can be removed, probably -- unless this seems a lot simpler?}}
-%\label{alg:edge}
-%
-%\SetKwFunction{ex}{Extend Edges}
-%\SetKwFunction{fwd}{Extend}
-%\DontPrintSemicolon
-%\LinesNotNumbered
-%%\SetAlgoNoEnd
-%\input{A tree sequence $\T$}
-%\output{New tree sequence,$\T'$}
-%
-%\BlankLine 
-%
-%\Fn{\fwd (tree sequence $\T$, forwards = \tn{True})}{
-%{	
-%\eIf{forwards=\tn{True}}{$\T = \left(T_1,...,T_{|\T|}\right)$\BlankLine}
-%{\BlankLine
-%	$\T = \left(T_{|\T|},..., T_1\right)$\;}
-%}
-%	\For{$T_k\in \T$}{
-%	Find all edge pairs $(e_1,e_2)$ such that $e_1 = a\to b$ and $e_2 = b\to c$ for some nodes $a,b,c$.\;
-%	\For{edges $f$ in $T_{k+1}$}{
-%		\If{$f = a \to c$ and $b$ is not in $T_{k+1}$}{
-%		Remove $f$ from $T_{k+1}$.\;
-%		Add $e_1$ and $e_2$ to $T_{k+1}$.\;
-%		Update $\T$.\;
-%	}
-%	}
-%}\;						
-%\KwRet{$\T$}\;
-%}
-%\BlankLine						
-%\Fn{\ex ($\T$, iter=100)}{
-%	\For{$*$ \KwTo \Range(iter)}{
-%		$\T' \gets \T$.\fwd(fowards=\tn{True})\;
-%		$\T' \gets \T$.\fwd(fowards=\tn{False})\;
-%		\If{Number of edges in $\T$ = Number of edges in $\T'$}{
-%			\Break\BlankLine}
-%		}
-%}
-%\KwRet{$\T'$}\;
-%\end{algorithm2e}
-
-
 
 \end{document}
