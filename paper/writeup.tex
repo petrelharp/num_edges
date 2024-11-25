@@ -119,7 +119,7 @@
     but information-rich data structure describing the genealogical
     relationships among recombinant sequences.
     The resulting inferred ARGs are smaller, faster to compute with,
-    and contain substantially more information % NSP-22NOV: "substantially more information" in what regard?
+    and contain substantially more information about inheritance % NSP-22NOV: "substantially more information" in what regard?
     than inferred ARGs without unary nodes.
     We provide efficient algorithms to infer unary nodes within existing ARGs,
     new metrics of agreement and disagreement between inferred ARGs,
@@ -248,13 +248,16 @@ whose relationships and origination time could be inferred.
 Haplotype identity has been largely overlooked in the literature on ARG inference so far --
 in that the metrics that have been used to measure accuracy of inferred ARGs
 depend only on the sequence of marginal trees,
-not on the sharing of ancestral haplotype identities between them. % NSP-22NOV: what does "sharing of ancestral haplotype identities" mean, concretely? Would "... depend only on the sequence of marginal trees, but not on the ancestral haplotypes that span across these trees" be a clearer description?
+not on the sharing of ancestral haplotypes that span across these trees. % NSP-22NOV: what does "sharing of ancestral haplotype identities" mean, concretely? Would "... depend only on the sequence of marginal trees, but not on the ancestral haplotypes that span across these trees" be a clearer description?
+% HF-24NOV: Noted and changed
 Suppose two methods are used to infer ARGs from the same set of genotyped samples.
 Although both ARGs describe the relationships between many haplotypes,
 only those haplotypes that represent the focal set of genotyped samples % NSP-22NOV: the meaning here isn't clear to me-- what does "represent the focal set of genotyped samples" mean, concretely?
+% HF-24NOV : I am not exactly sure, I will ping Peter
 can be unambiguously said to represent the same thing in both.
 Thus, metrics that only describe these relationships
-ignore the additional information carried by the structure of other haplotypes. % NSP-22NOV: again, "additional information carried by the structure of other haplotypes" is vague
+ignore the additional ancestral information carried by the structure of other haplotypes. % NSP-22NOV: again, "additional information carried by the structure of other haplotypes" is vague
+% HF-24NOV : Heard
 For instance, \citet{kelleher2019inferring} and \citet{zhang2023biobankscale}
 compared true and inferred ARGs
 using average Robinson-Foulds and Kendall-Colijn distances between trees
@@ -283,6 +286,7 @@ we define and describe how to compute new measures of (dis-)agreement between AR
 that are motivated by the Robinson-Foulds distance between trees
 but account for haplotype identity.
 These measures show that the vast majority of these extended haplotypes are correct, % NSP-22NOV: "vast majority" is correct in simulated (but not inferred) ARGs, right?
+% HF-24NOV : It should be both, as the IE line in Figure 6D shows that inferred trees match the TPR of the ground truth by at least 60% for inferred trees.
 and that substantial information about haplotypes is contained in these nodes
 in inferred trees as well.
 
@@ -643,13 +647,13 @@ from the extended tree sequence that are closer in value to the ``true'' tree se
 \figref[B]{fig:node-spans} shows how much of this span is incorrect:
 for each node, it gives the amount of span
 that is incorrect (i.e., not present in the original tree sequence) % NSP-22NOV: it seems a bit odd that this panel (B) is not on a log scale while all the others are
+% HF-24NOV Peter and I looked at both options and we thought the log scale on the Y-axis looked a bit misleading against our method. We instead provide our suplemental figure to provide more information about Figure 5b
 over the total amount of span added after running \algorithmref{alg:extend}.
 The values in these plots
 therefore quantify how much the ancestral haplotypes represented by each node
 were correctly, and incorrectly, extended.
-They also tell us how much of the relationships in the original tree sequence
-are represented in the result. % NSP-22NOV: "relationships" of what exactly?
-
+They also tell us how the node spans represented in the result compare to those in the original tree sequence. % NSP-22NOV: "relationships" of what exactly?
+% HF -24NOV: Noted and changed
 Now suppose that instead of comparing two tree sequences with the same set of nodes,
 we wish to compare two tree sequences for which we know the sample nodes are the same
 but are otherwise unclear as to the equivalency of nodes across sequences
@@ -680,13 +684,15 @@ let $S(T, n)$ denote the set of samples that inherit from $n$ in $T$,
 and for a pair of nodes $n_1$ and $n_2$ with $n_1$ in $\T_1$ and $n_2$ in $\T_2$,
 define
 % NSP-22NOV: The notation here is hard to read when subscripted. IMO it'd be better to use bracket notation here for the indicator function,
-% \mathbb{I}[ S(T_k^{(1)}, n_1) = S(T_k^{(2)}, n_2) ]
+% $\mathbb{I}[ S(T_k^{(1)}, n_1) = S(T_k^{(2)}, n_2) ]$
 % and also in next equation for consistency.
+% HF24-NOV: I think I disagree but we can get a third opinion.
 \begin{align*}
     m(n_1, n_2)
     =
-    \sum_{k=1}^N (a_k - a_{k-1}) \ind_{S(T^{(1)}_k, n_1) = S(T^{(2)}_k, n_2)}  
+    \sum_{k=1}^N (a_k - a_{k-1}) \ind_{S(T^{(1)}_k,\ n_1) = S(T^{(2)}_k,\ n_2)}  
     % NSP-22NOV: Added a missing comma. Also the comma at the very end looks like a prime, which is confusing, so I'm removing grammatical punctuation from these non-inline equations.
+    % HF-24NOV: Noted
 \end{align*}
 which is the total span over which the samples below $n_1$ in $\T_1$
 matches the samples below $n_2$ in $\T_2$.
@@ -738,7 +744,7 @@ This could be computed in a very similar way:
 instead of $m(n, \alpha(n))$ define
 % NSP-22NOV: as before I'd suggest using \mathbb{I}[...] for the indicator function
 \begin{align*}
-    m'(n, \T_2) = \sum_{k=1}^N (a_k - a_{k-1}) \ind_{\exists n_2: s(T^{(2)}_k, n_2) = s(T^{(1)}_k, n)} ,
+    m'(n, \T_2) = \sum_{k=1}^N (a_k - a_{k-1}) \ind_{\exists n_2: s(T^{(2)}_k,\ n_2) = s(T^{(1)}_k,\ n)} 
 \end{align*}
 the total span over which there is \emph{some} node in $\T_2$ whose set of descendant samples
 matches $s(T_1,n)$.
@@ -895,6 +901,7 @@ leading to a reduction in number of edges by a third.
 Experiments with an earlier version of the algorithm showed that
 if we only extend haplotypes on ``paths of length 1'', 
 then the hypothesized reduction of 1/3 is achieved for long sequences. % NSP-22NOV: is this sentence mentioning the earlier algorithm necessary?
+% HF-24NOV: No, but I kind of like the homage to our own earlier work and it sort of makes a benchmark for edge reduction proportions.
 It is possible for \algorithmref{alg:extend} to add edges, as in \figref{fig:extending_diagram},
 but we still expect the number of edges to decrease by more than 1/3.
 Indeed,
@@ -1063,6 +1070,7 @@ So far, we have demonstrated that there is potentially ample information
 in the coalescent-only trees to extend haplotypes.
 Does this work with \emph{inferred} ARGs?
 Indeed, most ARG inference methods provide inferred ARGS already containing unary nodes; % NSP-22NOV: this isn't true I don't think-- isn't it just tsinfer?
+% HF-24NOV: I am unsure. 
 to what degree are they taking advantage of this information already?
 Here, we study the behavior of \tsinfer{}, which produces unary nodes as a
 byproduct of its inference algorithm,
@@ -1071,7 +1079,7 @@ We simulated ARGs containing unary-spanning haplotypes (as above), then
 re-inferred ARGs from the associated genotypes and performed various operations
 on the results.
 % NSP-22NOV: do we need to define TS simplification here (or earlier?)
-
+% HF-24NOV: We define in the previous section line 960.
 First, \figref{fig:dissimilarity} shows that \tsinfer{}
 has a substantial portion of already--extended haplotypes:
 comparing the ``inferred'' (``I''; dotted green) line to the ``inferred-simplified'' (``IS''; dashed green) line
@@ -1121,6 +1129,7 @@ This is essentially a recombination-based parsimony argument,
 and we have shown that this line of reasoning
 leads to ARGs that are substantially more compact and faster to operate on,
 and that contain more complete information about true ancestral relationships. % NSP-22NOV: 'accurate' ==> 'complete' as otherwise it sounds like we're changing the topologies
+% HF-24NOV: Heard.
 These extended ancestral haplotypes manifest as unary nodes in the marginal trees.
 Although a number of ARG inference methods may be taking advantage of this information,
 it is our impression that this source of information is not widely appreciated.
@@ -1187,9 +1196,15 @@ $|\T_1 \setminus \T_2|$,
 and so the symmetrized version is the measure of the symmetric difference
 $|\T_1\Delta\T_2|$,
 which is well-known to be a metric. % NSP-22NOV: "well-known" ==> give a citation here
+% HF-24NOV: Peter would we cite Rudin?
 If the two ARGs have the same number of nodes,
-then we take the minimum over the all bijections between their nodes,
-and minima over a finite number of metrics is also a metric. % NSP-22NOV: I don't understand this sentence, can you rewrite to be clearer?
+we can consider all bijections between their nodes.
+The symmetric difference between $\T_1$ and $\T_2$,
+related through each bijection is a metric.
+Then the minimum over all such metrics will still be a metric
+since the minimum over a finite number of metrics is also a metric.
+ % NSP-22NOV: I don't understand this sentence, can you rewrite to be clearer?
+ % HF-24NOV: Hopefully it is clearer now
 This also extends to two tree sequences with different numbers of nodes, $|N_1|\neq|N_2|$, as we can take the minimum over all possible matchings $T_1\to\T_2$ and $\T_2\to\T_1$.
 
 The Robinson-Foulds distance \citep{robinson1981comparison}
