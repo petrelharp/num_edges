@@ -33,6 +33,7 @@
 \newcommand{\dis}{\operatorname{dis}}
 \newcommand{\similarity}{\operatorname{sim}}
 \newcommand{\comment}[1]{{\color{violet} \it #1}}
+\newcommand{\pluseq}{\mathrel{{+}{=}}}
 
 \newcommand{\algorithmref}[2][]{%
 	\hyperref[{#2}]{%
@@ -98,7 +99,7 @@
 \affil[$\S$]{Department of Data Science, University of Oregon, Eugene, Oregon}
 
 
-\keywords{genealogy, tree sequence, haplotypes}
+\keywords{genealogy, tree sequence, haplotypes, ancestral recombination graph}
 
 \runningtitle{Haplotypes in ARGs}
 \runningauthor{Fritze \textit{et al.}}
@@ -121,7 +122,7 @@
     and the additional ancestral information that is inserted
     is nearly always correct where the initial ARG is correct.
     We provide efficient algorithms to infer unary regions within existing ARGs,
-    and explore some consequences of unary nodes for ARGs inferred from real data.
+    and explore some consequences for ARGs inferred from real data.
     To do this, we introduce new metrics of agreement and disagreement between inferred ARGs
     that, unlike previous methods, consider the ARG as describing relationships between haplotypes
     rather than just a collection of trees.
@@ -205,10 +206,10 @@
 
 There has been substantial recent progress
 in the problem of ``ARG inference'',
-which seeks to infer (portions of) the ``ancestral recombination graph'' (or, ARG)
+which seeks to infer (portions of) the ancestral recombination graph (or, ARG)
 that describes how a set of genotypes samples are related to each other
 at each position of the genome \citep{speidel2019method,kelleher2019inferring,zhang2023biobankscale,deng2024robust,lewanski2024introduction}.
-One way of viewing the ARG is as a sequence of ``marginal trees'',
+One way of viewing the ARG is as a sequence of marginal trees,
 i.e., the genealogical trees that describe how each portion of the genome
 was inherited by the focal genomes.
 This is reflected in methodology of some ARG inference methods
@@ -219,7 +220,7 @@ the ``succinct tree sequence'',
 introduced by \citet{kelleher2016efficient},
 is a common format for describing these inferred ARGs,
 and is seeing wide use thanks in part to its efficiency and accompanying reliable toolkit,
-\tskit{} \citep{tskit}.
+\tskit{} \citep{tskit,ralph2020efficiently}.
 
 However, the ARG is emphatically not merely a sequence of trees:
 viewed another way, it describes inheritance relationships between ancestral haplotypes.
@@ -234,13 +235,13 @@ comes from phylogenetics.
 Indeed, all methods might very roughly be summarized as
 ``more similar sequences are more closely related''.
 For instance, two sequences that share a derived mutation
-are (probably) more closely related over some span of genome surrounding the location where the mutation occurs.
+are probably more closely related over some span of genome surrounding the location where the mutation occurs.
 It has long been observed 
 that not only mutations
 but also the ``junctions'' between distinct haplotypes,
 if they could be somehow identified,
 would be inherited as Mendelian markers
-\citet{fisher1954fuller,chapman2003model}.
+\citep{fisher1954fuller,chapman2003model}.
 In more modern terminology, 
 even in the absence of new mutations,
 recombination between distinct haplotypes can create a novel haplotype
@@ -259,7 +260,7 @@ while \citet{brandt2022evaluation} compared times to most recent common ancestor
 between pairs of sampled genomes.
 Neither is affected by shared haplotype structure --
 two ARGs could be identical by either measure
-but have completely different identity by descent (IBD) segment structure.
+but imply completely different patterns of haplotype sharing and inheritance.
 % (as defined in the context of the ARG, \citep{XXX}).
 \citet{deng2021distribution} evaluated agreement of distributions of
 distances along the genome between tree topology changes,
@@ -273,10 +274,10 @@ to be informed by larger portions of the genome on which there are many genealog
 
 In this paper, we study various aspects of haplotype identity in ARGs.
 First, we describe a deterministic algorithm that
-extends the span over which ancestral haplotypes extend
+extends the genomic region spanned by ancestral haplotypes
 using the principle that intermediate nodes in inheritance paths
 should remain unchanged when possible.
-These extended ancestral haplotypes manifest as unary nodes in the marginal trees.
+These extended portions of ancestral haplotypes manifest as unary nodes in the marginal trees.
 To quantify how accurate the new information is,
 we define and describe how to compute new measures of (dis-)agreement between ARGs
 that are motivated by the Robinson-Foulds distance between trees
@@ -292,7 +293,7 @@ in inferred trees as well.
 % * minimize number of edges
 % * gives extra info about shared haplotypes, reduces number of ancestral paths
 
-Consider the (small portion) of a hypothetical tree sequence in \figref[A]{fig:conceptual}.
+Consider the (small portion) of a hypothetical ARG in \figref[A]{fig:conceptual}.
 On the first portion of the genome (left-hand tree), the sample nodes (labeled 0, 1, and 2)
 coalesce into a small subtree: 1 and 2 find a common ancestor in ancestral node 3,
 which finds a common ancestor with node 0 in ancestral node 4.
@@ -316,7 +317,7 @@ in which sample node 1 inherits the entire $LR$ haplotype from ancestral node 4 
 This implies that ancestral node 3 inherits from node 4 on the right-hand tree as well,
 which is depicted in \figref[D]{fig:conceptual} --
 and so node 3 has become unary in this tree.
-Note that the more parsimonious tree sequence also includes fewer edges:
+Note that the more parsimonious ARG also includes fewer edges:
 the three distinct edges $4 \to 3$, $3 \to 1$, and $4 \to 1$ in \figref[B]{fig:conceptual}
 have been reduced to the two edges
 $4 \to 3$ and $3 \to 1$ in \figref[D]{fig:conceptual}.
@@ -338,7 +339,7 @@ How can we do this, and how accurate is the resulting inference?
     \caption{
         A simple example showing the basic idea
         (described in more detail in the text):
-        \textbf{(A)} a small portion of a tree sequence without unary nodes;
+        \textbf{(A)} a small portion of a ARG without unary nodes;
         \textbf{(B)} the implied inheritance pattern of the two portions of the haplotype carried by ancestral node 4,
         labeled $L$ and $R$;
         \textbf{(C)} marginal trees with a unary node added,
@@ -347,29 +348,6 @@ How can we do this, and how accurate is the resulting inference?
         \label{fig:conceptual}
     }
 \end{figure}
-
-%\subsection{Extend Edges}
-%	\comment{Should we keep a brief section about the original extend edges? If yes, some notes are below.}
-%    We do so by identifying short paths (2 edges) in a tree.
-%    If neighboring trees contain edges with 
-%    identical ancestor (parent) and descendant (child) nodes, 
-%    we assume that there is implied coalescence of haplotypes between nodes, 
-%    and we will extend the path's edges to the neighboring tree \ref{fig:extending_diagram}.
-%  	In more concrete terms, for a tree $T_k$ in the tree sequence $\T$ 
-%    suppose there exists a path which contains a node $3$,
-%    with parent and child nodes $4$ and $0$, respectively.
-%    If there is an edge between the nodes $4$ and $0$ in trees 
-%    $T_{k+1}$ (or $T_{k-1}$),
-%    then we wish to extend the edges $4\to 3$ and $3\to 0$ 
-%    into tree $T_{k+1}$ and then remove the edge $4 \to 0$ from $T_{k+1}$. 
-%    This action reduces the length of $4 \to 0$ on the genome,
-%    and in some cases, completely removes the edge. 
-%    We now perform this action on all such ancestral paths 
-%    over the entire tree sequence.
-%    With algorithm \ref{alg:edge} we only extend existing edges
-%    \comment{Note possible change pending algorithm change}
-%    over a larger interval on the genome,
-%    and remove unnecessary edges in the process.
 
 \section{Methods}
 
@@ -385,8 +363,8 @@ which represent ancestral segments of genome,
 and \emph{edges} $E$ which represent relationships between nodes over different regions of the genome.
 Each node $n \in N$ has a \emph{time} $t_n$,
 which is the amount of time in the past that the individual who carried that segment of genome lived.
-Some nodes are \emph{samples}, meaning that we know them from data. 
-Typically, samples are exclusively leaves of $\T$, however it is not the case that all samples are leaves.
+Some nodes are \emph{samples}, meaning that they represent genome sequences available as data.
+% Typically, samples are exclusively leaves of $\T$, however it is not the case that all samples are leaves.
 Each edge $e \in E$ describes inheritance between a parent node $p_e$ and child node $c_e$,
 over a segment of genome $[\ell_e, r_e)$.
 (The tree sequence includes substantially more information, including genotypes, that we will not use in this paper.)
@@ -396,6 +374,8 @@ Using this information, one can construct the sequence of
 trees $\left(T_1,...,T_{n}\right)$ that describe how the nodes are related to each other along the genome:
 each $T_k$ is a tree whose nodes are in $N$
 and that describes relationships on the half-open interval $[a_{k-1}, a_k)$.
+Nodes represent (portions of) ancestral haplotypes, and so
+we will use the terms interchangeably.
 Not all nodes appear in each tree,
 and we say $n \in T_k$ for a node $n$ if the tree $T_k$ describes at least one parent-child relationship
 for node $n$.
@@ -421,8 +401,7 @@ In other words, the intermediate nodes $\{u_i\}$ should also lie on the path fro
 and conversely the nodes $\{v_j\}$ should lie on that path in tree $T_k$.
 Of course, this does not always make sense --
 for instance, if $u_i$ is already represented somewhere else in $T_{k+1}$,
-or if $t_{u_i} = t_{v_j}$, for some $i$ and $j$,
-for which the intermediate nodes are not in the other tree.
+or if $t_{u_i} = t_{v_j}$, for some $i$ and $j$.
 So, we restrict our attention to pairs of such paths in adjacent trees
 for which
 $u_i \notin T_{k+1}$ for all $1 \le i \le m$,
@@ -438,7 +417,14 @@ and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
 \begin{center}
 	\includegraphics[width=5in]{edge_extend_method.pdf}
 \end{center}
-\caption{A visualization of the \textit{extend haplotypes} method. Given two neighboring trees $T_1$ and $T_2$, there exists paths from root node $6$ to sample node $0$. $T_1$ contains the path $6\to 4\to 0$ while $T_2$ has path $6\to 5\to 0$. The intermediate nodes $4$ and $5$ do not appear in $T_2$ and $T_1$ respectively, and so we consider these two paths \textit{mergeable}. The extend haplotypes method joins these two paths, constructing the merged path $6\to 5\to 4\to 0$ for both $T_1$ and $T_2$. This new path extends the edge $4\to 0$ to $T_2$ as well as constructs a new edge $5\to 4$ in the tree sequence.
+\caption{A visualization of the \textit{extend haplotypes} method.
+    In both trees $T_1$ and $T_2$,
+    node 0 inherits from node 6, the root:
+    $T_1$ contains the path $6\to 4\to 0$ while $T_2$ has path $6\to 5\to 0$.
+    The intermediate nodes $4$ and $5$ do not appear in $T_2$ and $T_1$ respectively, and so the paths are \textit{mergeable}.
+    The ``extend haplotypes'' method joins these two paths,
+    inserting the merged path $6\to 5\to 4\to 0$ into both $T_1$ and $T_2$.
+    % This new path extends the edge $4\to 0$ to $T_2$ as well as constructs a new edge $5\to 4$ in the tree sequence.
     \label{fig:extending_diagram}
 }
 \end{figure}
@@ -453,8 +439,9 @@ and then adding another set of edges $I$.
 $O$ defines a sub-forest $F_O$ of $T_k$,
 and $I$ defines a sub-forest $F_I$ of $T_{k+1}$.
 The key step in the algorithm is to determine whether the pair of paths
-that terminate in a given node in two adjacent trees are mergeable,
-\algorithmref{alg:mergeable}, which works as follows.
+that terminate in a given node in two adjacent trees are mergeable.
+The algorithm we use to do this is given as \algorithmref{alg:mergeable},
+and works as follows.
 If a pair of paths is mergeable,
 then the edges of the two paths must lie in $O$ and $I$, respectively.
 Suppose an edge in $O$ has child $c$.
@@ -471,7 +458,8 @@ starting with pairs that add the smallest number of new edges,
 until no more are found.
 
 
-\algorithmref{alg:extend} simplifies the algorithm in several ways for the sake of clarity --
+\algorithmref{alg:extend} simplifies the algorithm in \tskit{}
+in several ways for the sake of clarity --
 for instance, the bookkeeping required to keep track of $T_k$ and $T_{k+1}$ is omitted.
 Furthermore, as described the algorithm does one left-to-right pass over the tree sequence;
 in practice we do repeated passes in both directions until no changes can be made.
@@ -485,7 +473,7 @@ doing the appropriate operations to insert the nodes along the path found in $T_
 into the path in $T_{k+1}$.
 To do this, some edges that end at $a_k$ will be extended to end at $a_{k+1}$;
 some edges that begin at $a_k$ will be postponed to begin at $a_{k+1}$,
-and some entirely new edges may be added, see \figref{fig:extending_diagram}.
+and some entirely new edges may be added, as in \figref{fig:extending_diagram}.
 Furthermore, the trees $T_k$ and $T_{k+1}$ (and corresponding forests $F_O$ and $F_I$)
 need to be updated.
 
@@ -508,49 +496,51 @@ need to be updated.
         check to see if the paths upwards from $c$ in $T_O$ and $T_I$ are mergeable.
         If the paths are mergeable then this returns the number of new edges
         that would be added by extending the path from $T_O$ to $T_I$;
-        otherwise, returns $\infty$.
+        otherwise, this returns $\infty$.
         Let $P_O[n]$ and $P_I[n]$ be the parents of node $n$
         in the set of edges to be removed and added, respectively
         (i.e., in $F_O$ and $F_I$).
+        The variable $m_e$ will record the number of new edges to be added,
+        and $m$ will record the number of extended haplotypes.
     }
 	\label{alg:mergeable}
 	\SetKwFunction{mergeable}{Mergeable}
 	\DontPrintSemicolon
     \Fn{\mergeable($c$, $T_O$, $T_I$)}{
-        $p_i = P_I[c]$\;
-        $t_i = t[p_i]$\;
-        $p_o = P_O[c]$\;
-        $t_o = t[p_o]$\;
-        $n_e = n = 0$\;
+        \text{Let } $p_i = P_I[c]$, 
+        $t_i = t[p_i]$,
+        $p_o = P_O[c]$,
+        $t_o = t[p_o]$,
+        \text{ and }$m_e = m = 0$.\;
         \While{\tn{True}}{
-            $y_i = (p_i \neq NULL)
-                \text{ and } (p_i \notin T_O)
-                \text{ and } (t_i < t_o)$ \;
-            $y_o = (p_o \neq NULL)
-                \text{ and } (p_o \notin T_I)
-                \text{ and } (t_o < t_i)$ \;
+            \text{Set } $y_i = (p_i \neq NULL)
+                \& (p_i \notin T_O)
+                \& (t_i < t_o)$ \;
+            \text{and } $y_o = (p_o \neq NULL)
+                \& (p_o \notin T_I)
+                \& (t_o < t_i)$ \;
             \If{not ($y_i$ or $y_o$)}{ \Break\; }
             \eIf{$y_i$}{
                 \If{$P_I[c] \neq p_i$ and $P_O[c] \neq p_i$}{
-                    $n_e += 1$\;
+                    \text{Set } $m_e = m_e + 1$.\;
                 }
-                $c = p_i$\;
-                $p_i = P_I[p_i]$\;
-                $t_i = \text{ if }(p_i = NULL)\text{ then }\infty\text{ else }t[p_i]$\;
+                \text{Set } $c = p_i$,
+                $p_i = P_I[p_i]$, \text{ and}\;
+                $t_i = \text{ if }(p_i = NULL)\text{ then }\infty\text{ else }t[p_i]$ .\; 
             }{
                 \If{$P_I[c] \neq p_o$ and $P_O[c] \neq p_o$}{
-                    $n_e += 1$\;
+                    \text{Set } $m_e = m_e + 1$.\;
                 }
-                $c = p_o$\;
-                $p_o = P_O[p_o]$\;
-                $t_o = \text{ if }(p_o = NULL)\text{ then }\infty\text{ else }t[p_o]$\;
-                $n += 1$\;
+                \text{Set }$c = p_o$,
+                $p_o = P_O[p_o]$, \;
+                $t_o = \text{ if }(p_o = NULL)\text{ then }\infty\text{ else }t[p_o]$ ,\;
+                \text{and } $m = m + 1$ .\;
             }
         }
-        \If{$n = 0$ or $p_i \neq p_o$ or $p_i = NULL$}{
-            $n_e = \infty$\;
+        \If{$m = 0$ or $p_i \neq p_o$ or $p_i = NULL$}{
+            \text{Set } $m_e = \infty$. \;
         }
-        \KwRet{$n_e$}\;
+        \KwRet{$m_e$}\;
     }
 \end{algorithm2e}
 
@@ -573,19 +563,19 @@ need to be updated.
 	\DontPrintSemicolon
     \Fn{\extend($\T$)}{
         \For{$k$ in $1 \ldots N$}{
-            $M = 0$\;
-            $M' = \infty$\;
+            \text{Set } $M = 0$ \text{ and }
+            $M' = \infty$.\;
             \While{$M < \infty$}{
                 \For{$e \in O_k$}{
-                    $m$ = \mergeable($c_e$, $T_k$, $T_{k+1}$)\;
+                    \text{Set } $m$ = \mergeable($c_e$, $T_k$, $T_{k+1}$).\;
                     \eIf{$m < M$}{
                         \merge($c_e$, $T_k$, $T_{k+1}$)\;
                     }{
-                        $M' = \min(m, M)$\;
+                        \text{Set } $M' = \min(m, M)$. \;
                     }
                 }
-                $M = M'$\;
-                $M' = \infty$\;
+                \text{Set } $M = M'$ \text{ and }
+                $M' = \infty$ .\;
             }
         }
     }
@@ -594,14 +584,15 @@ need to be updated.
 Since the algorithm needs to take multiple passes over the tree sequence
 in each direction,
 an important practical question for this algorithm is:
-how passes do we need to do?
+how many passes do we need to do?
 The algorithm is monotone (spans of ancestral nodes only increase),
-so it is guaranteed to require only a finite number of passes,
+so it is guaranteed to terminate in a finite number of passes,
 but it is also not hard to construct pathological cases that require an arbitrary number of passes.
-Counting edges for every iteration suggest that only at most five iterations are needed before the algorithm terminates.
-Indeed, for even larger sequences \tabref{tab:edge-counts}
+However, experimentation suggests that 
+in practice only at most five iterations are needed before the algorithm terminates.
+Indeed, for even large sequences \tabref{tab:edge-counts}
 shows that 99\% of all changes to an ARG occur after the first iteration,
-with the algorithm completing after four iterations. 
+with the algorithm always completing after four iterations. 
 
 
 \subsection{Dissimilarity between ARGs}
@@ -617,47 +608,30 @@ it is straightforward to remove the portions of each node's span on which it is 
 apply \algorithmref{alg:extend},
 and quantify how much node span was correctly or incorrectly added.
 However, we are also interested in whether \algorithmref{alg:extend}
-improves \emph{inferred} tree sequences.
-Since we are not aware of any current methods for measuring (dis)agreement between tree sequences
+improves \emph{inferred} ARG.
+Since we are not aware of any current methods for measuring (dis)agreement between ARGs
 that take into account haplotype identity,
 we define a measure of \emph{dissimilarity} to quantify this.
 The method is implemented in the \texttt{tscompare} package.
 
 It is helpful to first describe what we compute in the simple case.
-\figref[C\&D]{fig:node-spans} shows the spans for each node in three tree sequences:
-for each node the total span in a ``true'' tree sequence, 
-given by the line,
-that was simulated with \msprime \citep{kelleher2016efficient,baumdicker2021efficient}
-in a way that included spans over which nodes are unary in the output
-(by setting \texttt{coalescing\_segments\_only} to False).
-\figref[C]{fig:node-spans} shows the span of each node after \emph{simplifying} the tree sequence 
-\citep{kelleher2018efficient},
-which removes all unary nodes from all trees
-thus reducing the node spans for some nodes in the sequence.
-In \figref[D]{fig:node-spans}
-is the span of the node after applying \algorithmref{alg:extend}
-to the simplified tree sequence.
-\algorithmref{alg:extend} cannot reduce node span, resulting in node spans 
-from the extended tree sequence that are closer in value to the ``true'' tree sequence. 
-\figref[B]{fig:node-spans} shows how much of this span is incorrect:
-for each node, it gives the amount of span
-that is incorrect (i.e., not present in the original tree sequence)
-over the total amount of span added after running \algorithmref{alg:extend}.
-The values in these plots
-therefore quantify how much the ancestral haplotypes represented by each node
-were correctly, and incorrectly, extended.
-They also tell us how the node spans represented in the result compare to those in the original tree sequence.
+We will first simulate tree sequences in such a way that
+the unary regions of coalescent haplotypes are retained.
+Then, each node is present in both tree sequences,
+and we can quantify, for each node, how much of their span is correct or incorrect
+by comparing to the original, true tree sequence.
+
 Now suppose that instead of comparing two tree sequences with the same set of nodes,
 we wish to compare two tree sequences for which we know the sample nodes are the same
-but are otherwise unclear as to the equivalency of nodes across sequences
-(as for instance with a true, simulated tree sequence and one inferred from its genotypes;
-in the former nodes represent actual ancestral haplotypes, and in the latter
-represent hypothetical ancestors which may or may not resemble the truth).
-Call the two tree sequences $T_1$ and $T_2$, which should have the same genome length
+but are otherwise unclear as to the equivalency of nodes across sequences.
+(For instance, with a simulated tree sequence and one inferred from its genotypes;
+nodes in the former represent actual ancestral haplotypes, and in the latter
+represent hypothetical ancestors which may or may not resemble the truth.)
+Call the two tree sequences $\T_1$ and $\T_2$, which should have the same genome length
 and the same set of sample nodes.
-We would like to measure (a) how much of $T_1$ is found in $T_2$;
-(b) how much of $T_1$ is \emph{not} found in $T_2$; and
-(c) how much of $T_2$ is not found in $T_1$.
+We would like to measure (a) how much of $\T_1$ is found in $\T_2$;
+(b) how much of $\T_1$ is \emph{not} found in $\T_2$; and
+(c) how much of $\T_2$ is not found in $\T_1$.
 (Think of these three quantities as the size of the intersection
 and two differences between the tree sequences,
 thought of vaguely as sets.)
@@ -666,8 +640,7 @@ as those whose sets of descendant samples agree for the largest span along the g
 and then compute for how much of their spans do their descendant samples agree (or not).
 
 Concretely, our method can be applied to any two tree sequences,
-as in the case of \figref{fig:conceptual_discrepancy},
-where we consider the pair of trees which exist at that break point.
+as illustrated in \figref{fig:conceptual_discrepancy}.
 However, to simplify notation suppose that the two tree sequences have the same set of breakpoints
 between trees,
 so that $T_1^{(1)}, \ldots, T_N^{(1)}$ are the trees in $\T_1$
@@ -677,23 +650,17 @@ let $S(T, n)$ denote the set of samples that inherit from $n$ in $T$,
 and for a pair of nodes $n_1$ and $n_2$ with $n_1$ in $\T_1$ and $n_2$ in $\T_2$,
 define
 \begin{align*}
-	\mathcal{M}(\T_1, n1; \T_2, n2) = \left\{ k : S\left(T^{(1)}_k,\ n_1\right) = S\left(T^{(2)}_k,\ n_2\right) \right\},
+	\mathcal{M}(n1, n2) = \left\{ k : S\left(T^{(1)}_k,\ n_1\right) = S\left(T^{(2)}_k,\ n_2\right) \right\},
 \end{align*}
 to be the indices of all trees where $n_1$ and $n_2$ are ancestral to the same sample set in both ARGs.
 Further, we define
 \begin{align*}
     m(n_1, n_2)
     =
-    \sum_{k\in \mathcal{M}(\T_1, n_1; \T_2, n_2)} (a_k - a_{k-1}) ,  
+    \sum_{k\in \mathcal{M}(n_1, n_2)} (a_k - a_{k-1}) ,  
 \end{align*}
 which is the total span over which the samples below $n_1$ in $\T_1$
 matches the samples below $n_2$ in $\T_2$.
-Also let $s(\T,n)$ denote
-the total span that node $n$ is present in the marginal trees,
-\begin{align*}
-    s(\T, n) = \sum_{k=1}^N (a_k - a_{k-1}) \ind_{n \in T_k} \quad ,
-\end{align*}
-where $\ind_{n \in T_k}$ is an indicator (i.e., it is 1 if $n \in T_k$ and 0 otherwise).
 The \emph{similarity} between $\T_1$ and $\T_2$ is then defined to be
 \begin{align*}
     \similarity(\T_1, \T_2)
@@ -704,7 +671,7 @@ where the maximum is over all mappings $\beta$ of nodes in $\T_1$ to nodes in $\
 (Note that multiple nodes in $\T_1$ may be mapped to the same node in $\T_2$,
 and that there some nodes in $\T_2$ may not be mapped to by any nodes in $\T_1$.)
 Since the maximum is independent over nodes, we may define for each node $n_1 \in \T_1$
-it's \emph{best matching node} in $\T_2$ as
+its' \emph{best matching node} in $\T_2$ as
 \begin{align*}
     \alpha(n_1) = \argmax_{n_2 \in N_2} m(n_1, n_2) ,
 \end{align*}
@@ -714,11 +681,17 @@ so that
     =
     \sum_{n \in N_1} m(n, \alpha(n)) .
 \end{align*}
-If the best-matching node is unique, we define $\alpha(n_1)$ to be the node in $T_2$
+If the best-matching node is not unique, we define $\alpha(n_1)$ to be the node in $T_2$
 out of those maximizing $m(n_1, n_2)$ that minimizes $|t^{(1)}_{n_1} - t^{(2)}_{n_2}|$
 (and if \emph{this} is not unique, we pick an arbitrary one) --
 however, this potential ambiguity does not affect the definition of $\similarity(\T_1, \T_2)$.
-Let $\|\T_1\|=\sum_{n\in N_1}s(\T_1,n)$ be the total sum of nodes spans for nodes in $\T_1$.
+Let $\|\T_1\|=\sum_{n\in N_1}s(\T_1,n)$ be the total sum of nodes spans for nodes in $\T_1$,
+and let $s(\T,n)$ denote
+the total span that node $n$ is present in the marginal trees,
+\begin{align*}
+    s(\T, n) = \sum_{k=1}^N (a_k - a_{k-1}) \ind_{n \in T_k} \quad ,
+\end{align*}
+where $\ind_{n \in T_k}$ is an indicator (i.e., it is 1 if $n \in T_k$ and 0 otherwise).
 We then define the \emph{dissimilarity} of $\T_1$ from $\T_2$ by
 \begin{align*}
     \dis(\T_1, \T_2)
@@ -727,8 +700,8 @@ We then define the \emph{dissimilarity} of $\T_1$ from $\T_2$ by
     = 
     \Vert \T_1\Vert -\similarity(\T_1,\T_2),
 \end{align*}
-which is the proportion of total span of all nodes in $\T_1$
-for which their descendant samples do \emph{not} match those of their best match in $\T_2$.
+which is the total span for all nodes in $\T_1$
+over which their descendant samples do \emph{not} match those of their best match in $\T_2$.
 
 Other authors \citep[e.g.,][]{kelleher2019inferring} have used
 an average Robinson-Foulds distance \citep{robinson1981comparison}
@@ -815,8 +788,8 @@ We compute dissimilarity and ARF of two tree sequences in \figref{fig:conceptual
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Simulations}
 
-To do this, we simulate ARGs containing full haplotypes using \msprime's 
-option \texttt{coalescing\_segments\_only} set to False.
+To do this, we simulate ARGs containing full haplotypes using \msprime \citep{kelleher2016efficient,baumdicker2021efficient},
+with the \texttt{coalescing\_segments\_only} option set to False.
 Although \msprime{} simulates many events that do not create a coalescence in some marginal tree,
 it only outputs information for nodes which contain a coalescence
 (i.e., are the MRCA of some pair of samples at some point on the genome).
@@ -868,19 +841,6 @@ All jobs for which runtime was recorded were executed on an Intel Xeon Gold 6148
 
 
 \section{Results}
-
-% Outline:
-% 1. benchmarking: edge reduction and runtime
-% 2. correctness:
-
-%% TO DO:
-%% 1. Discuss trapped unary spans more
-%% 2. Discuss the comparison between tsinfer and extend haplotypes
-%% 3. Add more figures 
-%%	- (Edge counts between tsinfer and extend haplotypes)
-%%	- Average Edge counts per iterations
-%% 4. Discuss figures about total edge span added in both recombination and gene conversion events
-%% 5. Discuss the figures on edge reduction (include #3 part 1.)
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Tree sequence compression and computation}
@@ -947,6 +907,32 @@ or minutes to hours for tens of thousands of samples
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Accuracy with true trees}
+
+\comment{Moved from above: don't need?}
+\figref[C\&D]{fig:node-spans} shows the spans for each node in three tree sequences:
+for each node the total span in a ``true'' tree sequence, 
+given by the line,
+that was simulated with \msprime \citep{kelleher2016efficient,baumdicker2021efficient}
+in a way that included spans over which nodes are unary in the output
+(by setting \texttt{coalescing\_segments\_only} to False).
+\figref[C]{fig:node-spans} shows the span of each node after \emph{simplifying} the tree sequence 
+\citep{kelleher2018efficient},
+which removes all unary nodes from all trees
+thus reducing the node spans for some nodes in the sequence.
+In \figref[D]{fig:node-spans}
+is the span of the node after applying \algorithmref{alg:extend}
+to the simplified tree sequence.
+\algorithmref{alg:extend} cannot reduce node span, resulting in node spans 
+from the extended tree sequence that are closer in value to the ``true'' tree sequence. 
+\figref[B]{fig:node-spans} shows how much of this span is incorrect:
+for each node, it gives the amount of span
+that is incorrect (i.e., not present in the original tree sequence)
+over the total amount of span added after running \algorithmref{alg:extend}.
+The values in these plots
+therefore quantify how much the ancestral haplotypes represented by each node
+were correctly, and incorrectly, extended.
+They also tell us how the node spans represented in the result compare to those in the original tree sequence.
+
 
 Our next task is to confirm that the haplotypes extended by \algorithmref{alg:extend}
 are indeed correct -- i.e., that in addition to compression, we are also gaining information.
@@ -1198,7 +1184,7 @@ $|N_1|\neq|N_2|$, as we can take the minimum over all possible matchings $T_1\to
 
 The Robinson-Foulds distance \citep{robinson1981comparison}
 essentially counts the number of differing branches between two trees;
-the averaged Robinson-Foulds distance \citep{kelleher2019inferring} % TODO: first usage?
+the averaged Robinson-Foulds distance \citep{kelleher2019inferring}
 averages this distance across marginal trees, weighted by span along the genome.
 The method we present here for measuring dissimilarity between topologies of ARGs
 is a straightforward generalization
@@ -1220,6 +1206,28 @@ in a way similar to \citet{robinson1979comparison} and \citet{kuhner1994simulati
 however, it is still applied to ARGs as an average over marginal trees,
 without enforcement of identity across haplotypes;
 it would be useful to extend our dissimilarity to include branch lengths.
+
+\paragraph{Parsimony}
+Much of the early work on ARG inference aimed to extract as much information as possible
+out of the small datasets of the time,
+and so, roughly speaking, integrated over possible ARGs
+with the goal of inferring higher-level parameters:
+mostly, scaled mutation rate and recombination rate
+\citep[e.g.,][]{hudson1985statistical,griffiths1996ancestral,kuhner2000maximum,stephens2000inference,fearnhead2001estimating}.
+However, the space of possible ARGs for a given dataset is extremely large,
+and other work aimed to identify the minimum number of recombinations
+needed to explain a given dataset under the infinite alleles model of mutation
+\citep[e.g.,][]{hein1990reconstructing,myers2003bounds,song2005constructing},
+which turns out to be NP-complete \citep{wang2001perfect}.
+For instance, \citet{minichiello2006mapping}
+used a heuristic algorithm to produce ``plausible'' ARGs
+(i.e., those that explained the data with few mutations and recombinations),
+and searched for associations with traits in the resulting ensemble of ARGs.
+Our approach for extending haplotypes follows the same logic,
+that an ARG with fewer recombination events is more parsimonious,
+and thus more likely.
+For this reason, it will occasionally be wrong even if the trees are correct,
+although in practice this source of error is likely much smaller than error in tree inference itself.
 
 \paragraph{Inference methods}
 Clearly, there is ample information in genomic data to infer the extent of ancestral haplotypes even where they are unary,

@@ -1,4 +1,4 @@
-\begin{thebibliography}{23}
+\begin{thebibliography}{33}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
 \bibitem[{{\sc Adrion} {\em et~al.\/}(2020){\sc Adrion}, {\sc Cole}, {\sc
@@ -68,9 +68,30 @@
   of waiting distances in ancestral recombination graphs.
 \newblock Theoretical population biology {\bf 141}: 34--43.
 
+\bibitem[{{\sc Fearnhead} and {\sc Donnelly}(2001)}]{fearnhead2001estimating}
+{\sc Fearnhead, P.}, and {\sc P.~Donnelly}, 2001 Estimating recombination rates
+  from population genetic data.
+\newblock Genetics {\bf 159}: 1299--1318.
+
 \bibitem[{{\sc Fisher}(1954)}]{fisher1954fuller}
 {\sc Fisher, R.~A.}, 1954 A fuller theory of `junctions' in inbreeding.
 \newblock Heredity {\bf 8}: 187--197.
+
+\bibitem[{{\sc Griffiths} and {\sc Marjoram}(1996)}]{griffiths1996ancestral}
+{\sc Griffiths, R.}, and {\sc P.~Marjoram}, 1996 Ancestral inference from
+  samples of {DNA} sequences with recombination.
+\newblock Journal of Computational Biology {\bf 3}: 479--502.
+\newblock PMID: 9018600.
+
+\bibitem[{{\sc Hein}(1990)}]{hein1990reconstructing}
+{\sc Hein, J.}, 1990 Reconstructing evolution of sequences subject to
+  recombination using parsimony.
+\newblock Mathematical Biosciences {\bf 98}: 185--200.
+
+\bibitem[{{\sc Hudson} and {\sc Kaplan}(1985)}]{hudson1985statistical}
+{\sc Hudson, R.~R.}, and {\sc N.~L. Kaplan}, 1985 Statistical properties of the
+  number of recombination events in the history of a sample of {DNA} sequences.
+\newblock Genetics {\bf 111}: 147--164.
 
 \bibitem[{{\sc Kelleher} {\em et~al.\/}(2016){\sc Kelleher}, {\sc Etheridge}
   and {\sc McVean}}]{kelleher2016efficient}
@@ -108,6 +129,12 @@
   phylogeny algorithms under equal and unequal evolutionary rates.
 \newblock Molecular Biology and Evolution {\bf 11}: 459--468.
 
+\bibitem[{{\sc Kuhner} {\em et~al.\/}(2000){\sc Kuhner}, {\sc Yamato} and {\sc
+  Felsenstein}}]{kuhner2000maximum}
+{\sc Kuhner, M.~K.}, {\sc J.~Yamato}, and {\sc J.~Felsenstein}, 2000 Maximum
+  likelihood estimation of recombination rates from population data.
+\newblock Genetics {\bf 156}: 1393--1401.
+
 \bibitem[{{\sc Lewanski} {\em et~al.\/}(2024){\sc Lewanski}, {\sc Grundler} and
   {\sc Bradburd}}]{lewanski2024introduction}
 {\sc Lewanski, A.~L.}, {\sc M.~C. Grundler}, and {\sc G.~S. Bradburd}, 2024 The
@@ -121,6 +148,16 @@
   generalized {Robinson}-{Foulds} distance for phylogenetic trees.
 \newblock Journal of Computational Biology {\bf 28}: 1181--1195.
 \newblock PMID: 34714118.
+
+\bibitem[{{\sc Minichiello} and {\sc Durbin}(2006)}]{minichiello2006mapping}
+{\sc Minichiello, M.~J.}, and {\sc R.~Durbin}, 2006 Mapping trait loci by use
+  of inferred ancestral recombination graphs.
+\newblock The American Journal of Human Genetics {\bf 79}: 910 -- 922.
+
+\bibitem[{{\sc Myers} and {\sc Griffiths}(2003)}]{myers2003bounds}
+{\sc Myers, S.~R.}, and {\sc R.~C. Griffiths}, 2003 Bounds on the minimum
+  number of recombination events in a sample history.
+\newblock Genetics {\bf 163}: 375–394.
 
 \bibitem[{{\sc Ralph} {\em et~al.\/}(2020){\sc Ralph}, {\sc Thornton} and {\sc
   Kelleher}}]{ralph2020efficiently}
@@ -143,11 +180,29 @@
 {\sc Rudin, W.}, 1976 {\em Principles of Mathematical Analysis\/}.
 \newblock International series in pure and applied mathematics. McGraw-Hill.
 
+\bibitem[{{\sc Song} and {\sc Hein}(2005)}]{song2005constructing}
+{\sc Song, Y.~S.}, and {\sc J.~Hein}, 2005 Constructing minimal ancestral
+  recombination graphs.
+\newblock Journal of Computational Biology {\bf 12}: 147--169.
+
 \bibitem[{{\sc Speidel} {\em et~al.\/}(2019){\sc Speidel}, {\sc Forest}, {\sc
   Shi} and {\sc Myers}}]{speidel2019method}
 {\sc Speidel, L.}, {\sc M.~Forest}, {\sc S.~Shi}, and {\sc S.~R. Myers}, 2019 A
   method for genome-wide genealogy estimation for thousands of samples.
 \newblock Nature Genetics {\bf 51}: 1321--1329.
+
+\bibitem[{{\sc Stephens} and {\sc Donnelly}(2000)}]{stephens2000inference}
+{\sc Stephens, M.}, and {\sc P.~Donnelly}, 2000 Inference in molecular
+  population genetics.
+\newblock Journal of the Royal Statistical Society: Series B (Statistical
+  Methodology) {\bf 62}: 605--635.
+
+\bibitem[{{\sc Wang} {\em et~al.\/}(2001){\sc Wang}, {\sc Zhang} and {\sc
+  Zhang}}]{wang2001perfect}
+{\sc Wang, L.}, {\sc K.~Zhang}, and {\sc L.~Zhang}, 2001 Perfect phylogenetic
+  networks with recombination.
+\newblock Journal of computational biology : a journal of computational
+  molecular cell biology {\bf 8}: 69--78.
 
 \bibitem[{{\sc Wong} {\em et~al.\/}(2024){\sc Wong}, {\sc Ignatieva}, {\sc
   Koskela}, {\sc Gorjanc}, {\sc Wohns} {\em et~al.\/}}]{wong2024general}
