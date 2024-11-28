@@ -1,5 +1,19 @@
-\begin{thebibliography}{20}
+\begin{thebibliography}{23}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{{\sc Adrion} {\em et~al.\/}(2020){\sc Adrion}, {\sc Cole}, {\sc
+  Dukler}, {\sc Galloway}, {\sc Gladstein} {\em
+  et~al.\/}}]{adrion2020stdpopsim}
+{\sc Adrion, J.~R.}, {\sc C.~B. Cole}, {\sc N.~Dukler}, {\sc J.~G. Galloway},
+  {\sc A.~L. Gladstein}, {\sc G.~Gower}, {\sc C.~C. Kyriazis}, {\sc A.~P.
+  Ragsdale}, {\sc G.~Tsambos}, {\sc F.~Baumdicker}, {\sc J.~Carlson}, {\sc
+  R.~A. Cartwright}, {\sc A.~Durvasula}, {\sc I.~Gronau}, {\sc B.~Y. Kim}, {\sc
+  P.~McKenzie}, {\sc P.~W. Messer}, {\sc E.~Noskova}, {\sc D.~O.~D. Vecchyo},
+  {\sc F.~Racimo}, {\sc T.~J. Struck}, {\sc S.~Gravel}, {\sc R.~N. Gutenkunst},
+  {\sc K.~E. Lohmueller}, {\sc P.~L. Ralph}, {\sc D.~R. Schrider}, {\sc
+  A.~Siepel}, {\sc J.~Kelleher}, and {\sc A.~D. Kern}, 2020 A
+  community-maintained standard library of population genetic models.
+\newblock {eLife} {\bf 9}.
 
 \bibitem[{{\sc Baumdicker} {\em et~al.\/}(2021){\sc Baumdicker}, {\sc
   Bisschop}, {\sc Goldstein}, {\sc Gower}, {\sc Ragsdale} {\em
@@ -29,6 +43,13 @@
   R.~Nielsen}, 2022 Evaluation of methods for estimating coalescence times
   using ancestral recombination graphs.
 \newblock Genetics {\bf 221}: iyac044.
+
+\bibitem[{{\sc Campbell} {\em et~al.\/}(2016){\sc Campbell}, {\sc Bhérer},
+  {\sc Morrow}, {\sc Boyko} and {\sc Auton}}]{campbell2016}
+{\sc Campbell, C.~L.}, {\sc C.~Bhérer}, {\sc B.~E. Morrow}, {\sc A.~R. Boyko},
+  and {\sc A.~Auton}, 2016 A pedigree-based map of recombination in the
+  domestic dog genome.
+\newblock G3 Genes|Genomes|Genetics {\bf 6}: 3517--3524.
 
 \bibitem[{{\sc Chapman} and {\sc Thompson}(2003)}]{chapman2003model}
 {\sc Chapman, N.~H.}, and {\sc E.~A. Thompson}, 2003 A model for the length of
@@ -127,6 +148,13 @@
 {\sc Speidel, L.}, {\sc M.~Forest}, {\sc S.~Shi}, and {\sc S.~R. Myers}, 2019 A
   method for genome-wide genealogy estimation for thousands of samples.
 \newblock Nature Genetics {\bf 51}: 1321--1329.
+
+\bibitem[{{\sc Wong} {\em et~al.\/}(2024){\sc Wong}, {\sc Ignatieva}, {\sc
+  Koskela}, {\sc Gorjanc}, {\sc Wohns} {\em et~al.\/}}]{wong2024general}
+{\sc Wong, Y.}, {\sc A.~Ignatieva}, {\sc J.~Koskela}, {\sc G.~Gorjanc}, {\sc
+  A.~W. Wohns}, and {\sc J.~Kelleher}, 2024 A general and efficient
+  representation of ancestral recombination graphs.
+\newblock Genetics {\bf 228}: iyae100.
 
 \bibitem[{{\sc Zhang} {\em et~al.\/}(2023){\sc Zhang}, {\sc Biddanda}, {\sc
   Gunnarsson}, {\sc Cooper} and {\sc Palamara}}]{zhang2023biobankscale}

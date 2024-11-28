@@ -211,15 +211,15 @@ at each position of the genome \citep{speidel2019method,kelleher2019inferring,zh
 One way of viewing the ARG is as a sequence of ``marginal trees'',
 i.e., the genealogical trees that describe how each portion of the genome
 was inherited by the focal genomes.
-This is reflected in methodology of some ARG inference methods \citep[e.g., Relate][]{speidel2019method},
-in metrics used to assess inference accuracy \citep{XXX},
+This is reflected in methodology of some ARG inference methods
+and in metrics used to assess inference accuracy,
 as well as in basic terminology.
 For instance, 
 the ``succinct tree sequence'',
 introduced by \citet{kelleher2016efficient},
 is a common format for describing these inferred ARGs,
 and is seeing wide use thanks in part to its efficiency and accompanying reliable toolkit,
-\tskit \citep{XXX}.
+\tskit{} \citep{tskit}.
 
 However, the ARG is emphatically not merely a sequence of trees:
 viewed another way, it describes inheritance relationships between ancestral haplotypes.
@@ -838,7 +838,7 @@ to extend the node's span to $[a, b)$ and $[c, d)$
 However, following this example, the first lineage might carry a segment $[x, y)$
 that is disjoint from the segment $[a, d)$.
 We call these segments ``isolated non-coalescent segments'';
-they have also been called ``trapped unary spans'' \citep[by][]{XXX}.
+they have also been called ``trapped unary spans'' \citep[by][]{wong2024general}.
 Such isolated segments will not be recovered by our algorithm,
 and would likely be unrecoverable by any other method.
 So, when evaluating what proportion of the true ARG is represented in an inferred ARG
@@ -852,9 +852,9 @@ For more discussion of these segments, see \citet{baumdicker2021efficient}.
 
 We used simulations of several scenarios.
 To include the effects of heterogeneous recombination rate,
-in some we used stdpopsim \citep{stdpopsim} 
+in some we used stdpopsim \citep{adrion2020stdpopsim} 
 to simulate chromosome 1 of \textit{Canis familiaris}
-using the CanFam3 genetic map from \citet{campell2016}.
+using the CanFam3 genetic map from \citet{campbell2016}.
 \emph{``Constant dog''} simulations simulated this chromosome in a 
 population of (constant) size $10^4$.
 \emph{``Expanding dog''} simulations were similar, but
