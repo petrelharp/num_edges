@@ -345,7 +345,7 @@ How can we do this, and how accurate is the resulting inference?
     \caption{
         A simple example showing the basic idea
         (described in more detail in the text):
-        \textbf{(A)} a small portion of a ARG without unary nodes;
+        \textbf{(A)} a small portion of an ARG without unary nodes;
         \textbf{(B)} the implied inheritance pattern of the two portions of the haplotype carried by ancestral node 4,
         labeled $L$ and $R$;
         \textbf{(C)} marginal trees with a unary node added,
@@ -359,7 +359,7 @@ How can we do this, and how accurate is the resulting inference?
 
 \subsection{Notation and terminology}
 
-We work with the \emph{succinct tree sequence} representation of the ARG (henceforth, ``tree sequence''),
+We work with the \emph{succinct tree sequence} representation of ARGs (henceforth, ``tree sequence''),
 to take advantage of the extensive, stable, and well-documented set of open-source tools
 available in \tskit{} \citep{tskit}, 
 and our terminology and notation follows \citet{ralph2020efficiently}.
@@ -373,7 +373,7 @@ Some nodes are \emph{samples}, meaning that they represent genome sequences avai
 % Typically, samples are exclusively leaves of $\T$, however it is not the case that all samples are leaves.
 Each edge $e \in E$ describes inheritance between a parent node $p_e$ and child node $c_e$,
 over a segment of genome $[\ell_e, r_e)$.
-(The tree sequence includes substantially more information, including genotypes, that we will not use in this paper.)
+(The tree sequence data structure typically includes substantially more information, including genotypes, that we will not use in this paper.)
 Suppose that the unique elements of the set of left and right edge endpoints
 are $0 = a_0 < a_1 < \cdots < a_{n} = L$, where $L$ is the length of the genome.
 Using this information, one can construct the sequence of 
@@ -435,7 +435,8 @@ and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
 }
 \end{figure}
 
-A relatively efficient algorithm to do this is described in \algorithmref{alg:extend}, 
+% JK note: earlier version said "relatively" - relative to what?
+An efficient algorithm to do this is described in \algorithmref{alg:extend}, 
 and implemented in \tskit{} as \texttt{extend\_haplotypes}.
 The algorithm considers each tree transition from $T_k$ to $T_{k+1}$ in turn, updating its internal state
 (which includes possibly modifying $T_k$) as it goes.
@@ -587,7 +588,7 @@ need to be updated.
     }
 \end{algorithm2e}
 
-Since the algorithm needs to take multiple passes over the tree sequence
+Because the algorithm needs to take multiple passes over the tree sequence
 in each direction,
 an important practical question for this algorithm is:
 how many passes do we need to do?
@@ -595,7 +596,7 @@ The algorithm is monotone (spans of ancestral nodes only increase),
 so it is guaranteed to terminate in a finite number of passes,
 but it is also not hard to construct pathological cases that require an arbitrary number of passes.
 However, experimentation suggests that 
-in practice only at most five iterations are needed before the algorithm terminates.
+in practice at most five iterations are needed before the algorithm terminates.
 Indeed, for even large sequences \tabref{tab:edge-counts}
 shows that 99\% of all changes to an ARG occur after the first iteration,
 with the algorithm always completing after four iterations. 
@@ -656,7 +657,7 @@ let $S(T, n)$ denote the set of samples that inherit from $n$ in $T$,
 and for a pair of nodes $n_1$ and $n_2$ with $n_1$ in $\T_1$ and $n_2$ in $\T_2$,
 define
 \begin{align*}
-	\mathcal{M}(n1, n2) = \left\{ k : S\left(T^{(1)}_k,\ n_1\right) = S\left(T^{(2)}_k,\ n_2\right) \right\},
+	\mathcal{M}(n_1, n_2) = \left\{ k : S\left(T^{(1)}_k,\ n_1\right) = S\left(T^{(2)}_k,\ n_2\right) \right\},
 \end{align*}
 to be the indices of all trees where $n_1$ and $n_2$ are ancestral to the same sample set in both ARGs.
 Further, we define
