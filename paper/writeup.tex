@@ -818,7 +818,7 @@ on which they are represented.
 However, here we are interested in those segments of genome
 on which the nodes are \emph{not} coalescent;
 i.e., where they are unary in the marginal trees.
-Setting \texttt{coalescing\_segments\_only} to False includes just this information:
+Setting \texttt{coalescing\_segments\_only} to False includes this information:
 any ancestral segments for which these coalescent nodes
 are ancestral to any samples -- so, the unary portions of their spans as well.
 However, this includes more information than we want:
@@ -912,7 +912,7 @@ for a typical statistic (here, Tajima's $D$),
 computed in an efficient incremental manner along the genome as implemented in \tskit.
 As described in \citet{ralph2020efficiently}, for these incremental algorithms
 the addition or removal of an edge requires updates
-to the state of the parent node and all nodes above it.
+to the state of the parent node and all nodes ancestral to it.
 Extending haplotypes yields a tree sequence with fewer edge removals and insertions, 
 and thus requires fewer traversals to the roots.
 
@@ -933,7 +933,8 @@ Our next task is to confirm that the haplotypes extended by \algorithmref{alg:ex
 are indeed correct -- i.e., that in addition to compression, we are also gaining information.
 To do this, 
 we simulate ARGs containing full haplotypes using \msprime{},
-apply the simplification algorithm to reduce these so that there are no unary nodes
+apply the simplification algorithm~\citep{kelleher2018efficient,wong2024general}
+to reduce these so that there are no unary nodes
 (i.e., any node present in a marginal tree is a coalescent node or a sample),
 and then apply \algorithmref{alg:extend} to the result
 (see Methods for more detail).
@@ -1045,11 +1046,14 @@ and extending haplotypes can infer more than half of this span from coalescent i
 So far, we have demonstrated that there is potentially ample information
 in the coalescent-only trees to extend haplotypes.
 Does this work with \emph{inferred} ARGs?
-Indeed, \tsinfer{} provides inferred ARGS already containing unary nodes;
-to what degree are they taking advantage of this information already?
-Here, we study the behavior of \tsinfer{}, which produces unary nodes as a
-byproduct of its inference algorithm,
-and leave a comparison across other ARG inference methods for future work.
+As illustrated by~\cite{wong2024general}, there is a significant diversity
+in the structures inferred by current methods,
+and here we focus on \tsinfer{}~\cite{kelleher2019inferring} which 
+infers ARGs containing unary nodes as a byproduct of its inference algorithm.
+% Note this seems pretty weak and is sure to be dinged. We could at least 
+% comment on what we might observe with other inference methods? Would we 
+% recommend that people extend_edges() for their SINGER or Relate ARGs?
+A comparison across other ARG inference methods is left for future work.
 We simulated ARGs containing unary-spanning haplotypes (as above), then
 re-inferred ARGs from the associated genotypes and performed various operations
 on the results.
