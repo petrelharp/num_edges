@@ -1,4 +1,4 @@
-\begin{thebibliography}{33}
+\begin{thebibliography}{34}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
 \bibitem[{{\sc Adrion} {\em et~al.\/}(2020){\sc Adrion}, {\sc Cole}, {\sc
@@ -59,7 +59,7 @@
 \bibitem[{{\sc Deng} {\em et~al.\/}(2024){\sc Deng}, {\sc Nielsen} and {\sc
   Song}}]{deng2024robust}
 {\sc Deng, Y.}, {\sc R.~Nielsen}, and {\sc Y.~S. Song}, 2024 Robust and
-  accurate bayesian inference of genome-wide genealogies for large samples.
+  accurate {Bayesian} inference of genome-wide genealogies for large samples.
 \newblock bioRxiv .
 
 \bibitem[{{\sc Deng} {\em et~al.\/}(2021){\sc Deng}, {\sc Song} and {\sc
@@ -93,6 +93,13 @@
   number of recombination events in the history of a sample of {DNA} sequences.
 \newblock Genetics {\bf 111}: 147--164.
 
+\bibitem[{{\sc Ignatieva} {\em et~al.\/}(2024){\sc Ignatieva}, {\sc Favero},
+  {\sc Koskela}, {\sc Sant} and {\sc Myers}}]{ignatieva2024length}
+{\sc Ignatieva, A.}, {\sc M.~Favero}, {\sc J.~Koskela}, {\sc J.~Sant}, and {\sc
+  S.~R. Myers}, 2024 The length of haplotype blocks and signals of structural
+  variation in reconstructed genealogies.
+\newblock bioRxiv .
+
 \bibitem[{{\sc Kelleher} {\em et~al.\/}(2016){\sc Kelleher}, {\sc Etheridge}
   and {\sc McVean}}]{kelleher2016efficient}
 {\sc Kelleher, J.}, {\sc A.~M. Etheridge}, and {\sc G.~McVean}, 2016 Efficient
@@ -103,12 +110,11 @@
   {\sc Wong}, {\sc Ralph}, {\sc Tsambos} {\em et~al.\/}}]{tskit}
 {\sc Kelleher, J.}, {\sc B.~Jeffery}, {\sc Y.~Wong}, {\sc P.~Ralph}, {\sc
   G.~Tsambos}, {\sc S.~H. Zhan}, {\sc K.~R. Thornton}, {\sc D.~Goldstein}, {\sc
-  A.~W. Wohns}, {\sc D.~Mbuli-Robertson}, {\sc lkirk}, {\sc pyup.io bot}, {\sc
-  G.~Gower}, {\sc H.~van Kemenade}, {\sc M.~F. Rodrigues}, {\sc B.~Zhang}, {\sc
-  G.~Bisschop}, {\sc C.~Weiss}, {\sc D.~Palmer}, {\sc C.~Ellerman}, {\sc
-  J.~Guez}, {\sc N.~Pope}, {\sc S.~Karthikeyan}, {\sc I.~Rebollo}, {\sc
-  S.~Belsare}, {\sc A.~Kern}, and {\sc M.~Aspbury}, 2024 tskit-dev/tskit:
-  Python 0.5.8.
+  A.~W. Wohns}, {\sc D.~Mbuli-Robertson}, {\sc L.~Kirk}, {\sc G.~Gower}, {\sc
+  H.~van Kemenade}, {\sc M.~F. Rodrigues}, {\sc B.~Zhang}, {\sc G.~Bisschop},
+  {\sc C.~Weiss}, {\sc D.~Palmer}, {\sc C.~Ellerman}, {\sc J.~Guez}, {\sc
+  N.~Pope}, {\sc S.~Karthikeyan}, {\sc I.~Rebollo}, {\sc S.~Belsare}, {\sc
+  A.~Kern}, and {\sc M.~Aspbury}, 2024 tskit-dev/tskit: Python 0.5.8.
 
 \bibitem[{{\sc Kelleher} {\em et~al.\/}(2018){\sc Kelleher}, {\sc Thornton},
   {\sc Ashander} and {\sc Ralph}}]{kelleher2018efficient}

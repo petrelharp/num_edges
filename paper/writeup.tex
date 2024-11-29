@@ -248,7 +248,7 @@ recombination between distinct haplotypes can create a novel haplotype
 whose relationships and origination time could be inferred.
 
 Haplotype identity has been largely overlooked in the literature on ARG inference --
-to our knowledge, all metrics that have been used so far to measure accuracy of inferred ARGs
+most methods that have been used so far to measure accuracy of inferred ARGs
 depend only on the sequence of marginal trees,
 not on how ancestral haplotypes span across these trees.
 For instance, \citet{kelleher2019inferring} and \citet{zhang2023biobankscale}
@@ -262,9 +262,12 @@ Neither is affected by shared haplotype structure --
 two ARGs could be identical by either measure
 but imply completely different patterns of haplotype sharing and inheritance.
 % (as defined in the context of the ARG, \citep{XXX}).
-\citet{deng2021distribution} evaluated agreement of distributions of
-distances along the genome between tree topology changes,
-and \citet{zhang2023biobankscale} defined a generalization of Robinson-Foulds distance
+There has been some recent attention to haplotypes:
+\citet{ignatieva2024length} compared distributions of haplotype spans in true and inferred ARGs,
+as well as more sophisticated summaries of edges.
+Also, \citet{deng2021distribution} evaluated agreement of distributions of
+distances along the genome between tree topology changes, and
+\citet{zhang2023biobankscale} defined a generalization of Robinson-Foulds distance
 that is the total variation distance between the induced distribution on genotypes;
 neither of which measure the sharing of haplotypes between adjacent trees.
 However, the additional information provided by haplotype structure can be important:
