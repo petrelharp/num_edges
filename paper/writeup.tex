@@ -1,7 +1,10 @@
 \documentclass[10pt,twoside,lineno]{gsajnl}
 \articletype{inv} % article type
 
-\usepackage[dvipsnames]{xcolor}
+% JK Had to change the xcolor import here and turn off
+% the OliveGreen bit below to get this to compile
+% \usepackage[dvipsnames]{xcolor}
+\usepackage[]{xcolor}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{natbib}
@@ -13,7 +16,8 @@
 \hypersetup{
 	pagebackref=true,
 	colorlinks = true,
-	allcolors = OliveGreen}
+}
+	% allcolors = OliveGreen}
 
 \SetKwInput{input}{Input}
 \SetKwInput{output}{Output}
