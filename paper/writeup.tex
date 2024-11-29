@@ -795,6 +795,59 @@ We compute dissimilarity and ARF of two tree sequences in \figref{fig:conceptual
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\paragraph{Metrics on ARGs}
+The dissimilarity $\dis(\T_1,\T_2)$ is clearly not a metric in the mathematical sense
+(i.e., symmetric, nonzero distance between distinct points, and satisfying the triangle inequality).
+This is by design: in practice it is not possible to infer all aspects
+of the true ancestry of a set of samples (i.e., all their genetic ancestors who ever lived),
+and so we wanted to quantify
+``How much of the true relationships does this ARG represent?''
+However, it is worth noting that the symmetrized version
+$d(\T_1,\T_2) = \dis(\T_1,\T_2) + \dis(\T_2, \T_1)$ is a metric.
+To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$,
+and view each ARG as a subset of the space $[0,L) \times N \times N$,
+where $N$ is the shared set of nodes.
+Then, dissimilarity is the Lebesgue measure of the relative difference of the two sets:
+$|\T_1 \setminus \T_2|$,
+and so the symmetrized version is the measure of the symmetric difference
+$|\T_1\Delta\T_2|$,
+which is well-known to be a metric \citep{rudin1976principles}. 
+If the two ARGs have the same number of nodes,
+we can consider all bijections between their nodes.
+The symmetric difference between $\T_1$ and $\T_2$,
+related through each bijection is a metric.
+Then the minimum over all such metrics will still be a metric
+since the minimum over a finite number of metrics is also a metric.
+This also extends to two tree sequences with different numbers of nodes,
+$|N_1|\neq|N_2|$, as we can take the minimum over all possible matchings $T_1\to\T_2$ and $\T_2\to\T_1$.
+
+The Robinson-Foulds distance \citep{robinson1981comparison}
+essentially counts the number of differing branches between two trees;
+the averaged Robinson-Foulds distance \citep{kelleher2019inferring}
+averages this distance across local trees, weighted by span along the genome.
+The method we present here for measuring dissimilarity between topologies of ARGs
+is a straightforward generalization
+that takes into account span along the genome of inferred ancestral haplotypes
+(and separates the metric into two pieces as discussed in the previous paragraph).
+However, the Robinson-Foulds metric has many undesirable properties --
+for instance, moving a single tip can result in a tree with maximum distance to the original --
+and there is a substantial literature giving more robust generalizations
+\citep[reviewed by][]{llabres2021generalized}.
+Many of these generalizations \citep[e.g.,][]{bocker2013generalized}
+relax the requirement that the match between subtended sample sets be exact,
+and weight matches in some way by the size of the dissimilarity.
+We considered such definitions as well, but kept to the simple case
+for computational tractability --
+the generalization of \citet{bocker2013generalized} is NP-hard to compute, even for a single tree.
+In the ARG literature, \citet{zhang2023biobankscale}
+defines a metric (called ``ARG total variation distance'') that includes branch lengths,
+in a way similar to \citet{robinson1979comparison} and \citet{kuhner1994simulation};
+however, it is still applied to ARGs as an average over local trees,
+without enforcement of identity across haplotypes;
+it would be useful to extend our dissimilarity to include branch lengths.
+
+%--------------------------------
 \subsection{Simulations}
 
 Our new method \textit{extend haplotypes} is applicable to any ARG.
@@ -1150,57 +1203,6 @@ each specifically discard information about any such ``non-coalescent'' portions
 so for ARGs produced by these algorithms, the correct interpretation is that
 the omission of unary spans reflects a lack of knowledge.
 In this paper, we have shown that, for the most part, this missing information can be imputed.
-
-\paragraph{Metrics on ARGs}
-The dissimilarity $\dis(\T_1,\T_2)$ is clearly not a metric in the mathematical sense
-(i.e., symmetric, nonzero distance between distinct points, and satisfying the triangle inequality).
-This is by design: in practice it is not possible to infer all aspects
-of the true ancestry of a set of samples (i.e., all their genetic ancestors who ever lived),
-and so we wanted to quantify
-``How much of the true relationships does this ARG represent?''
-However, it is worth noting that the symmetrized version
-$d(\T_1,\T_2) = \dis(\T_1,\T_2) + \dis(\T_2, \T_1)$ is a metric.
-To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$,
-and view each ARG as a subset of the space $[0,L) \times N \times N$,
-where $N$ is the shared set of nodes.
-Then, dissimilarity is the Lebesgue measure of the relative difference of the two sets:
-$|\T_1 \setminus \T_2|$,
-and so the symmetrized version is the measure of the symmetric difference
-$|\T_1\Delta\T_2|$,
-which is well-known to be a metric \citep{rudin1976principles}. 
-If the two ARGs have the same number of nodes,
-we can consider all bijections between their nodes.
-The symmetric difference between $\T_1$ and $\T_2$,
-related through each bijection is a metric.
-Then the minimum over all such metrics will still be a metric
-since the minimum over a finite number of metrics is also a metric.
-This also extends to two tree sequences with different numbers of nodes,
-$|N_1|\neq|N_2|$, as we can take the minimum over all possible matchings $T_1\to\T_2$ and $\T_2\to\T_1$.
-
-The Robinson-Foulds distance \citep{robinson1981comparison}
-essentially counts the number of differing branches between two trees;
-the averaged Robinson-Foulds distance \citep{kelleher2019inferring}
-averages this distance across local trees, weighted by span along the genome.
-The method we present here for measuring dissimilarity between topologies of ARGs
-is a straightforward generalization
-that takes into account span along the genome of inferred ancestral haplotypes
-(and separates the metric into two pieces as discussed in the previous paragraph).
-However, the Robinson-Foulds metric has many undesirable properties --
-for instance, moving a single tip can result in a tree with maximum distance to the original --
-and there is a substantial literature giving more robust generalizations
-\citep[reviewed by][]{llabres2021generalized}.
-Many of these generalizations \citep[e.g.,][]{bocker2013generalized}
-relax the requirement that the match between subtended sample sets be exact,
-and weight matches in some way by the size of the dissimilarity.
-We considered such definitions as well, but kept to the simple case
-for computational tractability --
-the generalization of \citet{bocker2013generalized} is NP-hard to compute, even for a single tree.
-In the ARG literature, \citet{zhang2023biobankscale}
-defines a metric (called ``ARG total variation distance'') that includes branch lengths,
-in a way similar to \citet{robinson1979comparison} and \citet{kuhner1994simulation};
-however, it is still applied to ARGs as an average over local trees,
-without enforcement of identity across haplotypes;
-it would be useful to extend our dissimilarity to include branch lengths.
 
 \paragraph{Parsimony}
 Much of the early work on ARG inference aimed to extract as much information as possible
