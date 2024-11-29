@@ -714,7 +714,7 @@ instead of $m(n, \alpha(n))$ define
 the indices of all trees on which there is \emph{some} node in $\T_2$
 whose set of descendant samples matches those of $n$, and
 \begin{align*}
-    m'(n, \T_2) = \sum_{k \in \mathcal{M}'(\T_1, n; \T_2)1}^N (a_k - a_{k-1})
+    m'(n, \T_2) = \sum_{k \in \mathcal{M}'(\T_1, n; \T_2)}^N (a_k - a_{k-1})
 \end{align*}
 the total span over which $n$ finds a match.
 Then the average Robinson-Foulds distance (averaged over locations in the genome)
@@ -738,34 +738,40 @@ using the subgraph-prune-and-regraft moves used by \citet{deng2024robust}.
 The dissimilarity $\dis(\T_1, \T_2)$ measures disagreement between \emph{topologies},
 but not times.
 If the tree sequence is dated, we can naturally use the ``best match'' $\alpha$
-to also compare times,
-for instance by returning the weighted root-mean-squared error on inferred times as
+to also compare times.
+Empirically, dating error seems to be more or less homoskedastic on a log scale,
+so we recommend 
+using the weighted root-mean-squared error of log(times), computed as
 \begin{align}\label{eqn:wrmse}
     \text{wRMSE}_t(\T_1, \T_2)
     = \sqrt{\frac{
         \sum_{n \in N_1} s(\T_1,n) \left(\log\left(1+ t^{(1)}_n\right) - \log\left(1+ t^{(2)}_{\alpha(n)}\right) \right)^2 
     }{
         \Vert{\T_1}\Vert
-    } } .
+    } } ,
 \end{align}
+where the transformation is $t \mapsto \log(1 + t)$ to avoid $\log(0)$.
 The mean is computed weighting by node span, so that a dating error
 is more impactful for a node with a longer span. 
 
 The implementation of this method in \texttt{tscompare}
 additionally produces relative values:
-the ancestral recombination graph Robinson-Foulds value (relative dissimilarity) and true proportion represented. 
+the ancestral recombination graph Robinson-Foulds value (dissimilarity relative to $\T_1$)
+and true proportion represented (similarity relative to $\T_2$).
 The \emph{ARG Robinson-Foulds} (which we call ``ARF'') is defined to be the dissimilarity proportional
  to the total span of nodes in $\T_1$,
  \begin{align}\label{eqn:dissimilarity}
  	\operatorname{ARF}(\T_1,\T_2)=\frac{\dis(\T_1,\T_2)}{\Vert \T_1 \Vert}
- 	=1-\frac{\similarity(\T_1,\T_2)}{\Vert \T_1\Vert}.
+ 	=1-\frac{\similarity(\T_1,\T_2)}{\Vert \T_1\Vert} ,
 \end{align}
+and so if $\T_2$ represents the truth, is analogous to a false positive rate.
 The \emph{true proportion represented} (TPR) is similarity between two trees relative 
 to the total span of nodes in $\T_2$,
 \begin{align}\label{eqn:true-proportion}
 	\operatorname{TPR}(\T_1,\T_2) = \frac{\similarity(\T_1,\T_2)}
-	{\Vert \T_2\Vert}.
+	{\Vert \T_2\Vert} ,
 \end{align}
+and is analogous to statistical power.
 The outputs framed as proportions relative to one of the given tree sequences is more easily understood
 for comparing pairs of tree sequences than the original dissimilarity and similarity, whose units are length of spans.
 We compute dissimilarity and ARF of two tree sequences in \figref{fig:conceptual_discrepancy}.
@@ -788,7 +794,8 @@ We compute dissimilarity and ARF of two tree sequences in \figref{fig:conceptual
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Simulations}
 
-To do this, we simulate ARGs containing full haplotypes using \msprime \citep{kelleher2016efficient,baumdicker2021efficient},
+To do this, we simulate ARGs containing full haplotypes using \msprime{}
+\citep{kelleher2016efficient,baumdicker2021efficient},
 with the \texttt{coalescing\_segments\_only} option set to False.
 Although \msprime{} simulates many events that do not create a coalescence in some marginal tree,
 it only outputs information for nodes which contain a coalescence
@@ -801,7 +808,11 @@ on which they are represented.
 However, here we are interested in those segments of genome
 on which the nodes are \emph{not} coalescent;
 i.e., where they are unary in the marginal trees.
-More concretely, we hope to recover those portions of ancestral haplotypes
+Setting \texttt{coalescing\_segments\_only} to False includes just this information:
+any ancestral segments for which these coalescent nodes
+are ancestral to any samples -- so, the unary portions of their spans as well.
+However, this includes more information than we want:
+we hope to recover those portions of ancestral haplotypes
 on which the nodes are unary, but adjacent to a region of the genome where the node is not unary.
 For instance, if a lineage carrying an ancestral segment of genome that spans $[a, c)$
 coalesces with another spanning $[b, d)$, with $a < b < c < d$,
@@ -814,8 +825,7 @@ We call these segments ``isolated non-coalescent segments'';
 they have also been called ``trapped unary spans'' \citep[by][]{wong2024general}.
 Such isolated segments will not be recovered by our algorithm,
 and would likely be unrecoverable by any other method.
-So, when evaluating what proportion of the true ARG is represented in an inferred ARG
-we omit these isolated non-coalescent segments.
+So, after simulation, we first remove these isolated, non-coalescent segments.
 To give an idea of what proportion of the full spans of ancestral nodes
 these isolated non-coalescent segments represent,
 a simulation of 1000 samples
@@ -907,31 +917,6 @@ or minutes to hours for tens of thousands of samples
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Accuracy with true trees}
-
-\comment{Moved from above: don't need?}
-\figref[C\&D]{fig:node-spans} shows the spans for each node in three tree sequences:
-for each node the total span in a ``true'' tree sequence, 
-given by the line,
-that was simulated with \msprime \citep{kelleher2016efficient,baumdicker2021efficient}
-in a way that included spans over which nodes are unary in the output
-(by setting \texttt{coalescing\_segments\_only} to False).
-\figref[C]{fig:node-spans} shows the span of each node after \emph{simplifying} the tree sequence 
-\citep{kelleher2018efficient},
-which removes all unary nodes from all trees
-thus reducing the node spans for some nodes in the sequence.
-In \figref[D]{fig:node-spans}
-is the span of the node after applying \algorithmref{alg:extend}
-to the simplified tree sequence.
-\algorithmref{alg:extend} cannot reduce node span, resulting in node spans 
-from the extended tree sequence that are closer in value to the ``true'' tree sequence. 
-\figref[B]{fig:node-spans} shows how much of this span is incorrect:
-for each node, it gives the amount of span
-that is incorrect (i.e., not present in the original tree sequence)
-over the total amount of span added after running \algorithmref{alg:extend}.
-The values in these plots
-therefore quantify how much the ancestral haplotypes represented by each node
-were correctly, and incorrectly, extended.
-They also tell us how the node spans represented in the result compare to those in the original tree sequence.
 
 
 Our next task is to confirm that the haplotypes extended by \algorithmref{alg:extend}
