@@ -208,12 +208,13 @@
 % * what's a tree sequence
 % * why is a tree sequence (motivation)
 
-There has been substantial recent progress
-in the problem of ``ARG inference'',
-which seeks to infer (portions of) the ancestral recombination graph (or, ARG)
-that describes how a set of genotypes samples are related to each other
-at each position of the genome \citep{speidel2019method,kelleher2019inferring,zhang2023biobankscale,deng2024robust,lewanski2024introduction}.
-One way of viewing the ARG is as a sequence of marginal trees,
+Ancestral recombination graphs (ARGs) describe how a set of sampled sequences 
+are related to each other at each position of the genome in a recombining
+species~\citep{brandt2024promise,lewanski2024introduction,nielsen2024inference,
+wong2024general}, and there has been significant recent progress 
+on inference through a range of approaches~\citep{rasmussen2014genome,
+speidel2019method,kelleher2019inferring,zhang2023biobankscale,deng2024robust}.
+One way of viewing ARGs is as a sequence of marginal trees,
 i.e., the genealogical trees that describe how each portion of the genome
 was inherited by the focal genomes.
 This is reflected in methodology of some ARG inference methods
@@ -226,12 +227,12 @@ is a common format for describing these inferred ARGs,
 and is seeing wide use thanks in part to its efficiency and accompanying reliable toolkit,
 \tskit{} \citep{tskit,ralph2020efficiently}.
 
-However, the ARG is emphatically not merely a sequence of trees:
+However, an ARG is emphatically not merely a sequence of trees:
 viewed another way, it describes inheritance relationships between ancestral haplotypes.
 These two points of view are related because a single haplotype
 may extend over many marginal trees;
 in other words, the internal nodes in the trees are labeled, and many of these labels
-are shared between adjacent trees.
+are shared between adjacent trees~\citep{wong2024general}.
 
 Another reason we tend to focus on the trees is that
 much of our intuition about inference of relationships from genomic data
@@ -257,7 +258,8 @@ depend only on the sequence of marginal trees,
 not on how ancestral haplotypes span across these trees.
 For instance, \citet{kelleher2019inferring} and \citet{zhang2023biobankscale}
 compared true and inferred ARGs
-using average Robinson-Foulds and Kendall-Colijn distances between trees
+using average Robinson-Foulds~\citep{robinson1981comparison} and 
+Kendall-Colijn~\citep{kendall2016mapping} distances between trees
 across a regular sequence of genomic positions,
 using sampled genotypes as labels,
 while \citet{brandt2022evaluation} compared times to most recent common ancestor
