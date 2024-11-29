@@ -119,7 +119,7 @@
     of ancestral haplotypes across marginal genealogical trees in which they
     do not represent coalescences.
     We show how these non-coalescing haplotypes (``unary regions'') may be
-    inserted into the ancestral recombination graph (ARG), a compact
+    inserted into ancestral recombination graphs (ARGs), a compact
     but information-rich data structure describing the genealogical
     relationships among recombinant sequences.
     The resulting ARGs are smaller, faster to compute with,
@@ -127,8 +127,8 @@
     is nearly always correct where the initial ARG is correct.
     We provide efficient algorithms to infer unary regions within existing ARGs,
     and explore some consequences for ARGs inferred from real data.
-    To do this, we introduce new metrics of agreement and disagreement between inferred ARGs
-    that, unlike previous methods, consider the ARG as describing relationships between haplotypes
+    To do this, we introduce new metrics of agreement and disagreement between ARGs
+    that, unlike previous methods, consider ARGs as describing relationships between haplotypes
     rather than just a collection of trees.
 \end{abstract}
 
@@ -812,7 +812,7 @@ it only outputs information for nodes which contain a coalescence
 (i.e., are the MRCA of some pair of samples at some point on the genome).
 Furthermore, by default it only outputs those segments of the genome
 on which there is a coalescence.
-Said another way, by default all ancestral nodes in the ARG
+Said another way, by default all ancestral nodes in an ARG
 output by \msprime{} are the MRCA of some pair of samples at every point in the genome
 on which they are represented.
 However, here we are interested in those segments of genome
@@ -1002,7 +1002,7 @@ showing that the total amount of mis-matching span
 produced by extending haplotypes is very small ($\approx 1\%$).
 (Simplification does not produce dissimilarity.)
 The bottom row shows the proportion of the original ARG that is represented in the given ARG (TRP).
-This shows that a large proportion of the ARG can be removed by simplification,
+This shows that a large proportion of an ARG can be removed by simplification,
 indicating that coalescent nodes are unary
 over a substantial portion of their spans.
 (Since the \texttt{simplify} operations removes these unary portions of haplotypes,
