@@ -710,11 +710,9 @@ We then define the \emph{dissimilarity} of $\T_1$ from $\T_2$ by
 which is the total span for all nodes in $\T_1$
 over which their descendant samples do \emph{not} match those of their best match in $\T_2$.
 
-First proposed by~\cite{kuhner2015assessing}, a common approach 
-is to use a weighted average Robinson-Foulds (RF) distance
-% Other authors \citep[e.g.,][]{kelleher2019inferring} have used
-% an average Robinson-Foulds distance \citep{robinson1981comparison}
-as a measure of disagreement between ARGs.
+A common measure of disagreement between ARGs, 
+first proposed by~\cite{kuhner2015assessing}, 
+is to use a weighted average Robinson-Foulds (RF) distance.
 This could be computed in a very similar way:
 instead of $m(n, \alpha(n))$ define
 \begin{align*}
