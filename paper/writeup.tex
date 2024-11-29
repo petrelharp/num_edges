@@ -209,7 +209,7 @@ in the problem of ``ARG inference'',
 which seeks to infer (portions of) the ancestral recombination graph (or, ARG)
 that describes how a set of genotypes samples are related to each other
 at each position of the genome \citep{speidel2019method,kelleher2019inferring,zhang2023biobankscale,deng2024robust,lewanski2024introduction}.
-One way of viewing the ARG is as a sequence of marginal trees,
+One way of viewing the ARG is as a sequence of local trees,
 i.e., the genealogical trees that describe how each portion of the genome
 was inherited by the focal genomes.
 This is reflected in methodology of some ARG inference methods
@@ -225,7 +225,7 @@ and is seeing wide use thanks in part to its efficiency and accompanying reliabl
 However, the ARG is emphatically not merely a sequence of trees:
 viewed another way, it describes inheritance relationships between ancestral haplotypes.
 These two points of view are related because a single haplotype
-may extend over many marginal trees;
+may extend over many local trees;
 in other words, the internal nodes in the trees are labeled, and many of these labels
 are shared between adjacent trees.
 
@@ -249,7 +249,7 @@ whose relationships and origination time could be inferred.
 
 Haplotype identity has been largely overlooked in the literature on ARG inference --
 most methods that have been used so far to measure accuracy of inferred ARGs
-depend only on the sequence of marginal trees,
+depend only on the sequence of local trees,
 not on how ancestral haplotypes span across these trees.
 For instance, \citet{kelleher2019inferring} and \citet{zhang2023biobankscale}
 compared true and inferred ARGs
@@ -280,7 +280,7 @@ First, we describe a deterministic algorithm that
 extends the genomic region spanned by ancestral haplotypes
 using the principle that intermediate nodes in inheritance paths
 should remain unchanged when possible.
-These extended portions of ancestral haplotypes manifest as unary nodes in the marginal trees.
+These extended portions of ancestral haplotypes manifest as unary nodes in the local trees.
 To quantify how accurate the new information is,
 we define and describe how to compute new measures of (dis-)agreement between ARGs
 that are motivated by the Robinson-Foulds distance between trees
@@ -345,7 +345,7 @@ How can we do this, and how accurate is the resulting inference?
         \textbf{(A)} a small portion of a ARG without unary nodes;
         \textbf{(B)} the implied inheritance pattern of the two portions of the haplotype carried by ancestral node 4,
         labeled $L$ and $R$;
-        \textbf{(C)} marginal trees with a unary node added,
+        \textbf{(C)} local trees with a unary node added,
         which produces \textbf{(D)} a more parsimonious haplotype inheritance pattern
         (that also includes fewer edges).
         \label{fig:conceptual}
@@ -389,7 +389,7 @@ for node $n$.
 Given a tree sequence, our goal is to
 identify areas of implied inheritance of haplotypes.
 Generalizing from \figref{fig:extending_diagram},
-we do this by identifying paths of inheritance that are shared across a sequence of marginal trees
+we do this by identifying paths of inheritance that are shared across a sequence of local trees
 but for which some of the intermediate nodes are missing.
 Concretely, suppose that 
 if in tree $T_k$ there is a chain of inheritance
@@ -517,11 +517,11 @@ need to be updated.
         \text{ and }$m_e = m = 0$.\;
         \While{\tn{True}}{
             \text{Set } $y_i = (p_i \neq NULL)
-                \& (p_i \notin T_O)
-                \& (t_i < t_o)$ \;
+                \ \&\ (p_i \notin T_O)
+                \ \&\ (t_i < t_o)$ \;
             \text{and } $y_o = (p_o \neq NULL)
-                \& (p_o \notin T_I)
-                \& (t_o < t_i)$ \;
+                \ \&\ (p_o \notin T_I)
+                \ \&\ (t_o < t_i)$ \;
             \If{not ($y_i$ or $y_o$)}{ \Break\; }
             \eIf{$y_i$}{
                 \If{$P_I[c] \neq p_i$ and $P_O[c] \neq p_i$}{
@@ -690,7 +690,7 @@ out of those maximizing $m(n_1, n_2)$ that minimizes $|t^{(1)}_{n_1} - t^{(2)}_{
 however, this potential ambiguity does not affect the definition of $\similarity(\T_1, \T_2)$.
 Let $\|\T_1\|=\sum_{n\in N_1}s(\T_1,n)$ be the total sum of nodes spans for nodes in $\T_1$,
 and let $s(\T,n)$ denote
-the total span that node $n$ is present in the marginal trees,
+the total span that node $n$ is present in the local trees,
 \begin{align*}
     s(\T, n) = \sum_{k=1}^N (a_k - a_{k-1}) \ind_{n \in T_k} \quad ,
 \end{align*}
@@ -712,12 +712,12 @@ as a measure of disagreement between tree sequences.
 This could be computed in a very similar way:
 instead of $m(n, \alpha(n))$ define
 \begin{align*}
-    \mathcal{M}'(\T_1, n; \T_2) = \left\{ k : \exists n_2  \;\text{for which}\; S\left(T^{(1)}_k,\ n\right) = S\left(T^{(2)}_k,\ n_2\right) \right\},
+    \mathcal{M}'(\T_1, n; \T_2) = \left\{ k : \exists\ n_2  \;\text{for which}\; S\left(T^{(1)}_k,\ n\right) = S\left(T^{(2)}_k,\ n_2\right) \right\},
 \end{align*}
 the indices of all trees on which there is \emph{some} node in $\T_2$
 whose set of descendant samples matches those of $n$, and
 \begin{align*}
-    m'(n, \T_2) = \sum_{k \in \mathcal{M}'(\T_1, n; \T_2)}^N (a_k - a_{k-1})
+    m'(n, \T_2) = \sum_{k \in \mathcal{M}'(\T_1, n; \T_2)} (a_k - a_{k-1})
 \end{align*}
 the total span over which $n$ finds a match.
 Then the average Robinson-Foulds distance (averaged over locations in the genome)
@@ -795,12 +795,72 @@ We compute dissimilarity and ARF of two tree sequences in \figref{fig:conceptual
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\paragraph{Metrics on ARGs}
+The dissimilarity $\dis(\T_1,\T_2)$ is clearly not a metric in the mathematical sense
+(i.e., symmetric, nonzero distance between distinct points, and satisfying the triangle inequality).
+This is by design: in practice it is not possible to infer all aspects
+of the true ancestry of a set of samples (i.e., all their genetic ancestors who ever lived),
+and so we wanted to quantify
+``How much of the true relationships does this ARG represent?''
+However, it is worth noting that the symmetrized version
+$d(\T_1,\T_2) = \dis(\T_1,\T_2) + \dis(\T_2, \T_1)$ is a metric.
+To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$,
+and view each ARG as a subset of the space $[0,L) \times N \times N$,
+where $N$ is the shared set of nodes.
+Then, dissimilarity is the Lebesgue measure of the relative difference of the two sets:
+$|\T_1 \setminus \T_2|$,
+and so the symmetrized version is the measure of the symmetric difference
+$|\T_1\Delta\T_2|$,
+which is well-known to be a metric \citep{rudin1976principles}. 
+If the two ARGs have the same number of nodes,
+we can consider all bijections between their nodes.
+The symmetric difference between $\T_1$ and $\T_2$,
+related through each bijection is a metric.
+Then the minimum over all such metrics will still be a metric
+since the minimum over a finite number of metrics is also a metric.
+This also extends to two tree sequences with different numbers of nodes,
+$|N_1|\neq|N_2|$, as we can take the minimum over all possible matchings $T_1\to\T_2$ and $\T_2\to\T_1$.
+
+The Robinson-Foulds distance \citep{robinson1981comparison}
+essentially counts the number of differing branches between two trees;
+the averaged Robinson-Foulds distance \citep{kelleher2019inferring}
+averages this distance across local trees, weighted by span along the genome.
+The method we present here for measuring dissimilarity between topologies of ARGs
+is a straightforward generalization
+that takes into account span along the genome of inferred ancestral haplotypes
+(and separates the metric into two pieces as discussed in the previous paragraph).
+However, the Robinson-Foulds metric has many undesirable properties --
+for instance, moving a single tip can result in a tree with maximum distance to the original --
+and there is a substantial literature giving more robust generalizations
+\citep[reviewed by][]{llabres2021generalized}.
+Many of these generalizations \citep[e.g.,][]{bocker2013generalized}
+relax the requirement that the match between subtended sample sets be exact,
+and weight matches in some way by the size of the dissimilarity.
+We considered such definitions as well, but kept to the simple case
+for computational tractability --
+the generalization of \citet{bocker2013generalized} is NP-hard to compute, even for a single tree.
+In the ARG literature, \citet{zhang2023biobankscale}
+defines a metric (called ``ARG total variation distance'') that includes branch lengths,
+in a way similar to \citet{robinson1979comparison} and \citet{kuhner1994simulation};
+however, it is still applied to ARGs as an average over local trees,
+without enforcement of identity across haplotypes;
+it would be useful to extend our dissimilarity to include branch lengths.
+
+%--------------------------------
 \subsection{Simulations}
 
+Our new method \textit{extend haplotypes} is applicable to any ARG.
+However its accuracy depends on the overall structure of the ARG it is applied too. 
+Additionally, as \textit{ARG Robinson-Foulds}
+is given as a proportion of node spans
+it's value is also dependent on the pair of input ARGs. 
+Thus to understand how well our methods can infer ancestral haplotypes we 
+work with simulated tree sequences with a large variety in parameter choice.
 To do this, we simulate ARGs containing full haplotypes using \msprime{}
 \citep{kelleher2016efficient,baumdicker2021efficient},
 with the \texttt{coalescing\_segments\_only} option set to False.
-Although \msprime{} simulates many events that do not create a coalescence in some marginal tree,
+Although \msprime{} simulates many events that do not create a coalescence in some local tree,
 it only outputs information for nodes which contain a coalescence
 (i.e., are the MRCA of some pair of samples at some point on the genome).
 Furthermore, by default it only outputs those segments of the genome
@@ -810,7 +870,7 @@ output by \msprime{} are the MRCA of some pair of samples at every point in the 
 on which they are represented.
 However, here we are interested in those segments of genome
 on which the nodes are \emph{not} coalescent;
-i.e., where they are unary in the marginal trees.
+i.e., where they are unary in the local trees.
 Setting \texttt{coalescing\_segments\_only} to False includes just this information:
 any ancestral segments for which these coalescent nodes
 are ancestral to any samples -- so, the unary portions of their spans as well.
@@ -927,7 +987,7 @@ are indeed correct -- i.e., that in addition to compression, we are also gaining
 To do this, 
 we simulate ARGs containing full haplotypes using \msprime{},
 apply the simplification algorithm to reduce these so that there are no unary nodes
-(i.e., any node present in a marginal tree is a coalescent node or a sample),
+(i.e., any node present in a local tree is a coalescent node or a sample),
 and then apply \algorithmref{alg:extend} to the result
 (see Methods for more detail).
 The method can potentially extend the spans of each node
@@ -1015,8 +1075,8 @@ and extending haplotypes can infer more than half of this span from coalescent i
 	\end{center}
     \caption{
         Accuracy and sensitivity of extended haplotypes
-        across a range of sample sizes, on a sequence of length $5\times10^7$ (top)
-        and sequence lengths, with 1,000 diploid samples (bottom).
+        across a range of sample sizes, on a sequence of length $5\times10^7$ (right)
+        and sequence lengths, with 1,000 diploid samples (left).
         For each, a simulated ARG containing unary haplotype spans
         was (i) \emph{simplified}, removing the unary spans,
         and (ii) \emph{inferred}, using \tsinfer{} on genotypes;
@@ -1095,10 +1155,10 @@ This is essentially a recombination-based parsimony argument,
 and we have shown that this line of reasoning
 leads to ARGs that are substantially more compact and faster to operate on,
 and that contain more complete information about true ancestral relationships.
-These extended ancestral haplotypes manifest as unary nodes in the marginal trees.
+These extended ancestral haplotypes manifest as unary nodes in the local trees.
 Although a number of ARG inference methods may be taking advantage of this information,
 it is our impression that this source of information is not widely appreciated.
-In fact, due to the field's focus on marginal trees rather than haplotypes,
+In fact, due to the field's focus on local trees rather than haplotypes,
 we had to develop a haplotype-aware measure of (dis)agreement between ARGs in order to study the accuracy of the proposed algorithm.
 
 There are good reasons to think that lengthening the spans of ancestral haplotypes
@@ -1106,7 +1166,7 @@ could lead to substantial gains in accuracy of ARG inference.
 For instance, information about inferring the age of a particular mutation
 derives almost entirely from constraints at nearby, linked sites.
 Extending ancestral haplotypes from one site into neighboring regions
-conceptually allows information from those marginal trees
+conceptually allows information from those local trees
 to inform age inference at that site as well.
 
 We have also explored the degree to which \tsinfer{} already makes use of this information,
@@ -1143,57 +1203,6 @@ each specifically discard information about any such ``non-coalescent'' portions
 so for ARGs produced by these algorithms, the correct interpretation is that
 the omission of unary spans reflects a lack of knowledge.
 In this paper, we have shown that, for the most part, this missing information can be imputed.
-
-\paragraph{Metrics on ARGs}
-The dissimilarity $\dis(\T_1,\T_2)$ is clearly not a metric in the mathematical sense
-(i.e., symmetric, nonzero distance between distinct points, and satisfying the triangle inequality).
-This is by design: in practice it is not possible to infer all aspects
-of the true ancestry of a set of samples (i.e., all their genetic ancestors who ever lived),
-and so we wanted to quantify
-``How much of the true relationships does this ARG represent?''
-However, it is worth noting that the symmetrized version
-$d(\T_1,\T_2) = \dis(\T_1,\T_2) + \dis(\T_2, \T_1)$ is a metric.
-To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$,
-and view each ARG as a subset of the space $[0,L) \times N \times N$,
-where $N$ is the shared set of nodes.
-Then, dissimilarity is the Lebesgue measure of the relative difference of the two sets:
-$|\T_1 \setminus \T_2|$,
-and so the symmetrized version is the measure of the symmetric difference
-$|\T_1\Delta\T_2|$,
-which is well-known to be a metric \citep{rudin1976principles}. 
-If the two ARGs have the same number of nodes,
-we can consider all bijections between their nodes.
-The symmetric difference between $\T_1$ and $\T_2$,
-related through each bijection is a metric.
-Then the minimum over all such metrics will still be a metric
-since the minimum over a finite number of metrics is also a metric.
-This also extends to two tree sequences with different numbers of nodes,
-$|N_1|\neq|N_2|$, as we can take the minimum over all possible matchings $T_1\to\T_2$ and $\T_2\to\T_1$.
-
-The Robinson-Foulds distance \citep{robinson1981comparison}
-essentially counts the number of differing branches between two trees;
-the averaged Robinson-Foulds distance \citep{kelleher2019inferring}
-averages this distance across marginal trees, weighted by span along the genome.
-The method we present here for measuring dissimilarity between topologies of ARGs
-is a straightforward generalization
-that takes into account span along the genome of inferred ancestral haplotypes
-(and separates the metric into two pieces as discussed in the previous paragraph).
-However, the Robinson-Foulds metric has many undesirable properties --
-for instance, moving a single tip can result in a tree with maximum distance to the original --
-and there is a substantial literature giving more robust generalizations
-\citep[reviewed by][]{llabres2021generalized}.
-Many of these generalizations \citep[e.g.,][]{bocker2013generalized}
-relax the requirement that the match between subtended sample sets be exact,
-and weight matches in some way by the size of the dissimilarity.
-We considered such definitions as well, but kept to the simple case
-for computational tractability --
-the generalization of \citet{bocker2013generalized} is NP-hard to compute, even for a single tree.
-In the ARG literature, \citet{zhang2023biobankscale}
-defines a metric (called ``ARG total variation distance'') that includes branch lengths,
-in a way similar to \citet{robinson1979comparison} and \citet{kuhner1994simulation};
-however, it is still applied to ARGs as an average over marginal trees,
-without enforcement of identity across haplotypes;
-it would be useful to extend our dissimilarity to include branch lengths.
 
 \paragraph{Parsimony}
 Much of the early work on ARG inference aimed to extract as much information as possible
