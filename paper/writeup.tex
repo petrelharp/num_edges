@@ -1101,7 +1101,7 @@ of subtending samples.)
 
 We began this study with the observation that the simple transformation
 of \figref{fig:extending_diagram} would reduce the number of edges
-in the succinct tree sequence representation of the ARG.
+in the succinct tree sequence representation ARGs.
 This is essentially a recombination-based parsimony argument,
 and we have shown that this line of reasoning
 leads to ARGs that are substantially more compact and faster to operate on,
@@ -1135,21 +1135,21 @@ affects downstream uses.
 The efficient computational tools we have implemented (in \tskit{})
 should facilitate this exploration.
 
-\paragraph{Ignorance and omission in the ARG}
-As motivation, we presented above a ``historical'' view of the ARG --
+\paragraph{Ignorance and omission in an ARG}
+As motivation, we presented above a ``historical'' view of ARGs --
 i.e., that each aspect of an inferred ARG is intended to represent
 a portion of some particular historical genome
 (for instance, the MRCA of some set of sampled genomes).
 Furthermore, \figref[A\&B]{fig:conceptual} implicitly takes the position
-that relationships \emph{not} depicted in the ARG are implied to not exist.
+that relationships \emph{not} depicted in an ARG are implied to not exist.
 An alternative interpretation
 of the ARG depicted in \figref[A\&B]{fig:conceptual} would be that we have no information as to 
 how node 2 inherited from node 4 on the right-hand interval,
 rather than saying that the line of transmission specifically did not pass
 through node 3.
-The ``simplification'' algorithm of \citet{kelleher2018efficient},
-or the Hudson algorithm for coalescent simulation
-as implemented in \msprime{} \citep{kelleher2016efficient},
+The ``simplification'' algorithm~\citep{kelleher2018efficient}
+and the Hudson algorithm for coalescent
+simulation~\citep{hudson1983properties,kelleher2016efficient}
 each specifically discard information about any such ``non-coalescent'' portions of ancestral haplotypes;
 so for ARGs produced by these algorithms, the correct interpretation is that
 the omission of unary spans reflects a lack of knowledge.
