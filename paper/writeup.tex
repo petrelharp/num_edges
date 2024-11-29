@@ -710,9 +710,11 @@ We then define the \emph{dissimilarity} of $\T_1$ from $\T_2$ by
 which is the total span for all nodes in $\T_1$
 over which their descendant samples do \emph{not} match those of their best match in $\T_2$.
 
-Other authors \citep[e.g.,][]{kelleher2019inferring} have used
-an average Robinson-Foulds distance \citep{robinson1981comparison}
-as a measure of disagreement between tree sequences.
+First proposed by~\cite{kuhner2015assessing}, a common approach 
+is to use a weighted average Robinson-Foulds (RF) distance
+% Other authors \citep[e.g.,][]{kelleher2019inferring} have used
+% an average Robinson-Foulds distance \citep{robinson1981comparison}
+as a measure of disagreement between ARGs.
 This could be computed in a very similar way:
 instead of $m(n, \alpha(n))$ define
 \begin{align*}
@@ -724,27 +726,30 @@ whose set of descendant samples matches those of $n$, and
     m'(n, \T_2) = \sum_{k \in \mathcal{M}'(\T_1, n; \T_2)}^N (a_k - a_{k-1})
 \end{align*}
 the total span over which $n$ finds a match.
-Then the average Robinson-Foulds distance (averaged over locations in the genome)
+Then the average RF distance (averaged over locations in the genome)
 is
 \begin{align*}
     \frac{1}{L} \left( \sum_{n_1 \in N_1} m'(n_1, \T_2)  + \sum_{n_2 \in N_2} m'(n_2, \T_1) \right).
 \end{align*}
 In other words, we require a node in $\T_1$ to match the \emph{same} node in $\T_2$
-across all trees, but average Robinson-Foulds distance allows a different node to match
+across all trees, but average RF distance allows a different node to match
 on each tree.
-The other differences are that \emph{average} Robinson-Foulds distance
+The other differences are that \emph{average} RF distance
 normalizes by sequence length, and is symmetrized.
-Robinson-Foulds distance between two trees
+The RF distance between two trees
 was defined by \citet{robinson1981comparison}
-to the minimum number of edge contraction/expansion operations needed to move
+% JK - change edge->branch here to avoid confusion with tskit/ARG edge
+to be the minimum number of branch contraction/expansion operations needed to move
 from one tree to the other
-(which they then show is equal to the number of edges that induce different splits on the labels).
-A similar metric on tree sequences could be defined
+(which they then show is equal to the number of edges 
+that induce different splits on the labels).
+A similar metric on ARGs could be defined
 using the subgraph-prune-and-regraft moves used by \citet{deng2024robust}.
 
 The dissimilarity $\dis(\T_1, \T_2)$ measures disagreement between \emph{topologies},
 but not times.
-If the tree sequence is dated, we can naturally use the ``best match'' $\alpha$
+If the ARG is dated~\citep{wohns2022unified}, 
+we can naturally use the ``best match'' $\alpha$
 to also compare times.
 Empirically, dating error seems to be more or less homoskedastic on a log scale,
 so we recommend 
@@ -763,9 +768,9 @@ is more impactful for a node with a longer span.
 
 The implementation of this method in \texttt{tscompare}
 additionally produces relative values:
-the ancestral recombination graph Robinson-Foulds value (dissimilarity relative to $\T_1$)
+the ARG RF value (dissimilarity relative to $\T_1$)
 and true proportion represented (similarity relative to $\T_2$).
-The \emph{ARG Robinson-Foulds} (which we call ``ARF'') is defined to be the dissimilarity proportional
+The ARG RF (which we call ``ARF'') is defined to be the dissimilarity proportional
  to the total span of nodes in $\T_1$,
  \begin{align}\label{eqn:dissimilarity}
  	\operatorname{ARF}(\T_1,\T_2)=\frac{\dis(\T_1,\T_2)}{\Vert \T_1 \Vert}
