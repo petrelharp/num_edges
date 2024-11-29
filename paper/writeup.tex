@@ -1181,15 +1181,15 @@ since the minimum over a finite number of metrics is also a metric.
 This also extends to two tree sequences with different numbers of nodes,
 $|N_1|\neq|N_2|$, as we can take the minimum over all possible matchings $T_1\to\T_2$ and $\T_2\to\T_1$.
 
-The Robinson-Foulds distance \citep{robinson1981comparison}
+The RF distance \citep{robinson1981comparison}
 essentially counts the number of differing branches between two trees;
-the averaged Robinson-Foulds distance \citep{kelleher2019inferring}
+the averaged RF distance~\citep{kuhner2015assessing}
 averages this distance across marginal trees, weighted by span along the genome.
 The method we present here for measuring dissimilarity between topologies of ARGs
 is a straightforward generalization
 that takes into account span along the genome of inferred ancestral haplotypes
 (and separates the metric into two pieces as discussed in the previous paragraph).
-However, the Robinson-Foulds metric has many undesirable properties --
+However, the RF metric has many undesirable properties --
 for instance, moving a single tip can result in a tree with maximum distance to the original --
 and there is a substantial literature giving more robust generalizations
 \citep[reviewed by][]{llabres2021generalized}.
