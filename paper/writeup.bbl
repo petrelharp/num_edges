@@ -1,4 +1,4 @@
-\begin{thebibliography}{34}
+\begin{thebibliography}{41}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
 \bibitem[{{\sc Adrion} {\em et~al.\/}(2020){\sc Adrion}, {\sc Cole}, {\sc
@@ -44,6 +44,13 @@
   using ancestral recombination graphs.
 \newblock Genetics {\bf 221}: iyac044.
 
+\bibitem[{{\sc Brandt} {\em et~al.\/}(2024){\sc Brandt}, {\sc Huber}, {\sc
+  Chiang} and {\sc Ortega-Del~Vecchyo}}]{brandt2024promise}
+{\sc Brandt, D.~Y.}, {\sc C.~D. Huber}, {\sc C.~W. Chiang}, and {\sc
+  D.~Ortega-Del~Vecchyo}, 2024 The promise of inferring the past using the
+  ancestral recombination graph.
+\newblock Genome Biology and Evolution {\bf 16}: evae005.
+
 \bibitem[{{\sc Campbell} {\em et~al.\/}(2016){\sc Campbell}, {\sc Bhérer},
   {\sc Morrow}, {\sc Boyko} and {\sc Auton}}]{campbell2016}
 {\sc Campbell, C.~L.}, {\sc C.~Bhérer}, {\sc B.~E. Morrow}, {\sc A.~R. Boyko},
@@ -88,6 +95,11 @@
   recombination using parsimony.
 \newblock Mathematical Biosciences {\bf 98}: 185--200.
 
+\bibitem[{{\sc Hudson}(1983)}]{hudson1983properties}
+{\sc Hudson, R.~R.}, 1983 Properties of a neutral allele model with intragenic
+  recombination.
+\newblock Theoretical Population Biology {\bf 23}: 183--201.
+
 \bibitem[{{\sc Hudson} and {\sc Kaplan}(1985)}]{hudson1985statistical}
 {\sc Hudson, R.~R.}, and {\sc N.~L. Kaplan}, 1985 Statistical properties of the
   number of recombination events in the history of a sample of {DNA} sequences.
@@ -130,10 +142,20 @@
   large population datasets.
 \newblock Nature Genetics {\bf 51}: 1330--1338.
 
+\bibitem[{{\sc Kendall} and {\sc Colijn}(2016)}]{kendall2016mapping}
+{\sc Kendall, M.}, and {\sc C.~Colijn}, 2016 Mapping phylogenetic trees to
+  reveal distinct patterns of evolution.
+\newblock Molecular Biology and Evolution {\bf 33}: 2735--2743.
+
 \bibitem[{{\sc Kuhner} and {\sc Felsenstein}(1994)}]{kuhner1994simulation}
 {\sc Kuhner, M.~K.}, and {\sc J.~Felsenstein}, 1994 A simulation comparison of
   phylogeny algorithms under equal and unequal evolutionary rates.
 \newblock Molecular Biology and Evolution {\bf 11}: 459--468.
+
+\bibitem[{{\sc Kuhner} and {\sc Yamato}(2015)}]{kuhner2015assessing}
+{\sc Kuhner, M.~K.}, and {\sc J.~Yamato}, 2015 Assessing differences between
+  ancestral recombination graphs.
+\newblock Journal of Molecular Evolution {\bf 80}: 258--264.
 
 \bibitem[{{\sc Kuhner} {\em et~al.\/}(2000){\sc Kuhner}, {\sc Yamato} and {\sc
   Felsenstein}}]{kuhner2000maximum}
@@ -165,12 +187,24 @@
   number of recombination events in a sample history.
 \newblock Genetics {\bf 163}: 375–394.
 
+\bibitem[{{\sc Nielsen} {\em et~al.\/}(2024){\sc Nielsen}, {\sc Vaughn} and
+  {\sc Deng}}]{nielsen2024inference}
+{\sc Nielsen, R.}, {\sc A.~H. Vaughn}, and {\sc Y.~Deng}, 2024 Inference and
+  applications of ancestral recombination graphs.
+\newblock Nature Reviews Genetics : 1--12.
+
 \bibitem[{{\sc Ralph} {\em et~al.\/}(2020){\sc Ralph}, {\sc Thornton} and {\sc
   Kelleher}}]{ralph2020efficiently}
 {\sc Ralph, P.}, {\sc K.~Thornton}, and {\sc J.~Kelleher}, 2020 Efficiently
   summarizing relationships in large samples: A general duality between
   statistics of genealogies and genomes.
 \newblock Genetics : genetics.303253.2020.
+
+\bibitem[{{\sc Rasmussen} {\em et~al.\/}(2014){\sc Rasmussen}, {\sc Hubisz},
+  {\sc Gronau} and {\sc Siepel}}]{rasmussen2014genome}
+{\sc Rasmussen, M.~D.}, {\sc M.~J. Hubisz}, {\sc I.~Gronau}, and {\sc
+  A.~Siepel}, 2014 Genome-wide inference of ancestral recombination graphs.
+\newblock PLOS Genetics {\bf 10}: e1004342.
 
 \bibitem[{{\sc Robinson} and {\sc Foulds}(1981)}]{robinson1981comparison}
 {\sc Robinson, D.}, and {\sc L.~Foulds}, 1981 Comparison of phylogenetic trees.
@@ -209,6 +243,14 @@
   networks with recombination.
 \newblock Journal of computational biology : a journal of computational
   molecular cell biology {\bf 8}: 69--78.
+
+\bibitem[{{\sc Wohns} {\em et~al.\/}(2022){\sc Wohns}, {\sc Wong}, {\sc
+  Jeffery}, {\sc Akbari}, {\sc Mallick} {\em et~al.\/}}]{wohns2022unified}
+{\sc Wohns, A.~W.}, {\sc Y.~Wong}, {\sc B.~Jeffery}, {\sc A.~Akbari}, {\sc
+  S.~Mallick}, {\sc R.~Pinhasi}, {\sc N.~Patterson}, {\sc D.~Reich}, {\sc
+  J.~Kelleher}, and {\sc G.~McVean}, 2022 A unified genealogy of modern and
+  ancient genomes.
+\newblock Science {\bf 375}: eabi8264.
 
 \bibitem[{{\sc Wong} {\em et~al.\/}(2024){\sc Wong}, {\sc Ignatieva}, {\sc
   Koskela}, {\sc Gorjanc}, {\sc Wohns} {\em et~al.\/}}]{wong2024general}

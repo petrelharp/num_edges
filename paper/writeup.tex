@@ -1,7 +1,10 @@
 \documentclass[10pt,twoside,lineno]{gsajnl}
 \articletype{inv} % article type
 
-\usepackage[dvipsnames]{xcolor}
+% JK Had to change the xcolor import here and turn off
+% the OliveGreen bit below to get this to compile
+% \usepackage[dvipsnames]{xcolor}
+\usepackage[]{xcolor}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{natbib}
@@ -13,7 +16,8 @@
 \hypersetup{
 	pagebackref=true,
 	colorlinks = true,
-	allcolors = OliveGreen}
+}
+	% allcolors = OliveGreen}
 
 \SetKwInput{input}{Input}
 \SetKwInput{output}{Output}
@@ -109,13 +113,17 @@
     Foreshadowing haplotype-based methods of the genomics era,
     it is an old observation that the ``junction'' between two distinct haplotypes
     produced by recombination is inherited as a Mendelian marker.
+    % JK: do we though? The only application to inference we have is from
+    % tsinfer, where the results are pretty equivocal. I'd suggest rephrasing
+    % this to focus on the inherent information content of an ARG above and 
+    % beyond the local trees.
     In this paper, we describe how this recombination-mediated information
     can in many cases be recovered from inference based solely on polymorphic markers.
     In a genealogical context, this information reflects the persistence
     of ancestral haplotypes across marginal genealogical trees in which they
     do not represent coalescences.
     We show how these non-coalescing haplotypes (``unary regions'') may be
-    inserted into the ancestral recombination graph (ARG), a compact
+    inserted into ancestral recombination graphs (ARGs), a compact
     but information-rich data structure describing the genealogical
     relationships among recombinant sequences.
     The resulting ARGs are smaller, faster to compute with,
@@ -123,8 +131,8 @@
     is nearly always correct where the initial ARG is correct.
     We provide efficient algorithms to infer unary regions within existing ARGs,
     and explore some consequences for ARGs inferred from real data.
-    To do this, we introduce new metrics of agreement and disagreement between inferred ARGs
-    that, unlike previous methods, consider the ARG as describing relationships between haplotypes
+    To do this, we introduce new metrics of agreement and disagreement between ARGs
+    that, unlike previous methods, consider ARGs as describing relationships between haplotypes
     rather than just a collection of trees.
 \end{abstract}
 
@@ -204,12 +212,13 @@
 % * what's a tree sequence
 % * why is a tree sequence (motivation)
 
-There has been substantial recent progress
-in the problem of ``ARG inference'',
-which seeks to infer (portions of) the ancestral recombination graph (or, ARG)
-that describes how a set of genotypes samples are related to each other
-at each position of the genome \citep{speidel2019method,kelleher2019inferring,zhang2023biobankscale,deng2024robust,lewanski2024introduction}.
-One way of viewing the ARG is as a sequence of local trees,
+Ancestral recombination graphs (ARGs) describe how a set of sampled sequences 
+are related to each other at each position of the genome in a recombining
+species~\citep{brandt2024promise,lewanski2024introduction,nielsen2024inference,
+wong2024general}, and there has been significant recent progress 
+on inference through a range of approaches~\citep{rasmussen2014genome,
+speidel2019method,kelleher2019inferring,zhang2023biobankscale,deng2024robust}.
+One way of viewing ARGs is as a sequence of marginal trees,
 i.e., the genealogical trees that describe how each portion of the genome
 was inherited by the focal genomes.
 This is reflected in methodology of some ARG inference methods
@@ -222,12 +231,12 @@ is a common format for describing these inferred ARGs,
 and is seeing wide use thanks in part to its efficiency and accompanying reliable toolkit,
 \tskit{} \citep{tskit,ralph2020efficiently}.
 
-However, the ARG is emphatically not merely a sequence of trees:
+However, an ARG is emphatically not merely a sequence of trees:
 viewed another way, it describes inheritance relationships between ancestral haplotypes.
 These two points of view are related because a single haplotype
 may extend over many local trees;
 in other words, the internal nodes in the trees are labeled, and many of these labels
-are shared between adjacent trees.
+are shared between adjacent trees~\citep{wong2024general}.
 
 Another reason we tend to focus on the trees is that
 much of our intuition about inference of relationships from genomic data
@@ -253,7 +262,8 @@ depend only on the sequence of local trees,
 not on how ancestral haplotypes span across these trees.
 For instance, \citet{kelleher2019inferring} and \citet{zhang2023biobankscale}
 compared true and inferred ARGs
-using average Robinson-Foulds and Kendall-Colijn distances between trees
+using average Robinson-Foulds~\citep{robinson1981comparison} and 
+Kendall-Colijn~\citep{kendall2016mapping} distances between trees
 across a regular sequence of genomic positions,
 using sampled genotypes as labels,
 while \citet{brandt2022evaluation} compared times to most recent common ancestor
@@ -342,7 +352,7 @@ How can we do this, and how accurate is the resulting inference?
     \caption{
         A simple example showing the basic idea
         (described in more detail in the text):
-        \textbf{(A)} a small portion of a ARG without unary nodes;
+        \textbf{(A)} a small portion of an ARG without unary nodes;
         \textbf{(B)} the implied inheritance pattern of the two portions of the haplotype carried by ancestral node 4,
         labeled $L$ and $R$;
         \textbf{(C)} local trees with a unary node added,
@@ -356,7 +366,7 @@ How can we do this, and how accurate is the resulting inference?
 
 \subsection{Notation and terminology}
 
-We work with the \emph{succinct tree sequence} representation of the ARG (henceforth, ``tree sequence''),
+We work with the \emph{succinct tree sequence} representation of ARGs (henceforth, ``tree sequence''),
 to take advantage of the extensive, stable, and well-documented set of open-source tools
 available in \tskit{} \citep{tskit}, 
 and our terminology and notation follows \citet{ralph2020efficiently}.
@@ -370,7 +380,7 @@ Some nodes are \emph{samples}, meaning that they represent genome sequences avai
 % Typically, samples are exclusively leaves of $\T$, however it is not the case that all samples are leaves.
 Each edge $e \in E$ describes inheritance between a parent node $p_e$ and child node $c_e$,
 over a segment of genome $[\ell_e, r_e)$.
-(The tree sequence includes substantially more information, including genotypes, that we will not use in this paper.)
+(The tree sequence data structure typically includes substantially more information, including genotypes, that we will not use in this paper.)
 Suppose that the unique elements of the set of left and right edge endpoints
 are $0 = a_0 < a_1 < \cdots < a_{n} = L$, where $L$ is the length of the genome.
 Using this information, one can construct the sequence of 
@@ -432,7 +442,8 @@ and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
 }
 \end{figure}
 
-A relatively efficient algorithm to do this is described in \algorithmref{alg:extend}, 
+% JK note: earlier version said "relatively" - relative to what?
+An efficient algorithm to do this is described in \algorithmref{alg:extend}, 
 and implemented in \tskit{} as \texttt{extend\_haplotypes}.
 The algorithm considers each tree transition from $T_k$ to $T_{k+1}$ in turn, updating its internal state
 (which includes possibly modifying $T_k$) as it goes.
@@ -584,7 +595,7 @@ need to be updated.
     }
 \end{algorithm2e}
 
-Since the algorithm needs to take multiple passes over the tree sequence
+Because the algorithm needs to take multiple passes over the tree sequence
 in each direction,
 an important practical question for this algorithm is:
 how many passes do we need to do?
@@ -592,7 +603,7 @@ The algorithm is monotone (spans of ancestral nodes only increase),
 so it is guaranteed to terminate in a finite number of passes,
 but it is also not hard to construct pathological cases that require an arbitrary number of passes.
 However, experimentation suggests that 
-in practice only at most five iterations are needed before the algorithm terminates.
+in practice at most five iterations are needed before the algorithm terminates.
 Indeed, for even large sequences \tabref{tab:edge-counts}
 shows that 99\% of all changes to an ARG occur after the first iteration,
 with the algorithm always completing after four iterations. 
@@ -653,7 +664,7 @@ let $S(T, n)$ denote the set of samples that inherit from $n$ in $T$,
 and for a pair of nodes $n_1$ and $n_2$ with $n_1$ in $\T_1$ and $n_2$ in $\T_2$,
 define
 \begin{align*}
-	\mathcal{M}(n1, n2) = \left\{ k : S\left(T^{(1)}_k,\ n_1\right) = S\left(T^{(2)}_k,\ n_2\right) \right\},
+	\mathcal{M}(n_1, n_2) = \left\{ k : S\left(T^{(1)}_k,\ n_1\right) = S\left(T^{(2)}_k,\ n_2\right) \right\},
 \end{align*}
 to be the indices of all trees where $n_1$ and $n_2$ are ancestral to the same sample set in both ARGs.
 Further, we define
@@ -706,9 +717,9 @@ We then define the \emph{dissimilarity} of $\T_1$ from $\T_2$ by
 which is the total span for all nodes in $\T_1$
 over which their descendant samples do \emph{not} match those of their best match in $\T_2$.
 
-Other authors \citep[e.g.,][]{kelleher2019inferring} have used
-an average Robinson-Foulds distance \citep{robinson1981comparison}
-as a measure of disagreement between tree sequences.
+A common measure of disagreement between ARGs, 
+first proposed by~\cite{kuhner2015assessing}, 
+is to use a weighted average Robinson-Foulds (RF) distance.
 This could be computed in a very similar way:
 instead of $m(n, \alpha(n))$ define
 \begin{align*}
@@ -720,27 +731,30 @@ whose set of descendant samples matches those of $n$, and
     m'(n, \T_2) = \sum_{k \in \mathcal{M}'(\T_1, n; \T_2)} (a_k - a_{k-1})
 \end{align*}
 the total span over which $n$ finds a match.
-Then the average Robinson-Foulds distance (averaged over locations in the genome)
+Then the average RF distance (averaged over locations in the genome)
 is
 \begin{align*}
     \frac{1}{L} \left( \sum_{n_1 \in N_1} m'(n_1, \T_2)  + \sum_{n_2 \in N_2} m'(n_2, \T_1) \right).
 \end{align*}
 In other words, we require a node in $\T_1$ to match the \emph{same} node in $\T_2$
-across all trees, but average Robinson-Foulds distance allows a different node to match
+across all trees, but average RF distance allows a different node to match
 on each tree.
-The other differences are that \emph{average} Robinson-Foulds distance
+The other differences are that \emph{average} RF distance
 normalizes by sequence length, and is symmetrized.
-Robinson-Foulds distance between two trees
+The RF distance between two trees
 was defined by \citet{robinson1981comparison}
-to the minimum number of edge contraction/expansion operations needed to move
+% JK - change edge->branch here to avoid confusion with tskit/ARG edge
+to be the minimum number of branch contraction/expansion operations needed to move
 from one tree to the other
-(which they then show is equal to the number of edges that induce different splits on the labels).
-A similar metric on tree sequences could be defined
+(which they then show is equal to the number of edges 
+that induce different splits on the labels).
+A similar metric on ARGs could be defined
 using the subgraph-prune-and-regraft moves used by \citet{deng2024robust}.
 
 The dissimilarity $\dis(\T_1, \T_2)$ measures disagreement between \emph{topologies},
 but not times.
-If the tree sequence is dated, we can naturally use the ``best match'' $\alpha$
+If the ARG is dated~\citep{wohns2022unified}, 
+we can naturally use the ``best match'' $\alpha$
 to also compare times.
 Empirically, dating error seems to be more or less homoskedastic on a log scale,
 so we recommend 
@@ -759,9 +773,9 @@ is more impactful for a node with a longer span.
 
 The implementation of this method in \texttt{tscompare}
 additionally produces relative values:
-the ancestral recombination graph Robinson-Foulds value (dissimilarity relative to $\T_1$)
+the ARG RF value (dissimilarity relative to $\T_1$)
 and true proportion represented (similarity relative to $\T_2$).
-The \emph{ARG Robinson-Foulds} (which we call ``ARF'') is defined to be the dissimilarity proportional
+The ARG RF (which we call ``ARF'') is defined to be the dissimilarity proportional
  to the total span of nodes in $\T_1$,
  \begin{align}\label{eqn:dissimilarity}
  	\operatorname{ARF}(\T_1,\T_2)=\frac{\dis(\T_1,\T_2)}{\Vert \T_1 \Vert}
@@ -822,15 +836,15 @@ since the minimum over a finite number of metrics is also a metric.
 This also extends to two tree sequences with different numbers of nodes,
 $|N_1|\neq|N_2|$, as we can take the minimum over all possible matchings $T_1\to\T_2$ and $\T_2\to\T_1$.
 
-The Robinson-Foulds distance \citep{robinson1981comparison}
+The RF distance \citep{robinson1981comparison}
 essentially counts the number of differing branches between two trees;
-the averaged Robinson-Foulds distance \citep{kelleher2019inferring}
-averages this distance across local trees, weighted by span along the genome.
+the averaged RF distance~\citep{kuhner2015assessing}
+averages this distance across marginal trees, weighted by span along the genome.
 The method we present here for measuring dissimilarity between topologies of ARGs
 is a straightforward generalization
 that takes into account span along the genome of inferred ancestral haplotypes
 (and separates the metric into two pieces as discussed in the previous paragraph).
-However, the Robinson-Foulds metric has many undesirable properties --
+However, the RF metric has many undesirable properties --
 for instance, moving a single tip can result in a tree with maximum distance to the original --
 and there is a substantial literature giving more robust generalizations
 \citep[reviewed by][]{llabres2021generalized}.
@@ -843,7 +857,7 @@ the generalization of \citet{bocker2013generalized} is NP-hard to compute, even 
 In the ARG literature, \citet{zhang2023biobankscale}
 defines a metric (called ``ARG total variation distance'') that includes branch lengths,
 in a way similar to \citet{robinson1979comparison} and \citet{kuhner1994simulation};
-however, it is still applied to ARGs as an average over local trees,
+however, it is still applied to ARGs as an average over marginal trees,
 without enforcement of identity across haplotypes;
 it would be useful to extend our dissimilarity to include branch lengths.
 
@@ -865,7 +879,7 @@ it only outputs information for nodes which contain a coalescence
 (i.e., are the MRCA of some pair of samples at some point on the genome).
 Furthermore, by default it only outputs those segments of the genome
 on which there is a coalescence.
-Said another way, by default all ancestral nodes in the ARG
+Said another way, by default all ancestral nodes in an ARG
 output by \msprime{} are the MRCA of some pair of samples at every point in the genome
 on which they are represented.
 However, here we are interested in those segments of genome
@@ -965,7 +979,7 @@ for a typical statistic (here, Tajima's $D$),
 computed in an efficient incremental manner along the genome as implemented in \tskit.
 As described in \citet{ralph2020efficiently}, for these incremental algorithms
 the addition or removal of an edge requires updates
-to the state of the parent node and all nodes above it.
+to the state of the parent node and all nodes ancestral to it.
 Extending haplotypes yields a tree sequence with fewer edge removals and insertions, 
 and thus requires fewer traversals to the roots.
 
@@ -986,7 +1000,8 @@ Our next task is to confirm that the haplotypes extended by \algorithmref{alg:ex
 are indeed correct -- i.e., that in addition to compression, we are also gaining information.
 To do this, 
 we simulate ARGs containing full haplotypes using \msprime{},
-apply the simplification algorithm to reduce these so that there are no unary nodes
+apply the simplification algorithm~\citep{kelleher2018efficient,wong2024general}
+to reduce these so that there are no unary nodes
 (i.e., any node present in a local tree is a coalescent node or a sample),
 and then apply \algorithmref{alg:extend} to the result
 (see Methods for more detail).
@@ -1054,7 +1069,7 @@ showing that the total amount of mis-matching span
 produced by extending haplotypes is very small ($\approx 1\%$).
 (Simplification does not produce dissimilarity.)
 The bottom row shows the proportion of the original ARG that is represented in the given ARG (TRP).
-This shows that a large proportion of the ARG can be removed by simplification,
+This shows that a large proportion of an ARG can be removed by simplification,
 indicating that coalescent nodes are unary
 over a substantial portion of their spans.
 (Since the \texttt{simplify} operations removes these unary portions of haplotypes,
@@ -1098,11 +1113,14 @@ and extending haplotypes can infer more than half of this span from coalescent i
 So far, we have demonstrated that there is potentially ample information
 in the coalescent-only trees to extend haplotypes.
 Does this work with \emph{inferred} ARGs?
-Indeed, \tsinfer{} provides inferred ARGS already containing unary nodes;
-to what degree are they taking advantage of this information already?
-Here, we study the behavior of \tsinfer{}, which produces unary nodes as a
-byproduct of its inference algorithm,
-and leave a comparison across other ARG inference methods for future work.
+As illustrated by~\cite{wong2024general}, there is a significant diversity
+in the structures inferred by current methods,
+and here we focus on \tsinfer{}~\cite{kelleher2019inferring} which 
+infers ARGs containing unary nodes as a byproduct of its inference algorithm.
+% Note this seems pretty weak and is sure to be dinged. We could at least 
+% comment on what we might observe with other inference methods? Would we 
+% recommend that people extend_edges() for their SINGER or Relate ARGs?
+A comparison across other ARG inference methods is left for future work.
 We simulated ARGs containing unary-spanning haplotypes (as above), then
 re-inferred ARGs from the associated genotypes and performed various operations
 on the results.
@@ -1150,7 +1168,7 @@ of subtending samples.)
 
 We began this study with the observation that the simple transformation
 of \figref{fig:extending_diagram} would reduce the number of edges
-in the succinct tree sequence representation of the ARG.
+in the succinct tree sequence representation ARGs.
 This is essentially a recombination-based parsimony argument,
 and we have shown that this line of reasoning
 leads to ARGs that are substantially more compact and faster to operate on,
@@ -1184,21 +1202,21 @@ affects downstream uses.
 The efficient computational tools we have implemented (in \tskit{})
 should facilitate this exploration.
 
-\paragraph{Ignorance and omission in the ARG}
-As motivation, we presented above a ``historical'' view of the ARG --
+\paragraph{Ignorance and omission in an ARG}
+As motivation, we presented above a ``historical'' view of ARGs --
 i.e., that each aspect of an inferred ARG is intended to represent
 a portion of some particular historical genome
 (for instance, the MRCA of some set of sampled genomes).
 Furthermore, \figref[A\&B]{fig:conceptual} implicitly takes the position
-that relationships \emph{not} depicted in the ARG are implied to not exist.
+that relationships \emph{not} depicted in an ARG are implied to not exist.
 An alternative interpretation
 of the ARG depicted in \figref[A\&B]{fig:conceptual} would be that we have no information as to 
 how node 2 inherited from node 4 on the right-hand interval,
 rather than saying that the line of transmission specifically did not pass
 through node 3.
-The ``simplification'' algorithm of \citet{kelleher2018efficient},
-or the Hudson algorithm for coalescent simulation
-as implemented in \msprime{} \citep{kelleher2016efficient},
+The ``simplification'' algorithm~\citep{kelleher2018efficient}
+and the Hudson algorithm for coalescent
+simulation~\citep{hudson1983properties,kelleher2016efficient}
 each specifically discard information about any such ``non-coalescent'' portions of ancestral haplotypes;
 so for ARGs produced by these algorithms, the correct interpretation is that
 the omission of unary spans reflects a lack of knowledge.
