@@ -3,8 +3,8 @@
 
 % JK Had to change the xcolor import here and turn off
 % the OliveGreen bit below to get this to compile
-% \usepackage[dvipsnames]{xcolor}
-\usepackage[]{xcolor}
+\usepackage[dvipsnames]{xcolor}
+%\usepackage[]{xcolor}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{natbib}
@@ -16,8 +16,7 @@
 \hypersetup{
 	pagebackref=true,
 	colorlinks = true,
-}
-	% allcolors = OliveGreen}
+	allcolors = OliveGreen}
 
 \SetKwInput{input}{Input}
 \SetKwInput{output}{Output}
@@ -120,7 +119,7 @@
     In this paper, we describe how this recombination-mediated information
     can in many cases be recovered from inference based solely on polymorphic markers.
     In a genealogical context, this information reflects the persistence
-    of ancestral haplotypes across marginal genealogical trees in which they
+    of ancestral haplotypes across local genealogical trees in which they
     do not represent coalescences.
     We show how these non-coalescing haplotypes (``unary regions'') may be
     inserted into ancestral recombination graphs (ARGs), a compact
@@ -218,7 +217,7 @@ species~\citep{brandt2024promise,lewanski2024introduction,nielsen2024inference,
 wong2024general}, and there has been significant recent progress 
 on inference through a range of approaches~\citep{rasmussen2014genome,
 speidel2019method,kelleher2019inferring,zhang2023biobankscale,deng2024robust}.
-One way of viewing ARGs is as a sequence of marginal trees,
+One way of viewing ARGs is as a sequence of local trees,
 i.e., the genealogical trees that describe how each portion of the genome
 was inherited by the focal genomes.
 This is reflected in methodology of some ARG inference methods
@@ -281,7 +280,7 @@ distances along the genome between tree topology changes, and
 that is the total variation distance between the induced distribution on genotypes;
 neither of which measure the sharing of haplotypes between adjacent trees.
 However, the additional information provided by haplotype structure can be important:
-for instance, haplotypes that extend over many marginal genealogies
+for instance, haplotypes that extend over many local genealogies
 ``tie together'' those genealogies, allowing estimates of times of particular ancestors
 to be informed by larger portions of the genome on which there are many genealogies.
 
@@ -313,7 +312,7 @@ which finds a common ancestor with node 0 in ancestral node 4.
 On the next portion of the genome (right-hand tree), sample node 2 has a different ancestor.
 This seems reasonable, and a method that infers trees separately on each portion of the genome
 could not be expected to produce anything different.
-However, the example becomes more complicated once we consider what these marginal genealogies imply about haplotype inheritance.
+However, the example becomes more complicated once we consider what these local genealogies imply about haplotype inheritance.
 \figref[B]{fig:conceptual} shows the implied inheritance of haplotypes,
 with the haplotypes carried by 4 to the left and right of the recombination breakpoint labeled $L$ and $R$.
 Here, sample node 2 has inherited the chunk of haplotype labeled $L$ from ancestral node 4 via 3,
@@ -834,12 +833,12 @@ related through each bijection is a metric.
 Then the minimum over all such metrics will still be a metric
 since the minimum over a finite number of metrics is also a metric.
 This also extends to two tree sequences with different numbers of nodes,
-$|N_1|\neq|N_2|$, as we can take the minimum over all possible matchings $T_1\to\T_2$ and $\T_2\to\T_1$.
+$|N_1|\neq|N_2|$, as we can take the minimum over all possible matchings $\T_1\to\T_2$ and $\T_2\to\T_1$.
 
 The RF distance \citep{robinson1981comparison}
 essentially counts the number of differing branches between two trees;
 the averaged RF distance~\citep{kuhner2015assessing}
-averages this distance across marginal trees, weighted by span along the genome.
+averages this distance across local trees, weighted by span along the genome.
 The method we present here for measuring dissimilarity between topologies of ARGs
 is a straightforward generalization
 that takes into account span along the genome of inferred ancestral haplotypes
@@ -857,7 +856,7 @@ the generalization of \citet{bocker2013generalized} is NP-hard to compute, even 
 In the ARG literature, \citet{zhang2023biobankscale}
 defines a metric (called ``ARG total variation distance'') that includes branch lengths,
 in a way similar to \citet{robinson1979comparison} and \citet{kuhner1994simulation};
-however, it is still applied to ARGs as an average over marginal trees,
+however, it is still applied to ARGs as an average over local trees,
 without enforcement of identity across haplotypes;
 it would be useful to extend our dissimilarity to include branch lengths.
 
