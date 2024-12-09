@@ -121,14 +121,14 @@
     In a genealogical context, this information reflects the persistence
     of ancestral haplotypes across local genealogical trees in which they
     do not represent coalescences.
-    We show how these non-coalescing haplotypes (``unary regions'') may be
+    We show how these non-coalescing haplotypes (``locally-unary nodes'') may be
     inserted into ancestral recombination graphs (ARGs), a compact
     but information-rich data structure describing the genealogical
     relationships among recombinant sequences.
     The resulting ARGs are smaller, faster to compute with,
     and the additional ancestral information that is inserted
     is nearly always correct where the initial ARG is correct.
-    We provide efficient algorithms to infer unary regions within existing ARGs,
+    We provide efficient algorithms to infer locally-unary nodes within existing ARGs,
     and explore some consequences for ARGs inferred from real data.
     To do this, we introduce new metrics of agreement and disagreement between ARGs
     that, unlike previous methods, consider ARGs as describing relationships between haplotypes
@@ -346,7 +346,7 @@ How can we do this, and how accurate is the resulting inference?
 
 \begin{figure}
     \begin{center}
-    \includegraphics[width=0.9\textwidth]{conceptual_figure.pdf}
+    \includegraphics[width=0.9\textwidth]{figures/conceptual_figure.pdf}
     \end{center}
     \caption{
         A simple example showing the basic idea
@@ -427,7 +427,7 @@ and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
 
 \begin{figure}[!ht]
 \begin{center}
-	\includegraphics[width=5in]{edge_extend_method.pdf}
+	\includegraphics[width=5in]{figures/edge_extend_method.pdf}
 \end{center}
 \caption{A visualization of the \textit{extend haplotypes} method.
     In both trees $T_1$ and $T_2$,
@@ -628,8 +628,8 @@ we define a measure of \emph{dissimilarity} to quantify this.
 The method is implemented in the \texttt{tscompare} package.
 
 It is helpful to first describe what we compute in the simple case.
-We will first simulate tree sequences in such a way that
-the unary regions of coalescent haplotypes are retained.
+We will first simulate tree sequences where
+nodes that are unary in local trees between coalescent haplotypes are retained.
 Then, each node is present in both tree sequences,
 and we can quantify, for each node, how much of their span is correct or incorrect
 by comparing to the original, true tree sequence.
@@ -794,8 +794,8 @@ We compute dissimilarity and ARF of two tree sequences in \figref{fig:conceptual
 
 \begin{figure}[!ht]
 	\begin{center}
-\includegraphics[height=1.5in, width=3in]{discrepancy_func_method_t1.pdf}
-\includegraphics[height=1.5in, width=3in]{discrepancy_function_method_t2.pdf}
+\includegraphics[height=1.5in, width=3in]{figures/discrepancy_func_method_t1.pdf}
+\includegraphics[height=1.5in, width=3in]{figures/discrepancy_function_method_t2.pdf}
     \caption{
         For two tree sequences $T1$ and $T2$ the \emph{dissimilarity}, $\dis(T1,T2)$, matches nodes in $T1$ to nodes in $T2$
         based on identical sample sets.
@@ -1034,7 +1034,7 @@ the algorithm typically increases spans (i.e., lengths of ancestral haplotypes)
 by around 50\%.
 
 \begin{figure}[!bht]
-	\includegraphics{newplots_wo_ee/figure-4.pdf}
+	\includegraphics[width=\textwidth]{figures/Figure4-plt.pdf}
 	\caption{
         The effect of extending haplotypes on per-node spans
         in an ARG simulated with $10^4$ diploid samples, $10^4$ population, and 
@@ -1046,7 +1046,7 @@ by around 50\%.
         Amount of incorrectly added span, plotted against total span, by node.
         95\% of nodes have no incorrect span; of the remainder,
         nearly all have less than 5\% incorrectly added;
-        see Supplementary \figref{fig:incorrect_ratio}.
+        see Supplementary \figref{fig:incorrect_ratio}. Note the log scale on both the $x$ and $y$ axes.
         Plots \textbf{(C)} and \textbf{(D)} show total spans per node,
         ordered by total span in the original ARG (which includes unary nodes).
         Dark blue dots in both show the spans in this original ARG.
@@ -1085,7 +1085,7 @@ and extending haplotypes can infer more than half of this span from coalescent i
 
 \begin{figure}[!hbt]
 	\begin{center}
-        \includegraphics[width=\textwidth]{figure5.pdf}
+        \includegraphics[width=\textwidth]{figures/Figure5-plt.pdf}
 	\end{center}
     \caption{
         Accuracy and sensitivity of extended haplotypes
@@ -1256,6 +1256,9 @@ and at least SINGER contains information about unary nodes in its internal forma
 On the other hand, locally building trees separately in each segment of genome as is done by Relate \cite{speidel2019method}
 simply does not provide this sort of haplotype-based information (although it might be added using a method like ours).
 
+\section{Acknowledgments}
+The authors would like to thank Dr. Yan Wong for his suggestions and insights for ARGs with locally-unary nodes.
+
 \bibliography{references}
 
 \appendix
@@ -1301,7 +1304,7 @@ simply does not provide this sort of haplotype-based information (although it mi
 \end{figure}
 
 \begin{figure}[!hbt]
-	\includegraphics{newplots_wo_ee/figure-4b-supplement}
+	\includegraphics[width=\textwidth]{figures/Figure4S-plt-nonzero.pdf}
 	\caption{Distribution of incorrectly added span percentages
 		for the simulated tree sequence in \figref{fig:node-spans}.}
 	\label{fig:incorrect_ratio}
