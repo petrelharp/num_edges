@@ -621,7 +621,7 @@ it is straightforward to remove the portions of each node's span on which it is 
 apply \algorithmref{alg:extend},
 and quantify how much node span was correctly or incorrectly added.
 However, we are also interested in whether \algorithmref{alg:extend}
-improves \emph{inferred} ARG.
+improves \emph{inferred} ARGs.
 Since we are not aware of any current methods for measuring (dis)agreement between ARGs
 that take into account haplotype identity,
 we define a measure of \emph{dissimilarity} to quantify this.
@@ -684,7 +684,7 @@ where the maximum is over all mappings $\beta$ of nodes in $\T_1$ to nodes in $\
 (Note that multiple nodes in $\T_1$ may be mapped to the same node in $\T_2$,
 and that there some nodes in $\T_2$ may not be mapped to by any nodes in $\T_1$.)
 Since the maximum is independent over nodes, we may define for each node $n_1 \in \T_1$
-its' \emph{best matching node} in $\T_2$ as
+its \emph{best matching node} in $\T_2$ as
 \begin{align*}
     \alpha(n_1) = \argmax_{n_2 \in N_2} m(n_1, n_2) ,
 \end{align*}
@@ -867,7 +867,7 @@ Our new method \textit{extend haplotypes} is applicable to any ARG.
 However its accuracy depends on the overall structure of the ARG it is applied to. 
 Additionally, as \textit{ARG Robinson-Foulds}
 is given as a proportion of node spans
-its' value is also dependent on the pair of input ARGs. 
+its value is also dependent on the pair of input ARGs. 
 Thus to understand how well our methods can infer ancestral haplotypes we 
 work with simulated tree sequences with a large variety in parameter choice.
 To do this, we simulate ARGs containing full haplotypes using \msprime{}
@@ -1092,10 +1092,10 @@ and extending haplotypes can infer more than half of this span from coalescent i
         across a range of sample sizes, on a sequence of length $5\times10^7$ (right)
         and sequence lengths, with 1,000 diploid samples (left).
         For each, a simulated ARG containing unary haplotype spans
-        was (i) \emph{simplified}, removing the unary spans,
-        and (ii) \emph{inferred}, using \tsinfer{} on genotypes;
-        then each of these had its haplotypes \emph{extended}.
-        The inferred, then simplified, ARG is also shown.
+        was (i) \emph{simplified} (`S'), removing the unary spans,
+        and (ii) \emph{inferred} (`I'), using \tsinfer{} on genotypes;
+        then each of these had its haplotypes \emph{extended} (`SE', `IE').
+        The inferred, then simplified, ARG ('IS') and its subsequent extension (`ISE') are also shown.
         \textbf{Top row:} ARF, the dissimilarity to the true ARG,
         as proportion of haplotypes that are not represented in the true ARG
         (\eqnref{eqn:dissimilarity}).
@@ -1243,18 +1243,18 @@ and thus more likely.
 For this reason, it will occasionally be wrong even if the trees are correct,
 although in practice this source of error is likely much smaller than error in tree inference itself.
 
-\paragraph{Inference methods}
-Clearly, there is ample information in genomic data to infer the extent of ancestral haplotypes even where they are unary,
-and this has the potential to significantly inform downstream methods, especially dating.
-However, currently not all ARG inference methods return ARGs with unary nodes.
-For instance, we have seen that tsinfer returns ARGs to which the method presented here adds little --
-so, seems to be already taking advantage of this source of information.
-To our knowledge, methods based on threading (sequentially adding or removing haplotypes) such as
-SINGER \citep{deng2024robust} and ARGNeedle \citep{zhang2023biobankscale} return ARGs without any unary nodes,
-although there is no conceptual issue with incorporating unary haplotypes into threading algorithms,
-and at least SINGER contains information about unary nodes in its internal format.
-On the other hand, locally building trees separately in each segment of genome as is done by Relate \cite{speidel2019method}
-simply does not provide this sort of haplotype-based information (although it might be added using a method like ours).
+%\paragraph{Inference methods}
+%Clearly, there is ample information in genomic data to infer the extent of ancestral haplotypes even where they are unary,
+%and this has the potential to significantly inform downstream methods, especially dating.
+%However, currently not all ARG inference methods return ARGs with unary nodes.
+%For instance, we have seen that tsinfer returns ARGs to which the method presented here adds little --
+%so, seems to be already taking advantage of this source of information.
+%To our knowledge, methods based on threading (sequentially adding or removing haplotypes) such as
+%SINGER \citep{deng2024robust} and ARGNeedle \citep{zhang2023biobankscale} return ARGs without any unary nodes,
+%although there is no conceptual issue with incorporating unary haplotypes into threading algorithms,
+%and at least SINGER contains information about unary nodes in its internal format.
+%On the other hand, locally building trees separately in each segment of genome as is done by Relate \cite{speidel2019method}
+%simply does not provide this sort of haplotype-based information (although it might be added using a method like ours).
 
 \section{Acknowledgments}
 The authors would like to thank Dr. Yan Wong for his helpful comments and suggestions.
