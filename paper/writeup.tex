@@ -121,14 +121,14 @@
     In a genealogical context, this information reflects the persistence
     of ancestral haplotypes across local genealogical trees in which they
     do not represent coalescences.
-    We show how these non-coalescing haplotypes (``unary regions'') may be
+    We show how these non-coalescing haplotypes (``locally-unary nodes'') may be
     inserted into ancestral recombination graphs (ARGs), a compact
     but information-rich data structure describing the genealogical
     relationships among recombinant sequences.
     The resulting ARGs are smaller, faster to compute with,
     and the additional ancestral information that is inserted
     is nearly always correct where the initial ARG is correct.
-    We provide efficient algorithms to infer unary regions within existing ARGs,
+    We provide efficient algorithms to infer locally-unary nodes within existing ARGs,
     and explore some consequences for ARGs inferred from real data.
     To do this, we introduce new metrics of agreement and disagreement between ARGs
     that, unlike previous methods, consider ARGs as describing relationships between haplotypes
@@ -628,8 +628,8 @@ we define a measure of \emph{dissimilarity} to quantify this.
 The method is implemented in the \texttt{tscompare} package.
 
 It is helpful to first describe what we compute in the simple case.
-We will first simulate tree sequences in such a way that
-the unary regions of coalescent haplotypes are retained.
+We will first simulate tree sequences where
+nodes that are unary in local trees between coalescent haplotypes are retained.
 Then, each node is present in both tree sequences,
 and we can quantify, for each node, how much of their span is correct or incorrect
 by comparing to the original, true tree sequence.
@@ -1255,6 +1255,9 @@ although there is no conceptual issue with incorporating unary haplotypes into t
 and at least SINGER contains information about unary nodes in its internal format.
 On the other hand, locally building trees separately in each segment of genome as is done by Relate \cite{speidel2019method}
 simply does not provide this sort of haplotype-based information (although it might be added using a method like ours).
+
+\section{Acknowledgments}
+The authors would like to thank Dr. Yan Wong for his helpful comments and suggestions.
 
 \bibliography{references}
 
