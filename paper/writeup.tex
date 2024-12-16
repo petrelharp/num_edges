@@ -298,7 +298,6 @@ These measures show that the vast majority of these extended haplotypes are corr
 and that substantial information about haplotypes is contained in these nodes
 in inferred trees as well.
 
-
 \subsection{Motivation and statement of problem}
 
 % PETER
@@ -1209,7 +1208,8 @@ a portion of some particular historical genome
 (for instance, the MRCA of some set of sampled genomes).
 Furthermore, \figref[A\&B]{fig:conceptual} implicitly takes the position
 that relationships \emph{not} depicted in an ARG are implied to not exist.
-An alternative interpretation
+As discussed in \citet{wong2024general},
+an alternative interpretation
 of the ARG depicted in \figref[A\&B]{fig:conceptual} would be that we have no information as to 
 how node 2 inherited from node 4 on the right-hand interval,
 rather than saying that the line of transmission specifically did not pass
@@ -1228,7 +1228,7 @@ out of the small datasets of the time,
 and so, roughly speaking, integrated over possible ARGs
 with the goal of inferring higher-level parameters:
 mostly, scaled mutation rate and recombination rate
-\citep[e.g.,][]{hudson1985statistical,griffiths1996ancestral,kuhner2000maximum,stephens2000inference,fearnhead2001estimating}.
+(for instance, \citet{hudson1985statistical,griffiths1996ancestral,kuhner2000maximum,stephens2000inference,fearnhead2001estimating}).
 However, the space of possible ARGs for a given dataset is extremely large,
 and other work aimed to identify the minimum number of recombinations
 needed to explain a given dataset under the infinite alleles model of mutation
@@ -1238,6 +1238,7 @@ For instance, \citet{minichiello2006mapping}
 used a heuristic algorithm to produce ``plausible'' ARGs
 (i.e., those that explained the data with few mutations and recombinations),
 and searched for associations with traits in the resulting ensemble of ARGs.
+(See \citet{wong2024general} for more historical discussion.)
 Our approach for extending haplotypes follows the same logic,
 that an ARG with fewer recombination events is more parsimonious,
 and thus more likely.
