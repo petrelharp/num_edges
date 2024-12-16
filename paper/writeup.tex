@@ -1201,6 +1201,7 @@ affects downstream uses.
 The efficient computational tools we have implemented (in \tskit{})
 should facilitate this exploration.
 
+
 \paragraph{Ignorance and omission in an ARG}
 As motivation, we presented above a ``historical'' view of ARGs --
 i.e., that each aspect of an inferred ARG is intended to represent
@@ -1242,6 +1243,24 @@ that an ARG with fewer recombination events is more parsimonious,
 and thus more likely.
 For this reason, it will occasionally be wrong even if the trees are correct,
 although in practice this source of error is likely much smaller than error in tree inference itself.
+
+\paragraph{IBD in ARGs}
+The term ``identity by descent'' (IBD) is used to mean many different (but related) things,
+and length distributions of shared IBD segments can be used for inference of recent demographic history
+\citep[for instance,][]{alasadi2018estimating,ringbauer2017inferring,browning2015accurate}.
+A commonly-used definition in the context of a given ARG says that
+the two genomes share an IBD segment if each has inherited the segment from their common ancestor
+along a single path \citep{ralph2013geography}.
+Largely for computational reasons, this is the definition that is used in \tskit's
+IBD-finding methods 
+(by G.~Tsambos \citet{tskit}; see also \citet{tsambos2023link}).
+However, many simulation and inference methods produce ARGs
+as shown in \figref[A\&B]{fig:conceptual},
+in which inheritance of a single segment is represented by more than one edge.
+This means that the \texttt{ibd\_segments} method of \tskit{} will return shorter segments than it ought to.
+However, applying our method of extending haplotypes
+will remove this issue, and so should make returned IBD segments
+more closely match those predicted by theory.
 
 %\paragraph{Inference methods}
 %Clearly, there is ample information in genomic data to infer the extent of ancestral haplotypes even where they are unary,
