@@ -1253,9 +1253,16 @@ However, many simulation and inference methods produce ARGs
 as shown in \figref[A\&B]{fig:conceptual},
 in which inheritance of a single segment is represented by more than one edge.
 This means that the \texttt{ibd\_segments} method of \tskit{} will return shorter segments than it ought to.
-However, applying our method of extending haplotypes
-will remove this issue, and so should make returned IBD segments
-more closely match those predicted by theory.
+However, as we have shown above,
+our method of extending haplotypes will modify the tree sequence
+so that the inherited segment is represented by a single edge
+(as in \figref[C\&D]{fig:conceptual}).
+So, if our method (\texttt{extend_haplotypes}) is applied before finding IBD segments
+(with  \texttt{ibd\_segments}),
+then the resulting segments should much more accurately represent
+the IBD segments (in the ``path'' sense used here) implied by the tree sequence.
+(Whether the resulting segments better match those predicted by theory depends
+also on the quality of tree inference.)
 Further work is needed to understand how accurately IBD segments
 are inferred by various ARG inference methods.
 
