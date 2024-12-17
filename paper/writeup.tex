@@ -80,7 +80,7 @@
 
 \title{
     A forest is more than its trees:
-    haplotypes and inferred ARGs
+    haplotypes and ancestral recombination graphs
 }
 
 % Information in recombination junctions can both compress and improve inferred tree sequences
@@ -94,7 +94,7 @@
 \author[$\dagger$]{Halley Fritze}
 \author[$\ast$]{Nathaniel Pope}
 \author[$\ddagger$]{Jerome Kelleher}
-\author[$\ast$,$\dagger$,S]{Peter Ralph}
+\author[$\ast$,$\dagger$,\S]{Peter Ralph}
 
 \affil[$\ast$]{Institute of Evolution and Ecology and Department of Biology, University of Oregon, Eugene, Oregon}
 \affil[$\dagger$]{Department of Mathematics, University of Oregon, Eugene, Oregon}
@@ -112,13 +112,7 @@
     Foreshadowing haplotype-based methods of the genomics era,
     it is an old observation that the ``junction'' between two distinct haplotypes
     produced by recombination is inherited as a Mendelian marker.
-    % JK: do we though? The only application to inference we have is from
-    % tsinfer, where the results are pretty equivocal. I'd suggest rephrasing
-    % this to focus on the inherent information content of an ARG above and 
-    % beyond the local trees.
-    In this paper, we describe how this recombination-mediated information
-    can in many cases be recovered from inference based solely on polymorphic markers.
-    In a genealogical context, this information reflects the persistence
+    In a genealogical context, this recombination-mediated information reflects the persistence
     of ancestral haplotypes across local genealogical trees in which they
     do not represent coalescences.
     We show how these non-coalescing haplotypes (``locally-unary nodes'') may be
@@ -297,7 +291,6 @@ but account for haplotype identity.
 These measures show that the vast majority of these extended haplotypes are correct if the trees are correct,
 and that substantial information about haplotypes is contained in these nodes
 in inferred trees as well.
-
 
 \subsection{Motivation and statement of problem}
 
@@ -1201,6 +1194,7 @@ affects downstream uses.
 The efficient computational tools we have implemented (in \tskit{})
 should facilitate this exploration.
 
+
 \paragraph{Ignorance and omission in an ARG}
 As motivation, we presented above a ``historical'' view of ARGs --
 i.e., that each aspect of an inferred ARG is intended to represent
@@ -1208,7 +1202,8 @@ a portion of some particular historical genome
 (for instance, the MRCA of some set of sampled genomes).
 Furthermore, \figref[A\&B]{fig:conceptual} implicitly takes the position
 that relationships \emph{not} depicted in an ARG are implied to not exist.
-An alternative interpretation
+As discussed in \citet{wong2024general},
+an alternative interpretation
 of the ARG depicted in \figref[A\&B]{fig:conceptual} would be that we have no information as to 
 how node 2 inherited from node 4 on the right-hand interval,
 rather than saying that the line of transmission specifically did not pass
@@ -1227,7 +1222,7 @@ out of the small datasets of the time,
 and so, roughly speaking, integrated over possible ARGs
 with the goal of inferring higher-level parameters:
 mostly, scaled mutation rate and recombination rate
-\citep[e.g.,][]{hudson1985statistical,griffiths1996ancestral,kuhner2000maximum,stephens2000inference,fearnhead2001estimating}.
+(for instance, \citet{hudson1985statistical,griffiths1996ancestral,kuhner2000maximum,stephens2000inference,fearnhead2001estimating}).
 However, the space of possible ARGs for a given dataset is extremely large,
 and other work aimed to identify the minimum number of recombinations
 needed to explain a given dataset under the infinite alleles model of mutation
@@ -1237,11 +1232,39 @@ For instance, \citet{minichiello2006mapping}
 used a heuristic algorithm to produce ``plausible'' ARGs
 (i.e., those that explained the data with few mutations and recombinations),
 and searched for associations with traits in the resulting ensemble of ARGs.
+(See \citet{wong2024general} for more historical discussion.)
 Our approach for extending haplotypes follows the same logic,
 that an ARG with fewer recombination events is more parsimonious,
 and thus more likely.
 For this reason, it will occasionally be wrong even if the trees are correct,
 although in practice this source of error is likely much smaller than error in tree inference itself.
+
+\paragraph{IBD in ARGs}
+The term ``identity by descent'' (IBD) is used to mean many different (but related) things,
+and length distributions of shared IBD segments can be used for inference of recent demographic history
+\citep[for instance,][]{alasadi2018estimating,ringbauer2017inferring,browning2015accurate,yang2016rapidly,silcocks2023indigenous,huang2024estimating}.
+A commonly-used definition in the context of a given ARG says that
+the two genomes share an IBD segment if each has inherited the segment from their common ancestor
+along a single path \citep{ralph2013geography}.
+Largely for computational reasons, this is the definition that is used in \tskit's
+IBD-finding methods 
+(by G.~Tsambos \citet{tskit}; see also \citet{tsambos2023link}).
+However, many simulation and inference methods produce ARGs
+as shown in \figref[A\&B]{fig:conceptual},
+in which inheritance of a single segment is represented by more than one edge.
+This means that the \texttt{ibd\_segments} method of \tskit{} will return shorter segments than it ought to.
+However, as we have shown above,
+our method of extending haplotypes will modify the tree sequence
+so that the inherited segment is represented by a single edge
+(as in \figref[C\&D]{fig:conceptual}).
+So, if our method (\texttt{extend_haplotypes}) is applied before finding IBD segments
+(with  \texttt{ibd\_segments}),
+then the resulting segments should much more accurately represent
+the IBD segments (in the ``path'' sense used here) implied by the tree sequence.
+(Whether the resulting segments better match those predicted by theory depends
+also on the quality of tree inference.)
+Further work is needed to understand how accurately IBD segments
+are inferred by various ARG inference methods.
 
 %\paragraph{Inference methods}
 %Clearly, there is ample information in genomic data to infer the extent of ancestral haplotypes even where they are unary,
