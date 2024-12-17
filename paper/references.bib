@@ -1063,3 +1063,37 @@ DOI  - 10.1016/j.ajhg.2012.08.030},
   year = 2023
 }
 
+
+@article{huang2024estimating,
+	author = {Huang, Zhendong and Kelleher, Jerome and Chan, Yao-ban and Balding, David J.},
+	title = {Estimating evolutionary and demographic parameters via ARG-derived IBD},
+	elocation-id = {2024.03.07.583855},
+	year = {2024},
+	doi = {10.1101/2024.03.07.583855},
+	publisher = {Cold Spring Harbor Laboratory},
+	abstract = {Inference of demographic and evolutionary parameters from a sample of genome sequences often proceeds by first inferring identical-by-descent (IBD) genome segments. By exploiting efficient data encoding based on the ancestral recombination graph (ARG), we obtain three major advantages over current approaches: (i) no need to impose a length threshold on IBD segments, (ii) IBD can be defined without the hard-to-verify requirement of no recombination, and (iii) computation time can be reduced with little loss of statistical efficiency using only the IBD segments from a set of sequence pairs that scales linearly with sample size. We first demonstrate powerful inferences when true IBD information is available from simulated data. For IBD inferred from real data, we propose an approximate Bayesian computation inference algorithm and use it to show that poorly-inferred short IBD segments can improve estimation precision. We show estimation precision similar to a previously-published estimator despite a 4 000-fold reduction in data used for inference. Computational cost limits model complexity in our approach, but we are able to incorporate unknown nuisance parameters and model misspecification, still finding improved parameter inference.Author summary Samples of genome sequences can be informative about the history of the population from which they were drawn, and about mutation and other processes that led to the observed sequences. However, obtaining reliable inferences is challenging, because of the complexity of the underlying processes and the large amounts of sequence data that are often now available. A common approach to simplifying the data is to use only genome segments that are very similar between two sequences, called identical-by-descent (IBD). The longer the IBD segment the more informative about recent shared ancestry, and current approaches restrict attention to IBD segments above a length threshold. We instead are able to use IBD segments of any length, allowing us to extract much more information from the sequence data. To reduce the computation burden we identify subsets of the available sequence pairs that lead to little information loss. Our approach exploits recent advances in inferring aspects of the ancestral recombination graph (ARG) underlying the sample of sequences. Computational cost still limits the size and complexity of problems our method can handle, but where feasible we obtain dramatic improvements in the power of inferences.Competing Interest StatementThe authors have declared no competing interest.},
+	URL = {https://www.biorxiv.org/content/early/2024/03/13/2024.03.07.583855.1},
+	eprint = {https://www.biorxiv.org/content/early/2024/03/13/2024.03.07.583855.1.full.pdf},
+	journal = {bioRxiv}
+}
+
+@article{yang2016rapidly,
+  added-at = {2024-12-17T01:54:29.000+0100},
+  author = {Yang, Shuo and Carmi, Shai and Pe’er, Itsik},
+  biburl = {https://www.bibsonomy.org/bibtex/25d52bab317420507257379786293b1fc/peter.ralph},
+  doi = {10.1089/cmb.2016.0016},
+  interhash = {fb6e8569cd03c267afece8a7dbff3a90},
+  intrahash = {5d52bab317420507257379786293b1fc},
+  issn = {1557-8666},
+  journal = {Journal of Computational Biology},
+  keywords = {IBD},
+  month = jun,
+  number = 6,
+  pages = {495–507},
+  publisher = {Mary Ann Liebert Inc},
+  timestamp = {2024-12-17T01:54:29.000+0100},
+  title = {Rapidly Registering Identity-by-Descent Across Ancestral Recombination Graphs},
+  url = {http://dx.doi.org/10.1089/cmb.2016.0016},
+  volume = 23,
+  year = 2016
+}

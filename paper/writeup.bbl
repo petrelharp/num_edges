@@ -1,4 +1,4 @@
-\begin{thebibliography}{41}
+\begin{thebibliography}{49}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
 \bibitem[{{\sc Adrion} {\em et~al.\/}(2020){\sc Adrion}, {\sc Cole}, {\sc
@@ -14,6 +14,12 @@
   A.~Siepel}, {\sc J.~Kelleher}, and {\sc A.~D. Kern}, 2020 A
   community-maintained standard library of population genetic models.
 \newblock {eLife} {\bf 9}.
+
+\bibitem[{{\sc Al-Asadi} {\em et~al.\/}(2018){\sc Al-Asadi}, {\sc Petkova},
+  {\sc Stephens} and {\sc Novembre}}]{alasadi2018estimating}
+{\sc Al-Asadi, H.}, {\sc D.~Petkova}, {\sc M.~Stephens}, and {\sc J.~Novembre},
+  2018 Estimating recent migration and population size surfaces.
+\newblock bioRxiv .
 
 \bibitem[{{\sc Baumdicker} {\em et~al.\/}(2021){\sc Baumdicker}, {\sc
   Bisschop}, {\sc Goldstein}, {\sc Gower}, {\sc Ragsdale} {\em
@@ -50,6 +56,12 @@
   D.~Ortega-Del~Vecchyo}, 2024 The promise of inferring the past using the
   ancestral recombination graph.
 \newblock Genome Biology and Evolution {\bf 16}: evae005.
+
+\bibitem[{{\sc Browning} and {\sc Browning}(2015)}]{browning2015accurate}
+{\sc Browning, S.~R.}, and {\sc B.~L. Browning}, 2015 Accurate non-parametric
+  estimation of recent effective population size from segments of identity by
+  descent.
+\newblock The American Journal of Human Genetics {\bf 97}: 404 -- 418.
 
 \bibitem[{{\sc Campbell} {\em et~al.\/}(2016){\sc Campbell}, {\sc Bhérer},
   {\sc Morrow}, {\sc Boyko} and {\sc Auton}}]{campbell2016}
@@ -94,6 +106,12 @@
 {\sc Hein, J.}, 1990 Reconstructing evolution of sequences subject to
   recombination using parsimony.
 \newblock Mathematical Biosciences {\bf 98}: 185--200.
+
+\bibitem[{{\sc Huang} {\em et~al.\/}(2024){\sc Huang}, {\sc Kelleher}, {\sc
+  Chan} and {\sc Balding}}]{huang2024estimating}
+{\sc Huang, Z.}, {\sc J.~Kelleher}, {\sc Y.-b. Chan}, and {\sc D.~J. Balding},
+  2024 Estimating evolutionary and demographic parameters via arg-derived ibd.
+\newblock bioRxiv .
 
 \bibitem[{{\sc Hudson}(1983)}]{hudson1983properties}
 {\sc Hudson, R.~R.}, 1983 Properties of a neutral allele model with intragenic
@@ -193,6 +211,11 @@
   applications of ancestral recombination graphs.
 \newblock Nature Reviews Genetics : 1--12.
 
+\bibitem[{{\sc Ralph} and {\sc Coop}(2013)}]{ralph2013geography}
+{\sc Ralph, P.}, and {\sc G.~Coop}, 2013 The geography of recent genetic
+  ancestry across {Europe}.
+\newblock PLoS Biol {\bf 11}: e1001555.
+
 \bibitem[{{\sc Ralph} {\em et~al.\/}(2020){\sc Ralph}, {\sc Thornton} and {\sc
   Kelleher}}]{ralph2020efficiently}
 {\sc Ralph, P.}, {\sc K.~Thornton}, and {\sc J.~Kelleher}, 2020 Efficiently
@@ -205,6 +228,12 @@
 {\sc Rasmussen, M.~D.}, {\sc M.~J. Hubisz}, {\sc I.~Gronau}, and {\sc
   A.~Siepel}, 2014 Genome-wide inference of ancestral recombination graphs.
 \newblock PLOS Genetics {\bf 10}: e1004342.
+
+\bibitem[{{\sc Ringbauer} {\em et~al.\/}(2017){\sc Ringbauer}, {\sc Coop} and
+  {\sc Barton}}]{ringbauer2017inferring}
+{\sc Ringbauer, H.}, {\sc G.~Coop}, and {\sc N.~H. Barton}, 2017 Inferring
+  recent demography from isolation by distance of long shared sequence blocks.
+\newblock Genetics {\bf 205}: 1335--1351.
 
 \bibitem[{{\sc Robinson} and {\sc Foulds}(1981)}]{robinson1981comparison}
 {\sc Robinson, D.}, and {\sc L.~Foulds}, 1981 Comparison of phylogenetic trees.
@@ -219,6 +248,17 @@
 \bibitem[{{\sc Rudin}(1976)}]{rudin1976principles}
 {\sc Rudin, W.}, 1976 {\em Principles of Mathematical Analysis\/}.
 \newblock International series in pure and applied mathematics. McGraw-Hill.
+
+\bibitem[{{\sc Silcocks} {\em et~al.\/}(2023){\sc Silcocks}, {\sc Farlow}, {\sc
+  Hermes}, {\sc Tsambos}, {\sc Patel} {\em et~al.\/}}]{silcocks2023indigenous}
+{\sc Silcocks, M.}, {\sc A.~Farlow}, {\sc A.~Hermes}, {\sc G.~Tsambos}, {\sc
+  H.~R. Patel}, {\sc S.~Huebner}, {\sc G.~Baynam}, {\sc M.~R. Jenkins}, {\sc
+  D.~Vukcevic}, {\sc S.~Easteal}, {\sc S.~Leslie}, {\sc {The National Centre
+  for Indigenous Genomics}}, {\sc A.~Farlow}, {\sc A.~Hermes}, {\sc H.~R.
+  Patel}, {\sc S.~Huebner}, {\sc G.~Baynam}, {\sc M.~R. Jenkins}, {\sc
+  S.~Easteal}, and {\sc S.~Leslie}, 2023 Indigenous {Australian} genomes show
+  deep structure and rich novel variation.
+\newblock Nature {\bf 624}: 593--601.
 
 \bibitem[{{\sc Song} and {\sc Hein}(2005)}]{song2005constructing}
 {\sc Song, Y.~S.}, and {\sc J.~Hein}, 2005 Constructing minimal ancestral
@@ -236,6 +276,13 @@
   population genetics.
 \newblock Journal of the Royal Statistical Society: Series B (Statistical
   Methodology) {\bf 62}: 605--635.
+
+\bibitem[{{\sc Tsambos} {\em et~al.\/}(2023){\sc Tsambos}, {\sc Kelleher}, {\sc
+  Ralph}, {\sc Leslie} and {\sc Vukcevic}}]{tsambos2023link}
+{\sc Tsambos, G.}, {\sc J.~Kelleher}, {\sc P.~Ralph}, {\sc S.~Leslie}, and {\sc
+  D.~Vukcevic}, 2023 link-ancestors: fast simulation of local ancestry with
+  tree sequence software.
+\newblock Bioinformatics Advances {\bf 3}: vbad163.
 
 \bibitem[{{\sc Wang} {\em et~al.\/}(2001){\sc Wang}, {\sc Zhang} and {\sc
   Zhang}}]{wang2001perfect}
@@ -258,6 +305,12 @@
   A.~W. Wohns}, and {\sc J.~Kelleher}, 2024 A general and efficient
   representation of ancestral recombination graphs.
 \newblock Genetics {\bf 228}: iyae100.
+
+\bibitem[{{\sc Yang} {\em et~al.\/}(2016){\sc Yang}, {\sc Carmi} and {\sc
+  Pe’er}}]{yang2016rapidly}
+{\sc Yang, S.}, {\sc S.~Carmi}, and {\sc I.~Pe’er}, 2016 Rapidly registering
+  identity-by-descent across ancestral recombination graphs.
+\newblock Journal of Computational Biology {\bf 23}: 495–507.
 
 \bibitem[{{\sc Zhang} {\em et~al.\/}(2023){\sc Zhang}, {\sc Biddanda}, {\sc
   Gunnarsson}, {\sc Cooper} and {\sc Palamara}}]{zhang2023biobankscale}
