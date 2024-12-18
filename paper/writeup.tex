@@ -1242,7 +1242,7 @@ although in practice this source of error is likely much smaller than error in t
 \paragraph{IBD in ARGs}
 The term ``identity by descent'' (IBD) is used to mean many different (but related) things,
 and length distributions of shared IBD segments can be used for inference of recent demographic history
-\citep[for instance,][]{alasadi2018estimating,ringbauer2017inferring,browning2015accurate,yang2016rapidly,silcocks2023indigenous,huang2024estimating}.
+\citep[for instance,][]{alasadi2018estimating,ringbauer2017inferring,browning2015accurate,yang2016rapidly,silcocks2023indigenous}.
 A commonly-used definition in the context of a given ARG says that
 the two genomes share an IBD segment if each has inherited the segment from their common ancestor
 along a single path \citep{ralph2013geography}.
@@ -1257,12 +1257,16 @@ However, as we have shown above,
 our method of extending haplotypes will modify the tree sequence
 so that the inherited segment is represented by a single edge
 (as in \figref[C\&D]{fig:conceptual}).
-So, if our method (\texttt{extend_haplotypes}) is applied before finding IBD segments
+So, if our method (\texttt{extend\_haplotypes}) is applied before finding IBD segments
 (with  \texttt{ibd\_segments}),
 then the resulting segments should much more accurately represent
 the IBD segments (in the ``path'' sense used here) implied by the tree sequence.
-(Whether the resulting segments better match those predicted by theory depends
-also on the quality of tree inference.)
+Whether the resulting segments better match those predicted by theory depends
+also on the quality of tree inference.
+Note also that \citet{huang2024estimating} and \citet{guo2024strong}
+both provide methods for tree sequences to compute a different definition of IBD
+(segments on which the MRCA does not change),
+which is unaffected by this issue.
 Further work is needed to understand how accurately IBD segments
 are inferred by various ARG inference methods.
 
