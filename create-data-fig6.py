@@ -25,32 +25,32 @@ for sample in samplelist:
 
     # compare
     I = tscompare.compare(infer_ts,ts)
-    print('I', I)
+    print(sample, 'I', I)
     sample_arf.loc['I', sample], sample_tpr.loc['I', sample] = I.arf, I.tpr
 
     ie = infer_ts.extend_paths()
     IE = tscompare.compare(ie,ts)
-    print('IE', IE)
+    print(sample, 'IE', IE)
     sample_arf.loc['IE', sample], sample_tpr.loc['IE', sample] = IE.arf, IE.tpr
     
     ss = ts.simplify()
     S = tscompare.compare(ss,ts)
-    print('S', S)
+    print(sample, 'S', S)
     sample_arf.loc['S', sample], sample_tpr.loc['S', sample] = S.arf, S.tpr
     
     sse = ss.extend_paths()
     SE = tscompare.compare(sse,ts)
-    print('SE', SE)
+    print(sample, 'SE', SE)
     sample_arf.loc['SE', sample],  sample_tpr.loc['SE', sample] = SE.arf, SE.tpr
 
     iis = infer_ts.simplify()
     IS = tscompare.compare(iis,ts)
-    print('IS', IS)
+    print(sample,'IS', IS)
     sample_arf.loc['IS', sample], sample_tpr.loc['IS', sample] = IS.arf, IS.tpr
 
     ise = iis.extend_paths()
     ISE = tscompare.compare(ise,ts)
-    print('ISE', ISE)
+    print(sample,'ISE', ISE)
     sample_arf.loc['ISE', sample], sample_tpr.loc['ISE', sample] = ISE.arf, ISE.tpr
     
 sample_arf.to_csv('figure6-arf-over-sample.csv')
@@ -79,25 +79,31 @@ for (length, name) in zip(lengthlist, names):
 
     # compare
     I = tscompare.compare(infer_ts,ts)
+    print(name, 'I', I)
     length_arf.loc['I', name], length_tpr.loc['I', name] = I.arf, I.tpr
     ie = infer_ts.extend_paths()
     IE = tscompare.compare(ie,ts)
+    print(name,'IE', IE)
     length_arf.loc['IE', name], length_tpr.loc['IE', name] = IE.arf, IE.tpr
     
     ss = ts.simplify()
     S = tscompare.compare(ss,ts)
+    print(name, 'S', S)
     length_arf.loc['S', name], length_tpr.loc['S', name] = S.arf, S.tpr
     
     sse = ss.extend_paths()
     SE = tscompare.compare(sse, ts)
+    print(name, 'SE', SE)
     length_arf.loc['SE',name],  length_tpr.loc['SE', name] = SE.arf, SE.tpr
 
     iis = infer_ts.simplify()
     IS = tscompare.compare(iis,ts)
+    print(name, 'IS', IS)
     length_arf.loc['IS', name], length_tpr.loc['IS', name] = IS.arf, IS.tpr
     
     ise = iis.extend_paths()
     ISE = tscompare.compare(ise,ts)
+    print(name, 'ISE', ISE)
     length_arf.loc['ISE', name], length_tpr.loc['ISE', name] = ISE.arf, ISE.tpr
     
 length_arf.to_csv('figure6-arf-over-length.csv')
