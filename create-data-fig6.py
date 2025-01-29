@@ -1,7 +1,7 @@
 import tskit
 import pandas as pd
 from remove_isolated_unary import remove_isolated_unary
-import COPYmethods as tscompare
+import tscompare
 
 # Data with varying sample
 samplelist = [10, 50, 100, 500, 1000]
@@ -28,7 +28,7 @@ for sample in samplelist:
     print(sample, 'I', I)
     sample_arf.loc['I', sample], sample_tpr.loc['I', sample] = I.arf, I.tpr
 
-    ie = infer_ts.extend_paths()
+    ie = infer_ts.extend_haplotypes()
     IE = tscompare.compare(ie,ts)
     print(sample, 'IE', IE)
     sample_arf.loc['IE', sample], sample_tpr.loc['IE', sample] = IE.arf, IE.tpr
@@ -38,7 +38,7 @@ for sample in samplelist:
     print(sample, 'S', S)
     sample_arf.loc['S', sample], sample_tpr.loc['S', sample] = S.arf, S.tpr
     
-    sse = ss.extend_paths()
+    sse = ss.extend_haplotypes()
     SE = tscompare.compare(sse,ts)
     print(sample, 'SE', SE)
     sample_arf.loc['SE', sample],  sample_tpr.loc['SE', sample] = SE.arf, SE.tpr
@@ -48,7 +48,7 @@ for sample in samplelist:
     print(sample,'IS', IS)
     sample_arf.loc['IS', sample], sample_tpr.loc['IS', sample] = IS.arf, IS.tpr
 
-    ise = iis.extend_paths()
+    ise = iis.extend_haplotypes()
     ISE = tscompare.compare(ise,ts)
     print(sample,'ISE', ISE)
     sample_arf.loc['ISE', sample], sample_tpr.loc['ISE', sample] = ISE.arf, ISE.tpr
@@ -81,7 +81,7 @@ for (length, name) in zip(lengthlist, names):
     I = tscompare.compare(infer_ts,ts)
     print(name, 'I', I)
     length_arf.loc['I', name], length_tpr.loc['I', name] = I.arf, I.tpr
-    ie = infer_ts.extend_paths()
+    ie = infer_ts.extend_haplotypes()
     IE = tscompare.compare(ie,ts)
     print(name,'IE', IE)
     length_arf.loc['IE', name], length_tpr.loc['IE', name] = IE.arf, IE.tpr
@@ -91,7 +91,7 @@ for (length, name) in zip(lengthlist, names):
     print(name, 'S', S)
     length_arf.loc['S', name], length_tpr.loc['S', name] = S.arf, S.tpr
     
-    sse = ss.extend_paths()
+    sse = ss.extend_haplotypes()
     SE = tscompare.compare(sse, ts)
     print(name, 'SE', SE)
     length_arf.loc['SE',name],  length_tpr.loc['SE', name] = SE.arf, SE.tpr
@@ -101,7 +101,7 @@ for (length, name) in zip(lengthlist, names):
     print(name, 'IS', IS)
     length_arf.loc['IS', name], length_tpr.loc['IS', name] = IS.arf, IS.tpr
     
-    ise = iis.extend_paths()
+    ise = iis.extend_haplotypes()
     ISE = tscompare.compare(ise,ts)
     print(name, 'ISE', ISE)
     length_arf.loc['ISE', name], length_tpr.loc['ISE', name] = ISE.arf, ISE.tpr
