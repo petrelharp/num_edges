@@ -8,6 +8,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{natbib}
+\usepackage{centernot}
 \usepackage[linesnumbered,ruled,vlined,algo2e]{algorithm2e}
 \usepackage{tikz}
 \usetikzlibrary{arrows, snakes,backgrounds}
@@ -34,7 +35,9 @@
 \newcommand{\msprime}{\texttt{msprime}}
 \newcommand{\argmax}{\operatorname{argmax}}
 \newcommand{\dis}{\operatorname{dis}}
-\newcommand{\similarity}{\operatorname{sim}}
+\newcommand{\match}{\underset{\longrightarrow}{\operatorname{match}}}
+\newcommand{\invmatch}{\underset{\longleftarrow}{\operatorname{match}}}
+\newcommand{\nmatch}{\underset{\centernot\longrightarrow}{\operatorname{match}}}
 \newcommand{\comment}[1]{{\color{violet} \it #1}}
 \newcommand{\pluseq}{\mathrel{{+}{=}}}
 
@@ -617,7 +620,7 @@ However, we are also interested in whether \algorithmref{alg:extend}
 improves \emph{inferred} ARGs.
 Since we are not aware of any current methods for measuring (dis)agreement between ARGs
 that take into account haplotype identity,
-we define a measure of \emph{dissimilarity} to quantify this.
+we define a measure of \emph{matched span} to quantify this.
 The method is implemented in the \texttt{tscompare} package.
 
 It is helpful to first describe what we compute in the simple case.
@@ -636,10 +639,10 @@ represent hypothetical ancestors which may or may not resemble the truth.)
 Call the two tree sequences $\T_1$ and $\T_2$, which should have the same genome length
 and the same set of sample nodes.
 We would like to measure (a) how much of $\T_1$ is found in $\T_2$;
-(b) how much of $\T_1$ is \emph{not} found in $\T_2$; and
-(c) how much of $\T_2$ is not found in $\T_1$.
-(Think of these three quantities as the size of the intersection
-and two differences between the tree sequences,
+(b) how much of $\T_2$ is found in $\T_1$; and
+(c) how much of $\T_1$ is \emph{not} found in $\T_2$.
+(Think of these three quantities as the sizes of two relative intersections
+and difference between the tree sequences,
 thought of vaguely as sets.)
 Roughly speaking, we first identify matching nodes
 as those whose sets of descendant samples agree for the largest span along the genome,
@@ -667,13 +670,14 @@ Further, we define
 \end{align*}
 which is the total span over which the samples below $n_1$ in $\T_1$
 matches the samples below $n_2$ in $\T_2$.
-The \emph{similarity} between $\T_1$ and $\T_2$ is then defined to be
+The \emph{matched span} of $\T_1$ in $\T_2$ is then defined to be
 \begin{align*}
-    \similarity(\T_1, \T_2)
+    \match(\T_1, \T_2)
     =
     \max_{\beta:N_1 \to N_2} \sum_{n \in N_1} m(n, \beta(n)) ,
 \end{align*}
-where the maximum is over all mappings $\beta$ of nodes in $\T_1$ to nodes in $\T_2$, and we require that samples in $\T_1$ are mapped to samples in $\T_2$.
+where the maximum is over all mappings $\beta$ of nodes in $\T_1$ to nodes in $\T_2$, 
+and we require that samples in $\T_1$ are mapped to samples in $\T_2$.
 (Note that multiple nodes in $\T_1$ may be mapped to the same node in $\T_2$,
 and that there some nodes in $\T_2$ may not be mapped to by any nodes in $\T_1$.)
 Since the maximum is independent over nodes, we may define for each node $n_1 \in \T_1$
@@ -682,32 +686,45 @@ its \emph{best matching node} in $\T_2$ as
     \alpha(n_1) = \argmax_{n_2 \in N_2} m(n_1, n_2) ,
 \end{align*}
 so that
-\begin{align*}
-    \similarity(\T_1, \T_2)
+\begin{align}
+    \match(\T_1, \T_2)
     =
     \sum_{n \in N_1} m(n, \alpha(n)) .
-\end{align*}
+\end{align}
 If the best-matching node is not unique, we define $\alpha(n_1)$ to be the node in $T_2$
 out of those maximizing $m(n_1, n_2)$ that minimizes $|t^{(1)}_{n_1} - t^{(2)}_{n_2}|$
 (and if \emph{this} is not unique, we pick an arbitrary one) --
-however, this potential ambiguity does not affect the definition of $\similarity(\T_1, \T_2)$.
-Let $\|\T_1\|=\sum_{n\in N_1}s(\T_1,n)$ be the total sum of nodes spans for nodes in $\T_1$,
-and let $s(\T,n)$ denote
-the total span that node $n$ is present in the local trees,
+however, this potential ambiguity does not affect the definition of $\match(\T_1, \T_2)$.
+Let $s(\T,n)$ denote the total span that node $n$ is present in the local trees,
 \begin{align*}
-    s(\T, n) = \sum_{k=1}^N (a_k - a_{k-1}) \ind_{n \in T_k} \quad ,
+	s(\T, n) = \sum_{k=1}^N (a_k - a_{k-1}) \ind_{n \in T_k} \quad ,
 \end{align*}
-where $\ind_{n \in T_k}$ is an indicator (i.e., it is 1 if $n \in T_k$ and 0 otherwise).
-We then define the \emph{dissimilarity} of $\T_1$ from $\T_2$ by
+where $\ind_{n \in T_k}$ is an indicator (i.e., it is 1 if $n \in T_k$ and 0 otherwise),
+and let $\|\T_1\|=\sum_{n\in N_1}s(\T_1,n)$ be the total sum of nodes spans for nodes in $\T_1$.
+We then define the \emph{non-matched span} of $\T_1$ in $\T_2$ by
 \begin{align*}
-    \dis(\T_1, \T_2)
-    =
+	\nmatch(\T_1,\T_2)
+	=
     \sum_{n \in N_1} (s(\T_1, n) - m(n, \alpha(n))) 
     = 
-    \Vert \T_1\Vert -\similarity(\T_1,\T_2),
+    \Vert \T_1\Vert -\match(\T_1,\T_2),
 \end{align*}
 which is the total span for all nodes in $\T_1$
-over which their descendant samples do \emph{not} match those of their best match in $\T_2$.
+over which their descendant samples do \emph{not} match
+ those of their best match in $\T_2$.
+Contrarily, given a matching $\beta:\T_1\to\T_2$, 
+we want to quantify how much of $\T_2$ is represented in $\T_1$.
+To do this, we define the \emph{inverse matched span} of $\T_1$ in $\T_2$ as
+\begin{align}
+	\invmatch(\T_1,\T_2) = \sum_{n_2\in N_2} \max_{n_1\in \alpha^{-1}(n_2)} m(n_1,n_2)
+\end{align}
+where $\alpha^{-1}(n_2)$ is the set of all nodes $n_1\in \T_1$ 
+whose best match is $n_2$.
+Note that the inverse matched span is not equivalent
+ to the matched span of $\T_2$ in $\T_1$ 
+ as the inverse matched span maximizes over spans
+  which are still dependent on $\beta$, 
+  and, as previously stated, $\beta$ is not guaranteed to be bijective.
 
 A common measure of disagreement between ARGs, 
 first proposed by~\cite{kuhner2015assessing}, 
@@ -743,7 +760,7 @@ that induce different splits on the labels).
 A similar metric on ARGs could be defined
 using the subgraph-prune-and-regraft moves used by \citet{deng2024robust}.
 
-The dissimilarity $\dis(\T_1, \T_2)$ measures disagreement between \emph{topologies},
+The matched span, $\match(\T_1, \T_2)$, measures agreement between \emph{topologies},
 but not times.
 If the ARG is dated~\citep{wohns2022unified}, 
 we can naturally use the ``best match'' $\alpha$
@@ -765,25 +782,25 @@ is more impactful for a node with a longer span.
 
 The implementation of this method in \texttt{tscompare}
 additionally produces relative values:
-the ARG RF value (dissimilarity relative to $\T_1$)
-and true proportion represented (similarity relative to $\T_2$).
-The ARG RF (which we call ``ARF'') is defined to be the dissimilarity proportional
+the ARG RF value (non-matched span relative to $\T_1$)
+and true proportion represented (inverse matched span relative to $\T_2$).
+The ARG RF (which we call ``ARF'') is defined to be the matched span proportional
  to the total span of nodes in $\T_1$,
  \begin{align}\label{eqn:dissimilarity}
- 	\operatorname{ARF}(\T_1,\T_2)=\frac{\dis(\T_1,\T_2)}{\Vert \T_1 \Vert}
- 	=1-\frac{\similarity(\T_1,\T_2)}{\Vert \T_1\Vert} ,
+ 	\operatorname{ARF}(\T_1,\T_2)
+ 	=1-\frac{\match(\T_1,\T_2)}{\Vert \T_1\Vert} ,
 \end{align}
 and so if $\T_2$ represents the truth, is analogous to a false positive rate.
-The \emph{true proportion represented} (TPR) is similarity between two trees relative 
-to the total span of nodes in $\T_2$,
+The \emph{true proportion represented} (TPR) is the inverse matched span between 
+two trees relative to the total span of nodes in $\T_2$,
 \begin{align}\label{eqn:true-proportion}
-	\operatorname{TPR}(\T_1,\T_2) = \frac{\similarity(\T_1,\T_2)}
+	\operatorname{TPR}(\T_1,\T_2) = \frac{\invmatch(\T_1,\T_2)}
 	{\Vert \T_2\Vert} ,
 \end{align}
 and is analogous to statistical power.
 The outputs framed as proportions relative to one of the given tree sequences is more easily understood
-for comparing pairs of tree sequences than the original dissimilarity and similarity, whose units are length of spans.
-We compute dissimilarity and ARF of two tree sequences in \figref{fig:conceptual_discrepancy}.
+for comparing pairs of tree sequences than the original matched span and inverse matched span, whose units are length of spans.
+We compute the ARF and TPR of two tree sequences in \figref{fig:conceptual_discrepancy}.
 
 \begin{figure}[!ht]
 	\begin{center}
@@ -793,8 +810,12 @@ We compute dissimilarity and ARF of two tree sequences in \figref{fig:conceptual
         For two tree sequences $T1$ and $T2$ the \emph{dissimilarity}, $\dis(T1,T2)$, matches nodes in $T1$ to nodes in $T2$
         based on identical sample sets.
         In this example, node $8$ has no match in $T2$ as there are no nodes in $T2$ with sample set $\left\{1,2,3\right\}$.
-        Node $4$ has no match on $[4,5)$ and matches with node $9$ on $[5,6)$. Thus the maximal mapping for 4 should be to itself. On the rest of the genome, all of nodes match with their identical counterpart.
-        This makes the dissimilarity $\dis(T1,T2)=3$ and $\operatorname{ARF}(T1,T2)=\frac{3}{46}$.
+        Node $4$ has no match on $[4,5)$ and matches with node $9$ on $[5,6)$. Thus the maximal mapping for 4 should be to itself. 
+        On the rest of the genome, all of nodes match with their identical counterpart.
+        This makes the matched span $\match(T1,T2)=43$ and $\operatorname{ARF}(T1,T2)=\frac{3}{46}$.
+        Given the above matching, the inverse matching will match nodes $0$ through $7$, and node $9$ has no match 
+        since its only possible match ($4 \in T1$) was not the best match from $T1 \to T2$. 
+        This means the inverse matched span $\invmatch(T1,T2)=43$ and $\operatorname{TPR}(T1,T2)=\frac{43}{47}$.
         \label{fig:conceptual_discrepancy}
     }
 	\end{center}
@@ -803,14 +824,15 @@ We compute dissimilarity and ARF of two tree sequences in \figref{fig:conceptual
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \paragraph{Metrics on ARGs}
-The dissimilarity $\dis(\T_1,\T_2)$ is clearly not a metric in the mathematical sense
+Neither the matched span or non-matched span of $\T_1$ in $\T_2$ are not metrics in the mathematical sense
 (i.e., symmetric, nonzero distance between distinct points, and satisfying the triangle inequality).
 This is by design: in practice it is not possible to infer all aspects
 of the true ancestry of a set of samples (i.e., all their genetic ancestors who ever lived),
 and so we wanted to quantify
 ``How much of the true relationships does this ARG represent?''
-However, it is worth noting that the symmetrized version
-$d(\T_1,\T_2) = \dis(\T_1,\T_2) + \dis(\T_2, \T_1)$ is a metric.
+However, it is worth noting that the symmetrized version of non-matched span
+$$\overline{\nmatch}(\T_1,\T_2) = \nmatch(\T_1,\T_2) + \nmatch(\T_2, \T_1),$$
+ is a metric.
 To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$,
 and view each ARG as a subset of the space $[0,L) \times N \times N$,
 where $N$ is the shared set of nodes.
@@ -1052,14 +1074,14 @@ by around 50\%.
 	\label{fig:node-spans}
 \end{figure}
 
-These statistics are also reflected at the genomic scale, using measures of dissimilarity.
+These statistics are also reflected at the genomic scale, using measures of matched span.
 Line ``SE'' in \figref{fig:dissimilarity} shows total amounts of span removed by simplification
 and re-inferred by \algorithmref{alg:extend} (correctly and incorrectly).
 (Lines labeled with ``I'' involve re-inference of the ARG; discussed next.)
 The top row shows the proportion of the given ARG that does not match the original (ARF),
 showing that the total amount of mis-matching span
 produced by extending haplotypes is very small ($\approx 1\%$).
-(Simplification does not produce dissimilarity.)
+(Simplification does not produce non-matched span.)
 The bottom row shows the proportion of the original ARG that is represented in the given ARG (TRP).
 This shows that a large proportion of an ARG can be removed by simplification,
 indicating that coalescent nodes are unary
@@ -1078,7 +1100,7 @@ and extending haplotypes can infer more than half of this span from coalescent i
 
 \begin{figure}[!hbt]
 	\begin{center}
-        \includegraphics[width=\textwidth]{figures/Figure5-plt.pdf}
+        \includegraphics[width=\textwidth]{figures/figure6-ARF-TPR-plt.pdf}
 	\end{center}
     \caption{
         Accuracy and sensitivity of extended haplotypes
@@ -1120,9 +1142,9 @@ First, \figref{fig:dissimilarity} shows that \tsinfer{}
 has a substantial portion of already--extended haplotypes:
 comparing the ``inferred'' (``I''; dotted green) line to the ``inferred-simplified'' (``IS''; dashed green) line
 we see that inclusion of these unary spans increases the amount of correctly inferred material
-by around 20\% (bottom panels),
-but that roughly 10\% of the unary spans in the inferred ARG are incorrect (top panels).
-Furthermore, comparing to the inferred-extend(``IE''; red) line, we see that extending the tree sequence output with tsinfer adds relatively little span.
+by around 2\% (bottom panels),
+but that roughly 20\% of the unary spans in the inferred ARG are incorrect (top panels).
+Furthermore, comparing to the inferred-extend(``IE''; red) line, we see that extending the tree sequence output with tsinfer adds relatively little span ($\approx <1\%$).
 Applying \algorithmref{alg:extend} to the inferred-and-then-simplified ARG
 (``ISE''; solid green line)
 produces an ARG with both less correct and incorrect span.
