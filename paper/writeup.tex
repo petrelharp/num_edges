@@ -32,6 +32,7 @@
 \newcommand{\ov}{\overline}
 \newcommand{\tskit}{\texttt{tskit}}
 \newcommand{\tsinfer}{\texttt{tsinfer}}
+\newcommand{\tsdate}{\texttt{tsdate}}
 \newcommand{\msprime}{\texttt{msprime}}
 \newcommand{\argmax}{\operatorname{argmax}}
 \newcommand{\dis}{\operatorname{dis}}
@@ -712,7 +713,7 @@ We then define the \emph{non-matched span} of $\T_1$ in $\T_2$ by
 which is the total span for all nodes in $\T_1$
 over which their descendant samples do \emph{not} match
  those of their best match in $\T_2$.
-Contrarily, given a matching $\beta:\T_1\to\T_2$, 
+Contrarily, given a matching $\alpha:\T_1\to\T_2$, 
 we want to quantify how much of $\T_2$ is represented in $\T_1$.
 To do this, we define the \emph{inverse matched span} of $\T_1$ in $\T_2$ as
 \begin{align}
@@ -1100,7 +1101,7 @@ and extending haplotypes can infer more than half of this span from coalescent i
 
 \begin{figure}[!hbt]
 	\begin{center}
-        \includegraphics[width=\textwidth]{figures/figure6-ARF-TPR-plt.pdf}
+        \includegraphics[width=\textwidth]{figures/figure6-ARF-TPR-plt3.pdf}
 	\end{center}
     \caption{
         Accuracy and sensitivity of extended haplotypes
@@ -1108,7 +1109,8 @@ and extending haplotypes can infer more than half of this span from coalescent i
         and sequence lengths, with 1,000 diploid samples (left).
         For each, a simulated ARG containing unary haplotype spans
         was (i) \emph{simplified} (`S'), removing the unary spans,
-        and (ii) \emph{inferred} (`I'), using \tsinfer{} on genotypes;
+        and (ii) \emph{inferred} (`I'), using \tsinfer{} on genotypes
+        and dated using \tsdate{};
         then each of these had its haplotypes \emph{extended} (`SE', `IE').
         The inferred, then simplified, ARG ('IS') and its subsequent extension (`ISE') are also shown.
         \textbf{Top row:} ARF, the dissimilarity to the true ARG,
@@ -1138,11 +1140,13 @@ A comparison across other ARG inference methods is left for future work.
 We simulated ARGs containing unary-spanning haplotypes (as above), then
 re-inferred ARGs from the associated genotypes and performed various operations
 on the results.
+Since our matched spans method breaks ties with time, 
+we date the re-inferred ARG using \tsdate.
 First, \figref{fig:dissimilarity} shows that \tsinfer{}
 has a substantial portion of already--extended haplotypes:
 comparing the ``inferred'' (``I''; dotted green) line to the ``inferred-simplified'' (``IS''; dashed green) line
 we see that inclusion of these unary spans increases the amount of correctly inferred material
-by around 2\% (bottom panels),
+by around 4\% (bottom panels),
 but that roughly 20\% of the unary spans in the inferred ARG are incorrect (top panels).
 Furthermore, comparing to the inferred-extend(``IE''; red) line, we see that extending the tree sequence output with tsinfer adds relatively little span ($\approx <1\%$).
 Applying \algorithmref{alg:extend} to the inferred-and-then-simplified ARG
@@ -1156,7 +1160,8 @@ greatly increases with larger sample sizes,
 possibly due to resolution of polytomies.
 (Recall that due to computational constraints,
 ``correct'' and ``incorrect'' spans are determined here by \emph{exact} match
-of subtending samples.)
+of subtending samples.) 
+We additionally provide values of ``I'', ``IS'', ``IE'', and ``ISE'' in \tabref{tab:Figure-6}. 
 
 %reporting proportions of correct and incorrect haplotype spans in Figure~\ref{fig:dissimilarity}.
 %Main points: in \figref{fig:dissimilarity}
@@ -1382,6 +1387,40 @@ Each of the simulations terminated by the fourth iteration, however 99\% of the 
 are removed within the first iteration.}
 \label{tab:edge-counts}
 \end{center}
+\end{table}
+
+\begin{table}[!h]
+	\begin{center}
+		\begin{tabular}{{|c||c|c|c|c|c||c|c|c|c|c|}}
+			\hline
+			& \multicolumn{5}{|c||}{ARF} & \multicolumn{5}{|c|}{TPR}\\
+			\hline
+			\hline
+			Sample Size   & 10 & 50 & 100 & 500 & 1000 & 10 & 50 & 100 & 500 & 1000\\
+			\hline\hline
+			I & 0.3808 & .3490 & 0.3218 & 0.2734 & 0.2552 & 0.2904 & 0.2873 & 0.2908 & 0.3099 & 0.3299\\
+			\hline
+			IE & 0.4518 & 0.3932 & 0.3584 & 0.2932 & 0.2726 & \textbf{0.2917} & \textbf{0.2885} & \textbf{0.2916} & \textbf{0.3110} & \textbf{0.3309}\\
+			\hline
+			IS & \textbf{0.1993} & \textbf{0.1802} & \textbf{0.1701} & \textbf{0.1577} & \textbf{0.1516} & 0.2717 & 0.2703 & 0.2732 & 0.2909 & 0.3109\\
+			\hline
+			ISE & 0.3129 & 0.2779 & 0.2587 & 0.2332 & 0.2189 & 0.2850 & 0.2819 & 0.2848 & 0.3023 & 0.3228\\
+			\hline
+			\hline
+			Length   & $1\textnormal{e}6$ & $5\textnormal{e}6$ & $1\textnormal{e}7$ & $3\textnormal{e}7$ & $5\textnormal{e}7$ & $1\textnormal{e}6$ & $5\textnormal{e}6$ & $1\textnormal{e}7$ & $3\textnormal{e}7$ & $5\textnormal{e}7$\\
+			\hline\hline
+			I & 0.1383 & 0.2167 & 0.2324 & 0.2525 & 0.2595 & 0.5259 & 0.4478 & 0.4108 & 0.3540 & 0.3317\\
+			\hline
+			IE & 0.1474 & 0.2289 & 0.2469 & 0.2702 & 0.2754 & \textbf{0.5263} & \textbf{0.4485} & \textbf{0.4117} & \textbf{0.3551} & \textbf{0.3326}\\
+			\hline
+			IS & \textbf{0.0948} & \textbf{0.1359} & \textbf{0.1407} & \textbf{0.1485} & \textbf{0.1526} & 0.5172 & 0.4331 & 0.3939 & 0.3356 & 0.3118\\
+			\hline
+			ISE & 0.1193 & 0.1827 & 0.1960 & 0.2140 & 0.2216 & 0.5232 & 0.4432 & 0.4051 & 0.3481 & 0.3234\\
+			\hline
+		\end{tabular}
+		\caption{Values for 'I', 'IE', 'IS', 'ISE' in \figref{fig:dissimilarity}.}
+		\label{tab:Fig-6}
+	\end{center}
 \end{table}
 
 \end{document}
