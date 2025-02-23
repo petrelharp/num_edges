@@ -1,4 +1,4 @@
-\begin{thebibliography}{50}
+\begin{thebibliography}{51}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
 \bibitem[{{\sc Adrion} {\em et~al.\/}(2020){\sc Adrion}, {\sc Cole}, {\sc
@@ -15,11 +15,11 @@
   community-maintained standard library of population genetic models.
 \newblock {eLife} {\bf 9}.
 
-\bibitem[{{\sc Al-Asadi} {\em et~al.\/}(2018){\sc Al-Asadi}, {\sc Petkova},
+\bibitem[{{\sc Al-Asadi} {\em et~al.\/}(2019){\sc Al-Asadi}, {\sc Petkova},
   {\sc Stephens} and {\sc Novembre}}]{alasadi2018estimating}
 {\sc Al-Asadi, H.}, {\sc D.~Petkova}, {\sc M.~Stephens}, and {\sc J.~Novembre},
-  2018 Estimating recent migration and population size surfaces.
-\newblock bioRxiv .
+  2019 Estimating recent migration and population-size surfaces.
+\newblock PLOS Genetics {\bf 15}: 1--21.
 
 \bibitem[{{\sc Baumdicker} {\em et~al.\/}(2021){\sc Baumdicker}, {\sc
   Bisschop}, {\sc Goldstein}, {\sc Gower}, {\sc Ragsdale} {\em
@@ -102,13 +102,21 @@
 \newblock Journal of Computational Biology {\bf 3}: 479--502.
 \newblock PMID: 9018600.
 
+\bibitem[{{\sc Gunnarsson} {\em et~al.\/}(2024){\sc Gunnarsson}, {\sc Zhu},
+  {\sc Zhang}, {\sc Tsangalidou}, {\sc Allmont} {\em
+  et~al.\/}}]{gunnarsson2024scalable}
+{\sc Gunnarsson, {\'A}.~F.}, {\sc J.~Zhu}, {\sc B.~C. Zhang}, {\sc
+  Z.~Tsangalidou}, {\sc A.~Allmont}, and {\sc P.~F. Palamara}, 2024 A scalable
+  approach for genome-wide inference of ancestral recombination graphs.
+\newblock bioRxiv .
+
 \bibitem[{{\sc Guo} {\em et~al.\/}(2024){\sc Guo}, {\sc Borda}, {\sc
   Laboulaye}, {\sc Spring}, {\sc Wojnarski} {\em et~al.\/}}]{guo2024strong}
 {\sc Guo, B.}, {\sc V.~Borda}, {\sc R.~Laboulaye}, {\sc M.~D. Spring}, {\sc
   M.~Wojnarski}, {\sc B.~A. Vesely}, {\sc J.~C. Silva}, {\sc N.~C. Waters},
   {\sc T.~D. O'Connor}, and {\sc S.~Takala-Harrison}, 2024 Strong positive
   selection biases identity-by-descent-based inferences of recent demography
-  and population structure in {\textit{plasmodium} falciparum}.
+  and population structure in \textit{{Plasmodium} falciparum}.
 \newblock Nature Communications {\bf 15}: 2499.
 
 \bibitem[{{\sc Hein}(1990)}]{hein1990reconstructing}
@@ -119,7 +127,8 @@
 \bibitem[{{\sc Huang} {\em et~al.\/}(2024){\sc Huang}, {\sc Kelleher}, {\sc
   Chan} and {\sc Balding}}]{huang2024estimating}
 {\sc Huang, Z.}, {\sc J.~Kelleher}, {\sc Y.-b. Chan}, and {\sc D.~J. Balding},
-  2024 Estimating evolutionary and demographic parameters via arg-derived ibd.
+  2024 Estimating evolutionary and demographic parameters via {ARG}-derived
+  {IBD}.
 \newblock bioRxiv .
 
 \bibitem[{{\sc Hudson}(1983)}]{hudson1983properties}
