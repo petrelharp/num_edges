@@ -1,4 +1,4 @@
-writeup.pdf : references.bib conceptual_figure.pdf
+writeup.pdf : references.bib
 
 %.pdf : %.tex %.bbl
 	while ( pdflatex $<;  grep -q "Rerun to get" $*.log ) do true ; done
