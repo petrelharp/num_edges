@@ -701,7 +701,7 @@ Let $s(\T,n)$ denote the total span that node $n$ is present in the local trees,
 	s(\T, n) = \sum_{k=1}^N (a_k - a_{k-1}) \ind_{n \in T_k} \quad ,
 \end{align*}
 where $\ind_{n \in T_k}$ is an indicator (i.e., it is 1 if $n \in T_k$ and 0 otherwise),
-and let $\|\T_1\|=\sum_{n\in N_1}s(\T_1,n)$ be the total sum of nodes spans for nodes in $\T_1$.
+and let $\|\T_1\\|=\sum_{n\in N_1}s(\T_1,n)$ be the total span of all nodes in $\T_1$.
 We then define the \emph{non-matched span} of $\T_1$ in $\T_2$ by
 \begin{align*}
 	\nmatch(\T_1,\T_2)
@@ -721,11 +721,12 @@ To do this, we define the \emph{inverse matched span} of $\T_1$ in $\T_2$ as
 \end{align}
 where $\alpha^{-1}(n_2)$ is the set of all nodes $n_1\in \T_1$ 
 whose best match is $n_2$.
-Note that the inverse matched span is not equivalent
- to the matched span of $\T_2$ in $\T_1$ 
- as the inverse matched span maximizes over spans
-  which are still dependent on $\beta$, 
-  and, as previously stated, $\beta$ is not guaranteed to be bijective.
+This differs from the matched span of $\T_2$ in $\T_1$
+because there may be more than one node in $\T_1$
+that is mapped to the same node in $\T_2$ --
+so, if nodes $n_1$ and $n_1'$ are both matched by $\alpha$ to the same node $n_2$,
+then both count towards $\match(\T_1,\T_2)$,
+but only the better match counts towards $\invmatch(\T_1,\T_2)$.
 
 A common measure of disagreement between ARGs, 
 first proposed by~\cite{kuhner2015assessing}, 
@@ -825,7 +826,7 @@ We compute the ARF and TPR of two tree sequences in \figref{fig:conceptual_discr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \paragraph{Metrics on ARGs}
-Neither the matched span or non-matched span of $\T_1$ in $\T_2$ are not metrics in the mathematical sense
+Neither the matched span or non-matched span of $\T_1$ in $\T_2$ are metrics in the mathematical sense
 (i.e., symmetric, nonzero distance between distinct points, and satisfying the triangle inequality).
 This is by design: in practice it is not possible to infer all aspects
 of the true ancestry of a set of samples (i.e., all their genetic ancestors who ever lived),
