@@ -821,7 +821,7 @@ We compute the ARF and TPR of in a simple example in \figref{fig:conceptual_disc
 \includegraphics[height=1.5in, width=3in]{figures/discrepancy_func_method_t1.pdf}
 \includegraphics[height=1.5in, width=3in]{figures/discrepancy_function_method_t2.pdf}
     \caption{
-        For two tree sequences $T1$ and $T2$ the \emph{dissimilarity}, $\dis(T1,T2)$, matches nodes in $T1$ to nodes in $T2$
+        For two tree sequences $T1$ and $T2$ the \emph{matched span}, $\match(T1,T2)$, matches nodes in $T1$ to nodes in $T2$
         based on identical sample sets.
         In this example, node $8$ has no match in $T2$ as there are no nodes in $T2$ with sample set $\left\{1,2,3\right\}$.
         Node $4$ has no match on $[4,5)$ and matches with node $9$ on $[5,6)$. Thus the maximal mapping for 4 should be to itself. 
@@ -950,8 +950,8 @@ a small population of 100 that expanded to 1,000 individuals ten generations ago
 which then doubled every generation to reach 512,000 individuals.
 All jobs for which runtime was recorded were executed on an Intel Xeon Gold 6148 processor.
 Additionally, we compare accuracy between sequences modified from a ``true'' ARG
-using our dissimilarity methods. 
-These ARGs were simulated with an effective population size of 1,000
+using our matched span methods. 
+These ARGs were simulated with an effective population size of 10,000
 and recombination rate of $10^{-8}$ with between 10 and 1,000 samples
 and a genome length between $10^6$ to $5\times 10^7$.
 
@@ -1204,8 +1204,8 @@ The method to extend haplotypes described here is available through the \tskit{}
 python and C APIs (\url{https://tskit.dev/tskit}) as \texttt{extend\_haplotypes};
 methods to compare ARGs are implemented in the \tscompare{} python package
 (\url{https://tskit.dev/tscompare}).
-\comment{Scripts used to produce the results in this paper are available at
-\url{https://github.com/XXX/TODO}.}
+Scripts used to produce the results in this paper are available at
+\url{https://github.com/hfr1tz3/haplotypes-and-ancestral-recombination-graphs}.
 
 
 \section{Discussion}
