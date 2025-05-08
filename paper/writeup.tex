@@ -19,8 +19,17 @@
 	colorlinks = true,
 	allcolors = OliveGreen}
 
-\SetKwInput{input}{Input}
-\SetKwInput{output}{Output}
+% Responses to reviews
+\input{review-response-commands}
+% set this to show line numbers and include responses to reviews or not
+\newif\ifreviewresponses
+\reviewresponsestrue  % include them
+% \reviewresponsesfalse  % don't include them
+\newcommand{\responsefile}{review-responses}  % name of the review responses file
+
+% redefining \input{} messes things up (and seems like a bad idea)
+% \SetKwInput{input}{Input}
+% \SetKwInput{output}{Output}
 
 
 \newcommand{\E}{\mathbb{E}}
@@ -375,7 +384,7 @@ Each node $n \in N$ has a \emph{time} $t_n$,
 which is the amount of time in the past that the individual who carried that segment of genome lived.
 Some nodes are \emph{samples}, meaning that they represent genome sequences available as data.
 % Typically, samples are exclusively leaves of $\T$, however it is not the case that all samples are leaves.
-Each edge $e \in E$ describes inheritance between a parent node $p_e$ and child node $c_e$,
+Each edge $e \in E$ describes inheritance between a parent node $p_e$ and child node $c_e$, \revpoint{2}{1}
 over a segment of genome $[\ell_e, r_e)$.
 % (The tree sequence data structure typically includes substantially more information, including genotypes, that we will not use in this paper.)
 Suppose that the unique elements of the set of left and right edge endpoints
@@ -409,6 +418,10 @@ This situation implies that $c$ inherited from $p$ over the entire interval $[a_
 so it seems reasonable to assume that $c$ has inherited from $p$ \emph{along the same path} for that entire interval.
 In other words, the intermediate nodes $\{u_i\}$ should also lie on the path from $c$ to $p$ in tree $T_{k+1}$,
 and conversely the nodes $\{v_j\}$ should lie on that path in tree $T_k$.
+For instance, in \figref{fig:conceptual} take $p=4$ and $c=1$,
+so that $u_1=3$ (and $m=1)$ and there are no $v$ (so $n=0$); \revpoint{3}{11}
+and so as shown in \figref[B\&D]{fig:conceptual},
+we might extend node 3 over this entire segment.
 Of course, this does not always make sense --
 for instance, if $u_i$ is already represented somewhere else in $T_{k+1}$,
 or if $t_{u_i} = t_{v_j}$, for some $i$ and $j$.
@@ -449,6 +462,10 @@ which is done by first removing a set of edges $O$
 and then adding another set of edges $I$.
 $O$ defines a sub-forest $F_O$ of $T_k$,
 and $I$ defines a sub-forest $F_I$ of $T_{k+1}$.
+In \figref{fig:conceptual} (in the portion of the tree shown),
+the removed edges that make up $F_O$ \llabel{ref_conceptual2}
+are $4 \to 3$, $3 \to 1$, and $3 \to 2$,
+and the added edges that make up $F_I$ are $4 \to 1$ and the new edge leading to 2.
 The key step in the algorithm is to determine whether the pair of paths
 that terminate in a given node in two adjacent trees are mergeable.
 The algorithm we use to do this is given as \algorithmref{alg:mergeable},
@@ -473,7 +490,7 @@ until no more are found.
 in several ways for the sake of clarity --
 for instance, the bookkeeping required to keep track of $T_k$ and $T_{k+1}$ is omitted.
 Furthermore, as described the algorithm does one left-to-right pass over the tree sequence;
-in practice we do repeated passes in both directions until no changes can be made.
+in practice we do repeated passes in both directions until no changes can be made. \revpoint{2}{2}
 The main step that is omitted is a description of the \texttt{merge} operation,
 which performs the actual extending of haplotypes.
 This algorithm is essentially the same as \texttt{mergeable} in \algorithmref{alg:mergeable},
@@ -505,9 +522,10 @@ need to be updated.
         identify and merge all mergeable paths (see text).
         Each child node $c_e$ of each removed edge $e$ is checked to see if it
         is at the base of two mergeable paths;
-        paths that add fewer new edges are merged first.
-        (The variables $m$, $M$, and $M'$ are to ensure this ordering
-        by number of new edges.)
+        paths that add fewer new edges are merged first
+        because \texttt{Mergeable} returns the number of new edges required
+        to merge the two paths, and $M$ is always less than or equal to
+        the minimum number of new edges across all nodes in the current tree transition.
     }
 	\label{alg:extend}
 	\SetKwFunction{mergeable}{Mergeable}
@@ -521,7 +539,7 @@ need to be updated.
             \While{$M < \infty$}{
                 \For{$e \in O_k$}{
                     \text{Set } $m$ = \mergeable($c_e$, $T_k$, $T_{k+1}$).\;
-                    \eIf{$m < M$}{
+                    \eIf{$m \le M$}{
                         \merge($c_e$, $T_k$, $T_{k+1}$)\;
                     }{
                         \text{Set } $M' = \min(m, M)$. \;
@@ -754,7 +772,7 @@ whose set of descendant samples matches those of $n$, and
     m'(n, \T_2) = \sum_{k \in \mathcal{M}'(n)} (a_k - a_{k-1})
 \end{align*}
 the total span over which $n$ finds a match.
-Then the average RF distance (averaged over locations in the genome)
+Then the average RF distance (averaged over locations in the genome) \revpoint{1}{2}
 is
 \begin{align*}
     \frac{1}{L} \left( \sum_{n_1 \in N_1} m'(n_1, \T_2)  + \sum_{n_2 \in N_2} m'(n_2, \T_1) \right).
@@ -837,7 +855,7 @@ We compute the ARF and TPR of in a simple example in \figref{fig:conceptual_disc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\paragraph{Metrics on ARGs}
+\paragraph{Metrics on ARGs} \revpoint{1}{5}
 Neither the matched span or non-matched span of $\T_1$ in $\T_2$ are metrics in the mathematical sense
 (i.e., symmetric, nonzero distance between distinct points, and satisfying the triangle inequality).
 This is by design: in practice it is not possible to infer all aspects
@@ -898,7 +916,8 @@ However its accuracy depends on the overall structure of the ARG it is applied t
 % its value is also dependent on the pair of input ARGs. 
 Thus to understand how well our methods can infer ancestral haplotypes we 
 work with ARGs simulated across a range of parameter values.
-To do this, we simulate ARGs containing full haplotypes using \msprime{}
+To do this, we simulate ARGs containing full haplotypes using 
+Hudson's algorithm as implemented in \msprime{} \revpoint{2}{3}
 \citep{kelleher2016efficient,baumdicker2021efficient},
 with the \texttt{coalescing\_segments\_only} option set to False.
 Although \msprime{} simulates many events that do not create a coalescence in some local tree,
@@ -1028,7 +1047,7 @@ or minutes to hours for tens of thousands of samples.
 Our next task is to confirm that the haplotypes extended by \algorithmref{alg:extend}
 are indeed correct -- i.e., that in addition to compression, we are also gaining information.
 To do this, 
-we simulate ARGs containing full haplotypes using \msprime{},
+we simulate ARGs containing full haplotypes using Hudson's algorithm in \msprime{},
 apply the simplification algorithm~\citep{kelleher2018efficient,wong2024general}
 to reduce these so that there are no unary nodes
 (i.e., any node present in a local tree is a coalescent node or a sample),
@@ -1057,7 +1076,7 @@ As seen in \figref{fig:node-spans},
 the vast majority of span added by extending haplotypes is correct.
 In this example (which is typical),
 99\% of all added span is correct;
-95\% of nodes have no incorrectly added span;
+95\% of nodes have no incorrectly added span; \revpoint{2}{4}
 and those incorrectly added spans are nearly always a small fraction of the original span.
 The added information is significant:
 the algorithm typically increases spans (i.e., lengths of ancestral haplotypes)
@@ -1200,6 +1219,7 @@ We additionally provide values of ``I'', ``IS'', ``IE'', and ``ISE'' in \tabref{
 
 \section{Data availability}
 
+\revpoint{2}{5}
 The method to extend haplotypes described here is available through the \tskit{}
 python and C APIs (\url{https://tskit.dev/tskit}) as \texttt{extend\_haplotypes};
 methods to compare ARGs are implemented in the \tscompare{} python package
@@ -1249,7 +1269,7 @@ The efficient computational tools we have implemented (in \tskit{} and \tscompar
 should facilitate this exploration.
 
 
-\paragraph{Ignorance and omission in an ARG}
+\paragraph{Ignorance and omission in an ARG} \llabel{ignorance}
 As motivation, we presented above a ``historical'' view of ARGs --
 i.e., that each aspect of an inferred ARG is intended to represent
 a portion of some particular historical genome
@@ -1455,5 +1475,8 @@ are removed within the first iteration.}
 		\label{tab:Fig-6}
 	\end{center}
 \end{table}
+
+%%%%%%%%%%%%%%%
+\includereviews
 
 \end{document}

@@ -1,0 +1,405 @@
+\begin{minipage}[b]{2.5in}
+  Resubmission Cover Letter \\
+  {\it Genetics}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{2.5in}
+    Halley Fritze  \\
+  \today
+\end{minipage}
+
+\vskip 2em
+
+\noindent
+{\bf To the Editor(s) -- }
+
+\vskip 1em
+
+We are writing to submit a revised version of our manuscript,
+GENETICS-2025-307917 
+titled
+`` A forest is more than its trees: haplotypes and ancestral recombination graphs''.
+We appreciate the thoughtful comments by the reviewers.
+We've done our best to address all the comments,
+as detailed in our Response to Reviewers.
+
+In addition to a Response to Reviewers (in which page/line numbers refer to the revised manuscript file),
+we also provide a pdf with differences to the previously submitted version highlighted.
+
+
+\vskip 2em
+
+\noindent \hspace{4em}
+\begin{minipage}{3in}
+\noindent
+{\bf Sincerely,}
+
+\vskip 2em
+
+{\bf
+   Halley Fritze, Nathaniel Pope, Jerome Kelleher, and Peter Ralph
+}\\
+\end{minipage}
+
+\vskip 4em
+
+\pagebreak
+
+%%%%%%%%%%%%%%
+\reviewersection{1}
+
+\begin{quote}
+In this paper Fritze and colleagues take a haplotype-centric view of the ancestral recombination graph (ARG) and contrast this view with the more common simplification of the ARG as a sequence of marginal trees. In particular, internal nodes in the ARG represent ancestral haplotypes, but in the process of converting an ARG to a succinct tree sequence, some of these internal nodes are deleted (essentially if one of the lineages that descend from the node recombines and coalesces elsewhere, then that node would become unary and is not represented in the succinct tree sequence). As such, a given node in a succinct tree sequence may not span as many marginal trees as it ``should'', and this paper develops an algorithm to try to infer where these unary nodes should be added, which the authors refer to as extending haplotypes. To assess how well their algorithm can recover trees, the authors develop novel dissimilarity measures on ARGs, and use these on simulated true and inferred ARGs. Overall, the extension method works quite well on true ARGs, but less well on inferred ARGs. I think that this paper is an important contribution to the ARG literature -- this haplotype perspective is important and generally overlooked, and measures for assessing how well methods can recover ARGs in terms of this perspective will be useful for future method development. Overall the paper is very nice, well-written, interesting, and clear, but I do have a few comments for the authors in the hopes that they're useful. They're all minor, and the authors should feel free to just use what they find helpful.
+\end{quote}
+
+\begin{point}{}
+ I really enjoyed the title of the paper!
+\end{point}
+
+\reply{
+Thank you!
+}
+
+\begin{point}{\revref}
+ I am a bit confused by the definition of weighted Robinson-Foulds distance at \revref.% on the bottom of page 6. 
+I believe that this is more like a Robinson-Foulds \emph{similarity}, as I believe that as defined it should be maximized when the two ARGs are the same, and smaller for more dissimilar ARGs.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+ Is the dissimilarity measure defined in equation \eqref{eqn:wrmse} used anywhere?
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+ What is ``dissimilarity'' as mentioned in the caption of \figref{fig:conceptual_discrepancy}?
+\end{point}
+
+\reply{
+}
+
+\begin{point}{\revref}
+ I found the discussion around the metric version to be hard to follow and worth expanding.
+For example, I believe that the edges of the ARG are what's getting embedded into
+$[0, L) \times N \times N$, and the symmetric differences are taken in this space in the obvious way (i.e., without this mapping its unclear what the relative difference of two ARGs is).
+There's also a mention of ``dissimilarity'' in this paragraph. I assume that that's the ``symmetrized version of non-matched span'' that was just defined, but it would be good to make that clear.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+ The performance on inferred ARGs makes clear that this is a difficult problem, and that this haplotype view might be useful conceptually and for methods development, but that as of now we should probably not take these ancestral haplotypes at face value in inferred ARGs. It would be helpful if the authors could provide some intuition for what's going wrong in this case. Presumably the topologies are not inferred well, and many nodes can be extended, which often results in some true and false positives? Another use case I could see would be using this approach to simplify inferred ARGs to make various downstream computations faster (a la \figref{fig:speed_and_edges}). As such, I would be curious to see how the extension algorithm affects the number of edges in inferred ARGs.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+ This is obviously a matter of taste, but I would have found the paper a bit easier to follow if some of the points discussed in the discussion were brought up earlier in the paper. For example, the ``ignorance and omission in the ARG'' section \llname{ignorance}
+answered questions I had when reading the bits around \figref{fig:conceptual} -- upon initially reading the bit around \figref{fig:conceptual}
+I was confused by the interpretation that the lack of a node implies that that individual is not represented in other parts of the ARG (as any point along any branch in an ARG represents \emph{some} individual ancestral to sample), and as a result I found the presented interpretation somewhat unnatural.
+This was then eventually clarified (very eloquently) in the discussion.
+Similarly, I would have appreciated the connection to parsimony earlier.
+It was not completely obvious to me that recovering the unary nodes from the succinct tree sequence might not be possible in all cases, and as such that the algorithm is an attempt at inference, and furthermore, that it's optimizing some reasonable objective. Again, this point was addressed very well, but I had to wait until the discussion.
+\end{point}
+
+\reply{
+}
+
+
+
+
+%%%%%%%%%%%%%%
+\reviewersection{2}
+
+\begin{quote}
+The authors present interesting results in a clear and well-written manuscript, providing a deeper understanding of Ancestral Recombination Graphs and developing improved inference methods. The key idea is to take into account the additional information provided by haplotype structure which has rarely been considered before. On the way, the authors also develop a haplotype-aware measure of (dis)agreement between ARGs. In particular, the achieved goal is to infer information about the intermediate (unary) nodes in the local trees and to show how accurate the inference is.
+\end{quote}
+
+\begin{point}{\revref} % p.2 l.53
+ ``Notation and terminology'': it would be good to clarify at this point that parents and children in the graph correspond to ancestors and descendants in the population.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{\revref} % p.4 l.10
+ ``in practice we do repeated passes in both directions until no changes can be made'': to someone who does not have hands-on experience with the implementation of this algorithm, the reason why the algorithm needs to do several passes in both directions might not be very clear. If at each tree transition all pair of mergeable paths are merged, it would be good to explain why, after one pass in each direction, additional mergeable paths are found. Perhaps explaining when/why additional mergeable paths are found/created could also give further insight on how many passes will be needed?
+\end{point}
+
+\reply{
+}
+
+\begin{point}{\revref} % p.8 l.25
+ ``we simulate ARGs containing full haplotypes using msprime'': since msprime can simulate ARGs under various models, please specify here which model is used (SMC, SMC'... ?).
+\end{point}
+
+\reply{
+Good suggestion; we've done this (we used ``hudson''). \revref
+}
+
+\begin{point}{}
+In general, it comes natural to wonder whether the algorithms can be corrected to avoid incorrectly added spans
+(e.g. \revref). % p.10 l. 5).
+It would be worth to mention whether an attempt of correction has been made and to explain the difficulties/limitations involved.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{\revref} % p.12 l.9
+ ``Data availability'': the link https:// github.com/ XXX/ TODO should be updated.
+\end{point}
+
+\reply{
+}
+
+
+
+%%%%%%%%%%%%%%
+\reviewersection{3}
+
+\begin{quote}
+The fundamental idea of this paper is important and the worked-out
+algorithm appears quite valuable. I want to see it published. However
+the current version is so difficult to read that it is likely to
+have a very limited audience, and appears to have some errors.
+\end{quote}
+
+\begin{quote}
+I do not feel I have understood the entire paper despite several
+hours' work. Some of my comments may be misunderstandings, but if
+so, the text I misunderstood could probably use clarification.
+\end{quote}
+
+\begin{point}{} % (1)
+The description of \algorithmref{alg:extend} and \algorithmref{alg:mergeable} is confusing.
+Naming them this way implies that they are separate algorithms but
+in fact ``Algorithm 2'' is the definition of a function needed by
+Algorithm 1.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+\algorithmref{alg:mergeable} is mentioned in an explanation a full page before it
+is introduced.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+\algorithmref{alg:extend} seems to be named ExtendHaplotypes and \algorithmref{alg:mergeable} seems
+to be named Mergeable: having two names for each one is not helpful.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+``Mergeable'' is an unfortunate name for a function which does not
+return a yes or no answer but instead returns the number of
+new edges to be added. Also the text needs a comment about why
+infinity is sometimes returned.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+In \algorithmref{alg:extend} the variable $m$ means the number of new edges to be
+added. In \algorithmref{alg:mergeable} that quantity is called $m_e$ and $m$ means the
+number of extended haplotypes. This is confusing. Please use the
+same name for a given concept in all pseudocode.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+Comments in the pseudocode would make it easier to follow, as could
+use of more meaningful variable names (I particularly dislike $M$, $m$, $M'$
+in the same algorithm).
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+Capital $I$ is an unfortunate subscript as it is almost indistinguishable
+from digit 1.
+\end{point}
+
+\reply{
+}
+
+\begin{quote} % (2)
+\textbf{Issues in algorithms.}
+\end{quote}
+
+\begin{point}{}
+\algorithmref{alg:extend} appears to have an error leading to an infinite
+loop. Variable $M$ is initially set to 0. It is compared to variable $m$,
+which is a number of new edges to be added and must be positive or zero.
+Thus, $m$ will never be lower than $M$, so the action taken is to set $M'$ to
+the minimum of $m$ and $M$, which will always be zero. $M$ is then set to
+$M'$, that is, to zero. Since this is inside a while loop with terminating
+condition $M$ == infinity, it does not terminate. (I coded it to check.)
+
+The logic problem is probably around line 10. We have just tested
+whether $m < M$ and this was false, so $m \ge M$. It is therefore
+strange to take the minimum of $m$ and $M,$ as this will always be
+$M$. However I can't work out the correct code.
+\end{point}
+
+\reply{
+Good catch -- and, many apologies --
+that is indeed a bug; the correction is changing line 7 to
+``if $m \le M$''.
+(To be clear, the bug was in the paper, not the implemented code;
+if the reviewer is interested they can see our implementation
+in the tskit library at
+\href{https://github.com/tskit-dev/tskit/blob/c6b06b0c4f90b5098aedddca7dd0e3fbbad964d0/c/tskit/trees.c#L9078}{c/tskit/trees.c:9078} in the current release.)
+}
+
+\begin{point}{}
+The text description of \algorithmref{alg:extend} (ExtendHaplotypes) says that
+paths with the fewest new edges are added first. The pseudocode
+given does not appear to do that. It appears (bearing in mind that
+it has at least one bug, so I can't be positive) to be willing to
+execute a Merge before examining all children, so I think it will
+Merge the first child with a better score than previous children,
+regardless of the fact that an even better child may remain to be
+found.
+\end{point}
+
+\reply{
+We apologize again for the bug in the previous point that caused this misunderstanding.
+Fixed, it should perform as advertised
+(and, we've added a bit clarifying why it works
+to the description of \algorithmref{alg:extend}).
+}
+
+\begin{point}{}
+After considerable work I have been unable to code \algorithmref{alg:mergeable}.
+When is a node NULL? Does this mean the node doesn't exist (for
+example, the parent of the root)?
+\end{point}
+
+\reply{
+}
+
+\begin{point}{} % (3)
+I recommend that the example partial tree in \figref{fig:conceptual} be
+extended to a full tree (it only needs one more node) and used in
+the practical examples in the text.
+\end{point}
+
+\reply{
+Good idea, but on consideration we think that adding the rest of the tree
+here would make the figure too confusing
+(not so much for the trees in A\&C, but more so in the haplotype diagrams B\&D).
+We do now reference the figure in the text,
+at \revref{} and \llname{ref_conceptual2}.
+}
+
+\begin{point}{} % (4) 
+The concrete example under ``An algorithm to extend haplotypes'' is
+difficult to visualize. Can it be related to \figref{fig:conceptual}? When I try to
+do this, though, I have difficulty because in \figref{fig:conceptual} the right-hand
+tree does not \emph{have} $v_1 \ldots v_n$, it jumps straight from $p$ to $c.$ Is
+this example not mergeable, or is the description of mergeablility
+missing any indication that some of the nodes it relies on may not
+exist?
+\end{point}
+
+\reply{
+}
+
+\begin{point}{} % (5) 
+The direction in which time is measured on the tree needs to be stated
+as unfortunately the literature has both conventions. Also, the text
+implies at several points that this can be used for trees without
+time information, but it cannot as times are used in the algorithm.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+Following on from this, in \algorithmref{alg:extend}, why can no node in $u$ be at the
+same time as a node in $v?$ At first I thought we were assuming that no
+two nodes, other than samples, are ever at the same time (a fairly
+common assumption) but then we would not need this rule. Is this just
+a convenience to avoid putting two nodes on the same branch at the same
+timepoint? What happens if this algorithm is attempted with inferred
+ARGs that discretize time, as some inference algorithms do, so that ties
+become common?
+\end{point}
+
+\reply{
+}
+
+\begin{point}{} % (6) 
+``In what follows we think of $T_2$ as the true ARG and $T_1$ as an
+inferred ARG.'' This is not strongly enough stated. The measure is
+asymmetrical with regards to $T_1$ and $T_2$, and will give wrong answers
+if they are reversed. It is also not suitable for comparing two
+ARGs where neither is the true ARG.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{}
+In general the section on comparison of true and inferred ARGs is
+difficult to follow. \figref{fig:conceptual_discrepancy} helps but appears too late in the
+paper.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{} % (7) 
+In \figref{fig:conceptual_discrepancy} it is unfortunate to use to use an example where
+the forward and inverse matches are the same. I would also appreciate
+a brief explanation of why it's 46 and 47 in the denominator--I figured
+it out but it's less than obvious. Why do sample nodes count, as they
+cannot vary among trees? Doesn't this just add bookkeeping effort?
+It's otherwise a very helpful figure though.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{} % (8) 
+I cannot clearly distinguish the three purplish colors in \figref{fig:speed_and_edges}.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{} % (9) 
+The interpretation of \figref{fig:node-spans} is completely unclear to me. I
+think it needs more explanatory text. I have no idea what point is being
+made by these diagrams.
+\end{point}
+
+\reply{
+}
+
+\begin{point}{} % (10) 
+I remind the authors to replace the script availability placeholder
+URL with the real thing! 
+\end{point}
+
+\reply{
+}
+
