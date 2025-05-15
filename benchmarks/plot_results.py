@@ -42,7 +42,7 @@ length_vals = np.unique(df.length)
 length_cols = np.array([colors[n] for n in ['blue', 'green', 'lblue', 'lgreen', 'gold']])
 ns_vals = np.unique(df.num_samples)
 # ns_cols = plt.colormaps["plasma"](np.linspace(0, 1, len(ns_vals)))
-ns_cols = np.array([colors[n] for n in ['wine', 'magenta', 'red', 'gold', 'blue']])
+ns_cols = np.array([colors[n] for n in ['wine', 'red', 'gold', 'lgreen', 'blue']])
 
 # combined number of edges & runtime for Tajimas D
 fname = f"{basename}_absolute_values.pdf"
