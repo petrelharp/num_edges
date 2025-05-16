@@ -312,7 +312,7 @@ in inferred trees as well.
 % * minimize number of edges
 % * gives extra info about shared haplotypes, reduces number of ancestral paths
 
-Consider the (small portion) of a hypothetical ARG in \figref[A]{fig:conceptual}.
+Consider the (small portion of a) hypothetical ARG in \figref[A]{fig:conceptual}.
 On the first portion of the genome (left-hand tree), the sample nodes (labeled 0, 1, and 2)
 coalesce into a small subtree: 1 and 2 find a common ancestor in ancestral node 3,
 which finds a common ancestor with node 0 in ancestral node 4.
@@ -381,10 +381,11 @@ a tree sequence $\T = (N, E)$ contains a set of \emph{nodes} $N$
 which represent ancestral segments of genome,
 and \emph{edges} $E$ which represent relationships between nodes over different regions of the genome.
 Each node $n \in N$ has a \emph{time} $t_n$,
-which is the amount of time in the past that the individual who carried that segment of genome lived.
+which is the amount of time in the past that the individual who carried that segment of genome lived. \revpoint{3}{13}
 Some nodes are \emph{samples}, meaning that they represent genome sequences available as data.
 % Typically, samples are exclusively leaves of $\T$, however it is not the case that all samples are leaves.
-Each edge $e \in E$ describes inheritance between a parent node $p_e$ and child node $c_e$, \revpoint{2}{1}
+Each edge $e \in E$ describes inheritance between ancestors and their descendants within the population.
+The ancestor and descendant are represented by the parent node $p_e$ and child node $c_e$ respectively \revpoint{2}{1}
 over a segment of genome $[\ell_e, r_e)$.
 % (The tree sequence data structure typically includes substantially more information, including genotypes, that we will not use in this paper.)
 Suppose that the unique elements of the set of left and right edge endpoints
@@ -419,7 +420,7 @@ so it seems reasonable to assume that $c$ has inherited from $p$ \emph{along the
 In other words, the intermediate nodes $\{u_i\}$ should also lie on the path from $c$ to $p$ in tree $T_{k+1}$,
 and conversely the nodes $\{v_j\}$ should lie on that path in tree $T_k$.
 For instance, in \figref{fig:conceptual} take $p=4$ and $c=1$,
-so that $u_1=3$ (and $m=1)$ and there are no $v$ (so $n=0$); \revpoint{3}{11}
+so that $u_1=3$ (and $m=1)$ and there are no $v$ (so $n=0$); \revpoint{3}{11}\revpoint{3}{12}
 and so as shown in \figref[B\&D]{fig:conceptual},
 we might extend node 3 over this entire segment.
 Of course, this does not always make sense --
@@ -491,9 +492,16 @@ in several ways for the sake of clarity --
 for instance, the bookkeeping required to keep track of $T_k$ and $T_{k+1}$ is omitted.
 Furthermore, as described the algorithm does one left-to-right pass over the tree sequence;
 in practice we do repeated passes in both directions until no changes can be made. \revpoint{2}{2}
-The main step that is omitted is a description of the \texttt{merge} operation,
+We require repeated passes due to the fringe cases of some paths not being mergeable until 
+additional structure is added by a future pass of the algorithm. 
+We suspect that most of these cases occur for paths with large time differences between the parent and child
+nodes, or when a lot of nodes in a path are coalescent, however it is not something we thoroughly investigated
+in the theoretical setting.
+We instead give some empirical results on the number of passes for the algorithm below.
+
+The main step that is omitted is a description of the \texttt{Merge} operation,
 which performs the actual extending of haplotypes.
-This algorithm is essentially the same as \texttt{mergeable} in \algorithmref{alg:mergeable},
+This algorithm is essentially the same as \texttt{Mergeable} in \algorithmref{alg:mergeable},
 except with additional bookkeeping.
 Roughly speaking, the algorithm
 traverses up from the shared base node $c$,
@@ -533,16 +541,17 @@ need to be updated.
 	\SetKwFunction{extend}{ExtendHaplotypes}
 	\DontPrintSemicolon
     \Fn{\extend($\T$)}{
+    	\tcc{For pairs of trees in the ARG, find mergeable paths.}
         \For{$k$ in $1 \ldots N$}{
             \text{Set } $M = 0$ \text{ and }
             $M' = \infty$.\;
             \While{$M < \infty$}{
                 \For{$e \in O_k$}{
-                    \text{Set } $m$ = \mergeable($c_e$, $T_k$, $T_{k+1}$).\;
-                    \eIf{$m \le M$}{
-                        \merge($c_e$, $T_k$, $T_{k+1}$)\;
+                    \text{Set } $m_e$ = \mergeable($c_e$, $T_k$, $T_{k+1}$).\tcc*[r]{Count the number of new edges to be merged.}
+                    \eIf{$m_e \le M$}{
+                        \merge($c_e$, $T_k$, $T_{k+1}$)\tcc*[r]{Merge extended haplotypes from $T_k$ into $T_{k+1}$.}
                     }{
-                        \text{Set } $M' = \min(m, M)$. \;
+                        \text{Set } $M' = \min(m_e, M)$.\tcc*[r]{Bookkeep $M$ to determine an ordering for path merging.}
                     }
                 }
                 \text{Set } $M = M'$ \text{ and }
@@ -551,8 +560,9 @@ need to be updated.
         }
     }
 \end{algorithm2e}
-
-
+\revpoint{3}{5}
+\revpoint{3}{4}
+\revpoint{3}{6}
 \begin{algorithm2e}[!ht]
 	\SetStartEndCondition{ }{}{}%
 	\SetKwProg{Fn}{def}{\string:}{}
@@ -577,17 +587,21 @@ need to be updated.
         (i.e., in $F_O$ and $F_I$).
         The variable $m_e$ will record the number of new edges to be added,
         and $m$ will record the number of extended haplotypes.
+        Note that if no haplotypes can be extended ($m=0$), we return $m_e$ as $\infty$
+        so that the path is not merged in \algorithmref{alg:extend}.
     }
 	\label{alg:mergeable}
 	\SetKwFunction{mergeable}{Mergeable}
 	\DontPrintSemicolon
     \Fn{\mergeable($c$, $T_O$, $T_I$)}{
+    	\tcc{We construct paths beginning at $c$ and traverse through inheritance in $T_O$ and $T_I$.}
         \text{Let } $p_i = P_I[c]$, 
         $t_i = t[p_i]$,
         $p_o = P_O[c]$,
         $t_o = t[p_o]$,
         \text{ and }$m_e = m = 0$.\;
         \While{\tn{True}}{
+        	\tcc{States to determine if paths can still be constructed backward in time.}
             \text{Set } $y_i = (p_i \neq NULL)
                 \ \&\ (p_i \notin T_O)
                 \ \&\ (t_i < t_o)$ \;
@@ -597,23 +611,23 @@ need to be updated.
             \If{not ($y_i$ or $y_o$)}{ \Break\; }
             \eIf{$y_i$}{
                 \If{$P_I[c] \neq p_i$ and $P_O[c] \neq p_i$}{
-                    \text{Set } $m_e = m_e + 1$.\;
+                    \text{Set } $m_e = m_e + 1$. \tcc*[r]{$p_i$ is not in $T_O$ so we add a new edge.}
                 }
                 \text{Set } $c = p_i$,
                 $p_i = P_I[p_i]$, \text{ and}\;
                 $t_i = \text{ if }(p_i = NULL)\text{ then }\infty\text{ else }t[p_i]$ .\; 
             }{
                 \If{$P_I[c] \neq p_o$ and $P_O[c] \neq p_o$}{
-                    \text{Set } $m_e = m_e + 1$.\;
+                    \text{Set } $m_e = m_e + 1$. \tcc*[r]{$p_o$ is not in $T_I$ so we add a new edge.}
                 }
                 \text{Set }$c = p_o$,
                 $p_o = P_O[p_o]$, \;
                 $t_o = \text{ if }(p_o = NULL)\text{ then }\infty\text{ else }t[p_o]$ ,\;
-                \text{and } $m = m + 1$ .\;
+                \text{and } $m = m + 1$ . \tcc*[r]{We extend haplotype from $p_o$ into $T_I$.}
             }
         }
         \If{$m = 0$ or $p_i \neq p_o$ or $p_i = NULL$}{
-            \text{Set } $m_e = \infty$. \;
+            \text{Set } $m_e = \infty$. \tcc*[r]{The paths constructed at $c$ cannot be merged.}
         }
         \KwRet{$m_e$}\;
     }
@@ -651,7 +665,8 @@ improves \emph{inferred} ARGs.
 Since we are not aware of any current methods for measuring (dis)agreement between ARGs
 that take into account haplotype identity,
 we define a measure of \emph{matched span} to quantify this.
-The method is implemented in the \tscompare{} package.
+The method (including \eqnref{eqn:matched-spans} - \eqnref{eqn:true-proportion}) \revpoint{1}{3}
+ is implemented in the \tscompare{} package.
 
 It is helpful to first describe what we compute in the simple case.
 We will first simulate tree sequences where
@@ -717,7 +732,7 @@ its \emph{best matching node} in $\T_2$ as
     \alpha(n_1) = \argmax_{n_2 \in N_2} m(n_1, n_2) ,
 \end{align*}
 so that
-\begin{align}
+\begin{align}\label{eqn:matched-spans}
     \match(\T_1, \T_2)
     =
     \sum_{n \in N_1} m(n, \alpha(n)) .
@@ -746,11 +761,11 @@ over which their descendant samples do \emph{not} match
 Contrarily, given a matching $\alpha:\T_1\to\T_2$, 
 we want to quantify how much of $\T_2$ is represented in $\T_1$.
 To do this, we define the \emph{inverse matched span} of $\T_1$ in $\T_2$ as
-\begin{align}
+\begin{align}\label{eqn:non-matched-spans}
 	\invmatch(\T_1,\T_2) = \sum_{n_2\in N_2} \max_{n_1\in \alpha^{-1}(n_2)} m(n_1,n_2)
 \end{align}
 where $\alpha^{-1}(n_2)$ is the set of all nodes $n_1\in \T_1$ 
-whose best match is $n_2$.
+whose best match is $n_2$.  \revpoint{3}{15}
 This differs from the matched span of $\T_2$ in $\T_1$
 because there may be more than one node in $\T_1$
 that is mapped to the same node in $\T_2$ --
@@ -832,22 +847,35 @@ two trees relative to the total span of nodes in $\T_2$,
 and is analogous to statistical power.
 The outputs framed as proportions relative to one of the given tree sequences is more easily understood
 for comparing pairs of tree sequences than the original matched span and inverse matched span, whose units are length of spans.
-We compute the ARF and TPR of in a simple example in \figref{fig:conceptual_discrepancy}.
+We compute the ARF and TPR of in a simple example in \figref{fig:conceptual_discrepancy}.\revpoint{1}{4}
 
+\revpoint{3}{16}\revpoint{3}{17}
 \begin{figure}[!ht]
 	\begin{center}
 \includegraphics[height=1.5in, width=3in]{figures/discrepancy_func_method_t1.pdf}
 \includegraphics[height=1.5in, width=3in]{figures/discrepancy_function_method_t2.pdf}
     \caption{
         For two tree sequences $T1$ and $T2$ the \emph{matched span}, $\match(T1,T2)$, matches nodes in $T1$ to nodes in $T2$
-        based on identical sample sets.
-        In this example, node $8$ has no match in $T2$ as there are no nodes in $T2$ with sample set $\left\{1,2,3\right\}$.
-        Node $4$ has no match on $[4,5)$ and matches with node $9$ on $[5,6)$. Thus the maximal mapping for 4 should be to itself. 
-        On the rest of the genome, all of nodes match with their identical counterpart.
+        based on identical sample sets. We first can compute the total span of nodes in $T1$ and $T2$ as $\Vert T1\Vert = 46$ and $\Vert T2\Vert = 47$.
+        First, we always require that sample nodes match to their identical counterpart. Then we match intermediate nodes by comparing their
+        descendent samples across pairs of local trees over the genome. Here we have distinct local tree pairings on the genome segments:
+        $[0,1), [1,2), [2,4), [4,5),$ and $[5,6)$.
+        Node $4$ has no match on $[4,5)$, matches with node $9$ on $[5,6)$, and matches with node $4$ in $T2$ everywhere else. 
+        Thus the maximal mapping for 4 should be to itself since $m(4,4) > m(4,9)$. 
+        Nodes $5, 6,$ and $7$ all match with their identical counterpart.
+        Lastly, node $8$ has no match in $T2$ as there are no nodes in $T2$ with sample set $\left\{1,2,3\right\}$.
         This makes the matched span $\match(T1,T2)=43$ and $\operatorname{ARF}(T1,T2)=\frac{3}{46}$.
         Given the above matching, the inverse matching will match nodes $0$ through $7$, and node $9$ has no match 
         since its only possible match ($4 \in T1$) was not the best match from $T1 \to T2$. 
-        This means the inverse matched span $\invmatch(T1,T2)=43$ and $\operatorname{TPR}(T1,T2)=\frac{43}{47}$.
+        This means the inverse matched span $\invmatch(T1,T2)=43$ and $\operatorname{TPR}(T1,T2)=\frac{43}{47}$.\newline
+        Additionally, let's compute $\operatorname{ARF}(T2,T1)$ and $\operatorname{TPR}(T2,T1)$.
+        For matched spans, we again see that sample nodes, root 6, and nodes 4, 5, and 7 will match to their identical counterpart
+        and have matched nodes spans 6 (for each sample), 6, 4, 4, and 2, respectively.
+        Node 9 matches to node 4 with a matched node span of 1. Thus we compute $\operatorname{ARF}(T2,T1)=\frac{41}{47}$. 
+        The inverse matched span will match nodes 5, 6, 7 and sample nodes to their identical counterparts. 
+        Node 8 in $T1$ had no match from $T2$, so it has no inverse match. Node 4 had two best matches from $T2$: nodes 4 and 9.
+        Since 4 shares more span with its identical counter part the inverse match for 4 in $T1$ is node 4 in $T2$. Therefore we compute 
+        $\operatorname{TPR}(T2,T1)=\frac{40}{46}$. 
         \label{fig:conceptual_discrepancy}
     }
 	\end{center}
@@ -865,10 +893,16 @@ and so we wanted to quantify
 However, it is worth noting that the symmetrized version of non-matched span
 $$\overline{\nmatch}(\T_1,\T_2) = \nmatch(\T_1,\T_2) + \nmatch(\T_2, \T_1),$$
  is a metric.
-To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$,
-and view each ARG as a subset of the space $[0,L) \times N \times N$,
-where $N$ is the shared set of nodes.
-Then, dissimilarity is the Lebesgue measure of the relative difference of the two sets:
+ To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$, called $\varphi\colon N\to N$, where $N$ is the shared set of nodes.
+ View both ARGs as a subset of the space $N\times N\times [0,L)$ so that elements in the ARG are tuples $(n, \varphi(n), A)$ where $A=\cup_k [a_{k-1}, a_k)$ represents the portion of the genome where $n$ exists in the ARG.
+ Then for each node $n$ in $N$ its representatives in $\T_1$ and $\T_2$ can differ with respect to the portion of the genome where $n$ exists, ie. $A_{\T_1}$ and $A_{\T_2}$ may not be equal.
+ Then the relative difference (as sets) of the two ARGs, $\T_1\setminus \T_2$, is the collection of tuples $(n, \varphi(n), A_{\T_1}\setminus A_{\T_2})$. This is the portion of \emph{non-matched spans} between $n$ and $\varphi(n)$.
+%To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$,
+%and view each ARG as a subset of the space $[0,L) \times N \times N$,
+%where $N$ is the shared set of nodes.
+Thus, the measure of non-matched spans
+%dissimilarity 
+is the Lebesgue measure of the relative difference of the two sets:
 $|\T_1 \setminus \T_2|$,
 and so the symmetrized version is the measure of the symmetric difference
 $|\T_1\Delta\T_2|$,
@@ -1077,10 +1111,10 @@ the vast majority of span added by extending haplotypes is correct.
 In this example (which is typical),
 99\% of all added span is correct;
 95\% of nodes have no incorrectly added span; \revpoint{2}{4}
-and those incorrectly added spans are nearly always a small fraction of the original span.
+and those incorrectly added spans are nearly always a small fraction of the original span (\figref[B]{fig:node-spans}).
 The added information is significant:
 the algorithm typically increases spans (i.e., lengths of ancestral haplotypes)
-by around 50\%.
+by around 50\% (\figref[C, D]{fig:node-spans}).\revpoint{3}{19}
 
 \begin{figure}[!bht]
 	\includegraphics[width=\textwidth]{figures/Figure4-plt.pdf}
@@ -1098,11 +1132,11 @@ by around 50\%.
         see Supplementary \figref{fig:incorrect_ratio}. Note the log scale on both the $x$ and $y$ axes.
         Plots \textbf{(C)} and \textbf{(D)} show total spans per node,
         ordered by total span in the original ARG (which includes unary nodes).
-        Dark blue dots in both show the spans in this original ARG.
-        In \textbf{(C)}, lighter green dots show
+        Dark blue dots in both show the span of each node in this original ARG.
+        In \textbf{(C)}, lighter green dots show node
         span after removing unary spans using \textit{simplify},
         while in \textbf{(D)},
-        lighter red dots show span after extending haplotypes,
+        lighter red dots show node span after extending haplotypes,
         i.e., applying \algorithmref{alg:extend} to the simplified ARG.
     }
 	\label{fig:node-spans}
@@ -1121,7 +1155,7 @@ This shows that a large proportion of an ARG can be removed by simplification,
 indicating that coalescent nodes are unary
 over a substantial portion of their spans.
 (Since the \texttt{simplify} operations removes these unary portions of haplotypes,
-the ``simplified'' line (``S'') on the bottom two plots of Figure~\ref{fig:dissimilarity} shows
+the ``simplified'' line (``S'') on the bottom two plots of \figref{fig:dissimilarity} shows
 the proportion of nodes' spans on which they are not unary.)
 However, \algorithmref{alg:extend} can correctly replace most of these portions of haplotypes,
 especially with larger sample sizes and sequence lengths
@@ -1131,6 +1165,13 @@ with 1,000 samples and a $5 \times 10^7$bp genome,
 haplotypes are unary on about half their spans (on average),
 and extending haplotypes can infer more than half of this missing unary span from coalescent information only.
 
+While our results are accurate at both the individual and genomic scale, 
+we suspect that corrections can be made to further increase accuracy. 
+\algorithmref{alg:extend} relies on only the structure of the ARG as a tree sequence (its nodes, edges, and local trees), 
+and does not use any other parameters for inference.
+However, it is possible that information including the recombination rate or gene conversion rate of an ARG could improve 
+accuracy and reduce the amount of incorrectly added span for individuals.
+We decided to omit incorporating this information for simplicity and efficiency of our construction.
 
 
 \begin{figure}[!hbt]
@@ -1220,6 +1261,7 @@ We additionally provide values of ``I'', ``IS'', ``IE'', and ``ISE'' in \tabref{
 \section{Data availability}
 
 \revpoint{2}{5}
+\revpoint{3}{20}
 The method to extend haplotypes described here is available through the \tskit{}
 python and C APIs (\url{https://tskit.dev/tskit}) as \texttt{extend\_haplotypes};
 methods to compare ARGs are implemented in the \tscompare{} python package
