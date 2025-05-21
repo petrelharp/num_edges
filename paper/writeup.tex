@@ -51,6 +51,8 @@
 \newcommand{\nmatch}{\underset{\centernot\longrightarrow}{\operatorname{match}}}
 \newcommand{\comment}[1]{{\color{violet} \it #1}}
 \newcommand{\pluseq}{\mathrel{{+}{=}}}
+\newcommand{\arf}\operatorname{ARF}
+\newcommand{\tpr}\operatorname{TPR}
 
 \newcommand{\algorithmref}[2][]{%
 	\hyperref[{#2}]{%
@@ -790,8 +792,11 @@ the total span over which $n$ finds a match.
 Then the average RF distance (averaged over locations in the genome) \revpoint{1}{2}
 is
 \begin{align*}
-    \frac{1}{L} \left( \sum_{n_1 \in N_1} m'(n_1, \T_2)  + \sum_{n_2 \in N_2} m'(n_2, \T_1) \right).
+    \frac{1}{L} \left( \|\T_1\| + \|\T_2\|
+        - \sum_{n_1 \in N_1} m'(n_1, \T_2) - \sum_{n_2 \in N_2} m'(n_2, \T_1) \right).
 \end{align*}
+(This holds because the average number of nodes per local tree in $\T_1$ is $\|\T_1\|/L$,
+so the difference gives the average number of non-matching nodes.)
 In other words, we require a node in $\T_1$ to match the \emph{same} node in $\T_2$
 across all trees, but average RF distance allows a different node to match
 on each tree.
@@ -799,10 +804,9 @@ The other differences are that \emph{average} RF distance
 normalizes by sequence length, and is symmetrized.
 The RF distance between two trees
 was defined by \citet{robinson1981comparison}
-% JK - change edge->branch here to avoid confusion with tskit/ARG edge
 to be the minimum number of branch contraction/expansion operations needed to move
 from one tree to the other
-(which they then show is equal to the number of edges 
+(which they then show is equal to the number of branches 
 that induce different splits on the labels).
 A similar metric on ARGs could be defined
 using the subgraph-prune-and-regraft moves used by \citet{deng2024robust}.
@@ -847,7 +851,7 @@ two trees relative to the total span of nodes in $\T_2$,
 and is analogous to statistical power.
 The outputs framed as proportions relative to one of the given tree sequences is more easily understood
 for comparing pairs of tree sequences than the original matched span and inverse matched span, whose units are length of spans.
-We compute the ARF and TPR of in a simple example in \figref{fig:conceptual_discrepancy}.\revpoint{1}{4}
+We compute the ARF and TPR of in a simple example in \figref{fig:conceptual_discrepancy}.
 
 \revpoint{3}{16}\revpoint{3}{17}
 \begin{figure}[!ht]
@@ -890,20 +894,26 @@ This is by design: in practice it is not possible to infer all aspects
 of the true ancestry of a set of samples (i.e., all their genetic ancestors who ever lived),
 and so we wanted to quantify
 ``How much of the true relationships does this ARG represent?''
+Indeed, even a symmetrized version of non-matched span is not a metric:
+for instance, if $\T_2$ is produced from $\T_1$ by adding a new, entirely unary node,
+then $\nmatch(\T_1,\T_2) = \nmatch(\T_2,\T_1) = 0$.
+This is again by design: in general, edges in ARGs represent transmission of genetic material
+through many ancestors, and so addition of entirely unary ancestors on an edge
+is (arguably) not wrong.
+
 However, it is worth noting that the symmetrized version of non-matched span
-$$\overline{\nmatch}(\T_1,\T_2) = \nmatch(\T_1,\T_2) + \nmatch(\T_2, \T_1),$$
- is a metric.
- To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$, called $\varphi\colon N\to N$, where $N$ is the shared set of nodes.
- View both ARGs as a subset of the space $N\times N\times [0,L)$ so that elements in the ARG are tuples $(n, \varphi(n), A)$ where $A=\cup_k [a_{k-1}, a_k)$ represents the portion of the genome where $n$ exists in the ARG.
- Then for each node $n$ in $N$ its representatives in $\T_1$ and $\T_2$ can differ with respect to the portion of the genome where $n$ exists, ie. $A_{\T_1}$ and $A_{\T_2}$ may not be equal.
- Then the relative difference (as sets) of the two ARGs, $\T_1\setminus \T_2$, is the collection of tuples $(n, \varphi(n), A_{\T_1}\setminus A_{\T_2})$. This is the portion of \emph{non-matched spans} between $n$ and $\varphi(n)$.
-%To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$,
-%and view each ARG as a subset of the space $[0,L) \times N \times N$,
-%where $N$ is the shared set of nodes.
-Thus, the measure of non-matched spans
-%dissimilarity 
+$$\overline{\nmatch}(\T_1,\T_2) = \nmatch(\T_1,\T_2) + \nmatch(\T_2, \T_1)$$
+is a metric.
+To see this, first suppose that we have a bijection between the nodes of $\T_1$ and $\T_2$,
+and so can treat them as having the same set of samples $S$ and nodes $N$
+(with $S \subset N$).
+To each ARG $\T_i$ corresponds a mapping $\mathcal{D}_i : [0, L) \times N \to \{0,1\}^S$,
+such that $\mathcal{D}_i(u,n)$ gives the set of samples that descend from $n$ at position $u$
+along the genome,
+and hence a set $P_i = \{(u,n,\mathcal{D}_i(u,n)): u \in [0,L), n \in N\}$.
+The non-matched span $\nmatch(\T_1,\T_2)$
 is the Lebesgue measure of the relative difference of the two sets:
-$|\T_1 \setminus \T_2|$,
+$|P_1 \setminus P_2|$,
 and so the symmetrized version is the measure of the symmetric difference
 $|\T_1\Delta\T_2|$,
 which is well-known to be a metric \citep{rudin1976principles}. 
@@ -914,7 +924,7 @@ related through each bijection is a metric.
 Then the minimum over all such metrics will still be a metric
 since the minimum over a finite number of metrics is also a metric.
 This also extends to two tree sequences with different numbers of nodes,
-$|N_1|\neq|N_2|$, as we can take the minimum over all possible matchings $\T_1\to\T_2$ and $\T_2\to\T_1$.
+since we can take the minimum over all possible matchings $\T_1\to\T_2$ and $\T_2\to\T_1$.
 
 The RF distance \citep{robinson1981comparison}
 essentially counts the number of differing branches between two trees;
