@@ -352,7 +352,7 @@ as intuition from phylogenetics suggests we can only infer
 information about the branching points in the tree, not intermediate (unary) nodes.
 The goal of this paper is to answer:
 How can we do this, and how accurate is the resulting inference?
-See the discussion for more on what this question assumes,
+See the Discussion for more on what this question assumes,
 and the connection to parsimony. \revpoint{1}{7}
 
 \begin{figure}
@@ -388,9 +388,9 @@ Each node $n \in N$ has a \emph{time} $t_n$,
 which is the amount of time in the past that the individual who carried that segment of genome lived. \revpoint{3}{13}
 Some nodes are \emph{samples}, meaning that they represent genome sequences available as data.
 % Typically, samples are exclusively leaves of $\T$, however it is not the case that all samples are leaves.
-Each edge $e \in E$ describes inheritance between an ancestor and a descendant.
-The ancestor and descendant are represented by the parent node $p_e$ and child node $c_e$ respectively \revpoint{2}{1}
+Each edge $e \in E$ describes inheritance between an ancestor and a descendant
 over a segment of genome $[\ell_e, r_e)$.
+The ancestor and descendant are represented, respectively, by the parent node $p_e$ and child node $c_e$ of the edge. \revpoint{2}{1}
 % (The tree sequence data structure typically includes substantially more information, including genotypes, that we will not use in this paper.)
 Suppose that the unique elements of the set of left and right edge endpoints
 are $0 = a_0 < a_1 < \cdots < a_{n} = L$, where $L$ is the length of the genome.
@@ -507,12 +507,14 @@ in several ways for the sake of clarity --
 for instance, the bookkeeping required to keep track of $T_k$ and $T_{k+1}$ is omitted.
 Furthermore, as described the algorithm does one left-to-right pass over the tree sequence;
 in practice we do repeated passes in both directions until no changes can be made. \revpoint{2}{2}
-We require repeated passes due to the fringe cases of some paths not being mergeable until 
-additional structure is added by a future pass of the algorithm. 
-We suspect that most of these cases occur for paths with large time differences between the parent and child
-nodes, or when a lot of nodes in a path are coalescent, however it is not something we thoroughly investigated
-in the theoretical setting.
-We instead give some empirical results on the number of passes for the algorithm below.
+We require repeated passes because the additional structure added by a given path of the algorithm
+may introduce more mergeable paths.
+Most of these cases seem to occur for paths
+with large time differences between the parent and child nodes,
+or when many nodes in a path are coalescent. 
+% however it is not something we thoroughly investigated in the theoretical setting.
+The number of required passes is in practice small:
+see empirical results below.
 
 The main step that is omitted is a description of the \texttt{Merge} operation,
 which performs the actual extending of haplotypes.
@@ -704,7 +706,7 @@ We would like to measure (a) how much of $\T_1$ is found in $\T_2$;
 and difference between the tree sequences,
 thought of vaguely as sets;
 so note in particular that switching the roles of $\T_1$ and $\T_2$ gets 
-an entirely different set of quantities.) \llabel{asymmetric}
+an different set of quantities.) \llabel{asymmetric}
 Roughly speaking, we first identify matching nodes
 as those whose sets of descendant samples agree for the largest span along the genome,
 and then compute for how much of their spans do their descendant samples agree (or not).
@@ -885,12 +887,15 @@ We compute the ARF and TPR of in a simple example in \figref{fig:conceptual_disc
         since its only possible match ($4 \in T1$) was not the best match from $T1 \to T2$. 
         This means the inverse matched span $\invmatch(T1,T2)=43$ and $\operatorname{TPR}(T1,T2)=\frac{43}{47}$.\newline
         Additionally, let's compute $\operatorname{ARF}(T2,T1)$ and $\operatorname{TPR}(T2,T1)$.
-        For matched spans, we again see that sample nodes, root 6, and nodes 4, 5, and 7 will match to their identical counterpart
+        Again, the sample nodes, root 6, and nodes 4, 5, and 7 will match to their identical counterpart
         and have matched nodes spans 6 (for each sample), 6, 4, 4, and 2, respectively.
-        Node 9 matches to node 4 with a matched node span of 1. Thus we compute $\operatorname{ARF}(T2,T1)=\frac{41}{47}$. 
+        Node 9 matches to node 4 with a matched node span of 1.
+        Thus, $\operatorname{ARF}(T2,T1)=\frac{41}{47}$. 
         The inverse matched span will match nodes 5, 6, 7 and sample nodes to their identical counterparts. 
-        Node 8 in $T1$ had no match from $T2$, so it has no inverse match. Node 4 had two best matches from $T2$: nodes 4 and 9.
-        Since 4 shares more span with its identical counter part the inverse match for 4 in $T1$ is node 4 in $T2$. Therefore we compute 
+        Node 8 in $T1$ had no match from $T2$, so it has no inverse match, while
+        node 4 had two best matches from $T2$: nodes 4 and 9.
+        Since 4 in $T1$ shares more span with the same-numbered node in $T2$ than with 9,
+        the inverse match for 4 in $T1$ is node 4 in $T2$. Therefore,
         $\operatorname{TPR}(T2,T1)=\frac{40}{46}$. 
         \label{fig:conceptual_discrepancy}
     }
@@ -932,15 +937,15 @@ that are obtained by removing any structure not ancestral to any samples.)
 To see this, note that
 relative ordering and descendant sample sets uniquely determine the (equivalence class of an) ARG,
 and that the triangle inequality is satisfied because
-$d_{\varphi_{12}}(\T_1,\T_2) + d_{\varphi_{23}}(\T_2,\T_3) \le d_{\varphi_{12}\circ\varphi_{23}}(\T_1,\T_3)$.
+$d_{\varphi_{12}}(\T_1,\T_2) + d_{\varphi_{23}}(\T_2,\T_3) \ge d_{\varphi_{23}\circ\varphi_{12}}(\T_1,\T_3)$.
 
-This differs from the definitions above because here
+This metric differs from the definitions above because here
 we require a strict one-to-one match between nodes in $\T_1$ and $\T_2$
 (i.e., $\varphi$ is bijective, while there may be more than one node in $\T_1$
 that $\alpha$ matches to the same node in $\T_2$).
 We did not require this property above for two reasons:
 first, the arguable non-wrongness of additional unary nodes,
-and second, this definition makes computation much more difficult.
+and second, requiring a bijection makes computation much more difficult.
 
 The RF distance \citep{robinson1981comparison}
 essentially counts the number of differing branches between two trees;
@@ -1146,15 +1151,15 @@ by around 50\%.
 For instance, \figref[A]{fig:node-spans} \revpoint{3}{19}
 shows that tens of megabases have been added to the spans of many nodes;
 while comparing \figref[C]{fig:node-spans} to \figref[D]{fig:node-spans} 
-shows that much of the span removed by simplify has been replaced --
+shows that much of the span removed by simplification has been replaced --
 in those figures, each point is one node;
 span after extending (points in D) are much closer to the original full span
 (solid blue points forming a line)
-than is span after simpmlifying (points in C).
+than is span after simplifying (points in C).
 Some of the incorrectly added spans may be because of violations of the parsimony assumption,
 while others are due to situations with ambiguous information
 (and hence more than one way to extend a haplotype).
-It may be possible to better deal with the latter situation,
+It may be possible to improve the behavior of the algorithm in the latter situation,
 at the cost of a more complex algorithm. \llabel{bad_spans}
 
 \begin{figure}[!bht]
@@ -1267,7 +1272,7 @@ by around 4\% (bottom panels),
 but that roughly 20\% of the unary spans in the inferred ARG are incorrect (top panels).
 Furthermore, comparing to the inferred-extend(``IE''; red) line, we see that extending the tree sequence output
 with tsinfer adds relatively little span (less than about $1\%$).
-Extending haplotypes with \algorithmref{alg:extend} of the inferred-and-then-simplified ARG
+Extending haplotypes (with \algorithmref{alg:extend}) of the inferred-and-then-simplified ARG
 (``ISE''; solid green line)
 produces an ARG with both less correct and incorrect span.
 Additionally, the ``IE'' and ``ISE'' ARGs 
@@ -1279,7 +1284,9 @@ possibly due to resolution of polytomies.
 (Recall that due to computational constraints,
 ``correct'' and ``incorrect'' spans are determined here by \emph{exact} match
 of subtending samples.) 
-We additionally provide values of ``I'', ``IS'', ``IE'', and ``ISE'' in \tabref{tab:Fig-6}. 
+We additionally provide values of ``I'', ``IS'', ``IE'', and ``ISE'' in \tabref{tab:Fig-6},
+and numbers of edges and runtime for Tajima's D
+in \figref{fig:inferred_runtime}.
 
 %reporting proportions of correct and incorrect haplotype spans in Figure~\ref{fig:dissimilarity}.
 %Main points: in \figref{fig:dissimilarity}
@@ -1353,6 +1360,17 @@ was relaxed.
 The efficient computational tools we have implemented (in \tskit{} and \tscompare{})
 should facilitate this exploration.
 
+Another consideration is storage and computational efficiency: \llabel{inferred_runtime}
+extending haplotypes reduces the number of edges,
+and thus filesize and (usually) runtime for computation.
+\figref{fig:speed_and_edges} shows that the case is clear for simulated ARGs,
+substantially reducing both size and runtime.
+However, \figref{fig:inferred_runtime}
+shows the situation is more complex for inferred ARGs:
+extending haplotypes on a \tsinfer-produced ARG actually increases runtime somewhat,
+but simplifying-then-extending reduces runtime dramatically
+while keeping the number of edges roughly the same.
+More work is needed to understand how generalizable this is and what the source of these effects are.
 
 \paragraph{Ignorance and omission in an ARG} \llabel{ignorance}
 As motivation, we presented above a ``historical'' view of ARGs --
@@ -1560,6 +1578,18 @@ are removed within the first iteration.}
 		\label{tab:Fig-6}
 	\end{center}
 \end{table}
+
+\begin{figure}[!hbt]
+    \includegraphics{figures/fig_s5}
+	\caption{
+        Numbers of edges and runtimes for computing Tajima's D
+        for the ARGs displayed in \figref{fig:dissimilarity}.
+        Grey lines connect each group of points that derive from the same original simulated ARG
+        (i.e., each unique combination of sample size and sequence length).
+        The label ``orig'' marks the originally simulated ARG.
+    }
+	\label{fig:inferred_runtime}
+\end{figure}
 
 %%%%%%%%%%%%%%%
 \includereviews

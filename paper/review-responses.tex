@@ -26,6 +26,11 @@ as detailed in our Response to Reviewers.
 In addition to a Response to Reviewers (in which page/line numbers refer to the revised manuscript file),
 we also provide a pdf with differences to the previously submitted version highlighted.
 
+The main changes we've made are:
+(1) additional detail and description to guide the reader through some of the sections;
+(2) a fix to a bug in the algorithm
+(thanks, Reviewer 3; note this did not affect the code, just the paper);
+and (3) more description of how extending haplotypes affects efficiency on inferred ARGs.
 
 \vskip 2em
 
@@ -110,9 +115,12 @@ There's also a mention of ``dissimilarity'' in this paragraph. I assume that tha
     however, this more detailed investigation is beyond the scope of this paper
     (since it's more an investigation into the inference methods).
     More generally: if an inferred ARG is incorrect for certain nodes, our method of extend haplotypes exacerbates this issue as extending an incorrectly inferred node extends this incorrect node span even further; we've added a note to this effect \revref.
-    \comment{TODO: add number of edges?}
-    Based on our tests in \figref{fig:speed_and_edges} and \tabref{tab:edge-counts}, these results would additionally hold for the inferred ARGs.
-    For this reason, we didn't include additional figures for edge counts and computation time on inferred ARGs.
+    We've also added \figref{fig:inferred_runtime} that shows numbers of edges and runtime
+    for the inferred ARGs used in our tests,
+    and additional discussion of this point \llname{inferred_runtime}.
+    The results are interesting, but detailed investigation is outside the scope of this paper --
+    here we are introducing concepts and tools (and, there's plenty to digest);
+    while further investigation could depend strongly on the inference method used.
 }
 
 \begin{point}{}
