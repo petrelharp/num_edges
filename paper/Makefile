@@ -1,4 +1,4 @@
-writeup.pdf : references.bib
+writeup.pdf : references.bib review-responses.tex
 
 %.pdf : %.tex %.bbl
 	while ( pdflatex $<;  grep -q "Rerun to get" $*.log ) do true ; done
@@ -26,3 +26,8 @@ writeup.pdf : references.bib
 %.pdf : %.ink.svg
 	inkscape $< --export-filename=$@
 
+writeup-diff%.tex : writeup.tex
+	latexdiff-git --force -r $* writeup.tex
+
+diff-to-submitted-version.pdf : writeup-diff654179b2c9eb5788c17bc86aa855cb366835be7c.pdf
+	cp $< $@

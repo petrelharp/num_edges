@@ -1,4 +1,4 @@
-\begin{thebibliography}{51}
+\begin{thebibliography}{50}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
 \bibitem[{{\sc Adrion} {\em et~al.\/}(2020){\sc Adrion}, {\sc Cole}, {\sc
@@ -262,10 +262,6 @@
   labelled trees.
 \newblock In A.~F. Horadam and W.~D. Wallis, editors, {\em Combinatorial
   Mathematics VI\/}. Springer Berlin Heidelberg, Berlin, Heidelberg, 119--126.
-
-\bibitem[{{\sc Rudin}(1976)}]{rudin1976principles}
-{\sc Rudin, W.}, 1976 {\em Principles of Mathematical Analysis\/}.
-\newblock International series in pure and applied mathematics. McGraw-Hill.
 
 \bibitem[{{\sc Silcocks} {\em et~al.\/}(2023){\sc Silcocks}, {\sc Farlow}, {\sc
   Hermes}, {\sc Tsambos}, {\sc Patel} {\em et~al.\/}}]{silcocks2023indigenous}

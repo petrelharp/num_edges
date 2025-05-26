@@ -26,6 +26,11 @@ as detailed in our Response to Reviewers.
 In addition to a Response to Reviewers (in which page/line numbers refer to the revised manuscript file),
 we also provide a pdf with differences to the previously submitted version highlighted.
 
+The main changes we've made are:
+(1) additional detail and description to guide the reader through some of the sections;
+(2) a fix to a bug in the algorithm
+(thanks, Reviewer 3; note this did not affect the code, just the paper);
+and (3) more description of how extending haplotypes affects efficiency on inferred ARGs.
 
 \vskip 2em
 
@@ -65,21 +70,25 @@ Thank you!
 I believe that this is more like a Robinson-Foulds \emph{similarity}, as I believe that as defined it should be maximized when the two ARGs are the same, and smaller for more dissimilar ARGs.
 \end{point}
 
-\reply{ For Peter.
+\reply{
+    Oh dear, that was an embarrassing error
+    (that happily doesn't affect anything else in the paper).
+    This has been corrected.
 }
 
 \begin{point}{}
  Is the dissimilarity measure defined in equation \eqref{eqn:wrmse} used anywhere?
 \end{point}
 
-\reply{No, the weighted mean square error defined in \eqref{eqn:wrmse} is not shown for our later experiments shown in \figref{fig:dissimilarity}, however it is always computed when using our implementation is \texttt{tscompare}. \revref
+\reply{No, the weighted mean square error defined in \eqref{eqn:wrmse} is not shown for our later experiments shown in \figref{fig:dissimilarity}, however it is always computed when using our implementation is \texttt{tscompare};
+we now explicitly say this \revref.
 }
 
 \begin{point}{}
  What is ``dissimilarity'' as mentioned in the caption of \figref{fig:conceptual_discrepancy}?
 \end{point}
 
-\reply{``dissimilarity'' was our original language to describe the non-matched spans, and we must've missed one such reference to the old name. We have now changed the caption in \figref{fig:conceptual_discrepancy} to reflect that change. \revref
+\reply{``dissimilarity'' was our original language to describe the non-matched spans, and we missed this use of the old name. We have now changed the caption in \figref{fig:conceptual_discrepancy} to reflect that change.
 }
 
 \begin{point}{\revref}
@@ -89,14 +98,29 @@ $[0, L) \times N \times N$, and the symmetric differences are taken in this spac
 There's also a mention of ``dissimilarity'' in this paragraph. I assume that that's the ``symmetrized version of non-matched span'' that was just defined, but it would be good to make that clear. 
 \end{point}
 
-\reply{Good point. Again ``dissimilarity'' is the original name we meant to remove, so it has been correctly changed to \emph{non-matched spans}. We have also added more explanation to our argument to improve its clarity.\revref
+\reply{
+    Thanks again to the reviewer for carefully thinking about what we wrote,
+    which on further examination has turned out to be wrong in several ways (apologies!).
+    Please see the updated version that we believe to be correct
+    and thus hopefully less confusing. \revref
 }
 
 \begin{point}{}
  The performance on inferred ARGs makes clear that this is a difficult problem, and that this haplotype view might be useful conceptually and for methods development, but that as of now we should probably not take these ancestral haplotypes at face value in inferred ARGs. It would be helpful if the authors could provide some intuition for what's going wrong in this case. Presumably the topologies are not inferred well, and many nodes can be extended, which often results in some true and false positives? Another use case I could see would be using this approach to simplify inferred ARGs to make various downstream computations faster (a la \figref{fig:speed_and_edges}). As such, I would be curious to see how the extension algorithm affects the number of edges in inferred ARGs.
 \end{point}
 
-\reply{Thanks for this feedback. Yes, if an inferred ARG is incorrect for certain nodes, our method of extend haplotypes exacerbates this issue as extending an incorrectly inferred node extends this incorrect node span even further. Based on our tests in \figref{fig:speed_and_edges} and \tabref{tab:edge-counts}, these results would additionally hold for the inferred ARGs. For this reason, we didn't include additional figures for edge counts and computation time on inferred ARGs.
+\reply{
+    We agree on all counts -- in particular,
+    it would be helpful to dig into why haplotypes are being inferred wrongly;
+    however, this more detailed investigation is beyond the scope of this paper
+    (since it's more an investigation into the inference methods).
+    More generally: if an inferred ARG is incorrect for certain nodes, our method of extend haplotypes exacerbates this issue as extending an incorrectly inferred node extends this incorrect node span even further; we've added a note to this effect \revref.
+    We've also added \figref{fig:inferred_runtime} that shows numbers of edges and runtime
+    for the inferred ARGs used in our tests,
+    and additional discussion of this point \llname{inferred_runtime}.
+    The results are interesting, but detailed investigation is outside the scope of this paper --
+    here we are introducing concepts and tools (and, there's plenty to digest);
+    while further investigation could depend strongly on the inference method used.
 }
 
 \begin{point}{}
@@ -108,7 +132,10 @@ Similarly, I would have appreciated the connection to parsimony earlier.
 It was not completely obvious to me that recovering the unary nodes from the succinct tree sequence might not be possible in all cases, and as such that the algorithm is an attempt at inference, and furthermore, that it's optimizing some reasonable objective. Again, this point was addressed very well, but I had to wait until the discussion.
 \end{point}
 
-\reply{This is a valid point, however we think our discussion of these points was best put in the discussion section. With respect to the motivation, we were likely heavily relying on the phrase of a \emph{hypothetical ARG}, but we find this acceptable.
+\reply{
+    This is a good suggestion;
+    rather than break up the flow (for less sophisticated readers)
+    we've inserted a pointer to these parts of the discussion, at \revref.
 }
 
 
@@ -149,9 +176,8 @@ In general, it comes natural to wonder whether the algorithms can be corrected t
 It would be worth to mention whether an attempt of correction has been made and to explain the difficulties/limitations involved.
 \end{point}
 
-\reply{This is a good point. It is certainly something we have thought about but we omitted additional information that would improve accuracy in place
-	of simplicity of the construction. We also though our empirical results were strong without additional correction.
-	We have made note of this point. \revref
+\reply{
+    Good suggestion; we've added a note about this. \llname{bad_spans}
 }
 
 \begin{point}{\revref} % p.12 l.9
@@ -173,11 +199,16 @@ the current version is so difficult to read that it is likely to
 have a very limited audience, and appears to have some errors.
 \end{quote}
 
+We're glad you think it's important, and apologies for the errors.
+
 \begin{quote}
 I do not feel I have understood the entire paper despite several
 hours' work. Some of my comments may be misunderstandings, but if
 so, the text I misunderstood could probably use clarification.
 \end{quote}
+
+As you'll see, we've tried to improve clarity throughout;
+hopefully it is more digestable now.
 
 \begin{point}{} % (1)
 The description of \algorithmref{alg:extend} and \algorithmref{alg:mergeable} is confusing.
@@ -186,10 +217,20 @@ in fact ``Algorithm 2'' is the definition of a function needed by
 Algorithm 1.
 \end{point}
 
-\reply{Yes, this is the case. Originally we had both \algorithmref{alg:extend} and \algorithmref{alg:mergeable} within 
-	one algorithm environment. However, we discuss both the \texttt{Mergeable} and \texttt{ExtendHaplotypes} functions
-	in enough detail that we thought it poignant to separate them into their own algorithms. We additionally decided to 
-	make \algorithmref{alg:extend} the first algorithm as it is the main construction and the most important of the two.
+\reply{
+    We think it's reasonably standard for one algorithm to make use of another
+    (for instance, many algorithms apply a \texttt{sort} at some point).
+    However, it's a good point that referring abstractly to ``\algorithmref{alg:extend}'' and 
+    ``\algorithmref{alg:mergeable}'' is a little abstract and hard to remember.
+    So, we've gone back to places where the text just said ``\algorithmref{alg:extend}'',
+    and where we thought helpful, changed it to something like
+    ``extending haplotypes with \algorithmref{alg:extend}''.
+    For more background:
+    originally we had both \algorithmref{alg:extend} and \algorithmref{alg:mergeable} within 
+	one algorithm environment.
+    However, the \texttt{Mergeable} is a conceptually separate operation
+    that by separating it out makes understanding \texttt{ExtendHaplotypes} easier.
+	\algorithmref{alg:extend} is the first algorithm as it is the main construction and the most important of the two.
 }
 
 \begin{point}{} %(2)
@@ -197,9 +238,11 @@ Algorithm 1.
 is introduced.
 \end{point}
 
-\reply{That is true, but with our additional figures, the earliest the environment will appear is the next page following the previous figure.
-	Upon consideration we think an introduction about the algorithm's conceptual construction in the section 
-	and then properly defining is more easily read than the other way around.
+\reply{
+    This is a consequence of the typesetting: \algorithmref{alg:mergeable} 
+    is in a floating environment, and
+    the earliest the environment will appear is the next page following the previous figure.
+    Rest assured that Genetics will typeset this appropriately.
 }
 
 \begin{point}{} %(3)
@@ -207,7 +250,10 @@ is introduced.
 to be named Mergeable: having two names for each one is not helpful.
 \end{point}
 
-\reply{We like to think of ExtendHaplotypes and Mergable as the names of the functions contained in \algorithmref{alg:extend} and \algorithmref{alg:mergeable}, respectively.
+\reply{
+    This point overlaps with point 3.1 -- see our response above for how we've hopefully
+    improved the situation.
+    We like to think of ExtendHaplotypes and Mergable as the names of the functions contained in \algorithmref{alg:extend} and \algorithmref{alg:mergeable}, respectively.
 }
 
 \begin{point}{} %(4)
@@ -217,8 +263,9 @@ new edges to be added. Also the text needs a comment about why
 infinity is sometimes returned.
 \end{point}
 
-\reply{This is a credible point, however we require counting new edges that would be created by a merged path so that we can determine, out of all possible mergeable paths between trees, which to merge based on minimizing the number of newly created edges.
-	For clarity, we have included a note about returning infinity in the description of \algorithmref{alg:mergeable}. \revref
+\reply{
+    A reasonable point; we've changed the name to \texttt{MergeNum}.
+	For clarity, we have also included a note about returning infinity in the description of \algorithmref{alg:mergeable}.
 }
 
 \begin{point}{} %(5)
@@ -228,7 +275,7 @@ number of extended haplotypes. This is confusing. Please use the
 same name for a given concept in all pseudocode.
 \end{point}
 
-\reply{Good point, this change has been made. \revref
+\reply{Good point, this change has been made.
 }
 
 \begin{point}{} %(6)
@@ -237,7 +284,8 @@ use of more meaningful variable names (I particularly dislike $M$, $m$, $M'$
 in the same algorithm).
 \end{point}
 
-\reply{Good point. We have included some comments for clarity, however since $M$, $M'$ and $m_e$ are used simply for book keeping a while loop we don't think it's necessary to use distinct variables. \revref
+\reply{Good point. We have included some comments for clarity.
+However, we're going to respectfully differ on stylistic choice of concise variable names.
 }
 
 \begin{point}{}
@@ -245,7 +293,8 @@ Capital $I$ is an unfortunate subscript as it is almost indistinguishable
 from digit 1.
 \end{point}
 
-\reply{While we agree, within the context of our algorithm we are interested paths of inheritance 
+\reply{While we agree in general,
+within the context of our algorithm we are interested paths of inheritance 
 	between the edges removed from a local tree (the out-forest) and the edges just added into the next local tree (the in-forest). 
 	Because of our language use of out and in, we feel like our choice of $O$ and $I$ is reasonable.
 }
@@ -271,8 +320,8 @@ $M$. However I can't work out the correct code.
 
 \reply{
 Good catch -- and, many apologies --
-that is indeed a bug; the correction is changing line 7 to
-``if $m \le M$''.
+that is indeed a bug; the correction changes line 7 to
+``if $m \le M$'' and line 10 to ``Set $M' = \min(m_e, M')$.''.
 (To be clear, the bug was in the paper, not the implemented code;
 if the reviewer is interested they can see our implementation
 in the tskit library at
@@ -303,7 +352,10 @@ When is a node NULL? Does this mean the node doesn't exist (for
 example, the parent of the root)?
 \end{point}
 
-\reply{A node is NULL when it is the root of a local tree.
+\reply{
+    A node is NULL when it has no parent; this is now explained in the description
+    of the algorithm.
+    Apologies, this is part of the conventions in tskit.
 }
 
 \begin{point}{} % (3)
@@ -313,11 +365,12 @@ the practical examples in the text.
 \end{point}
 
 \reply{
-Good idea, but on consideration we think that adding the rest of the tree
+Good idea,
+we now reference the figure in the text,
+at \revref{} and \llname{ref_conceptual2}.
+On further consideration we think that adding the rest of the tree
 here would make the figure too confusing
 (not so much for the trees in A\&C, but more so in the haplotype diagrams B\&D).
-We do now reference the figure in the text,
-at \revref{} and \llname{ref_conceptual2}.
 }
 
 \begin{point}{} % (4) 
@@ -341,7 +394,10 @@ implies at several points that this can be used for trees without
 time information, but it cannot as times are used in the algorithm.
 \end{point}
 
-\reply{We state how time is measured here \revref. We additionally do use time in our algorithm, but mainly as a way to break ties, as is the case with \eqnref{eqn:matched-spans}. This tie break will default to the first node if the ARG does not contain time information.
+\reply{We state how time is measured here \revref;
+we've added a reminder at \llname{time_reminder}.
+We do use time in our algorithm, but mainly as a way to break ties, as is the case with \eqnref{eqn:matched-spans}. This tie break will default to the first node if the ARG does not contain time information.
+We've also added a note about undated ARGs \llname{undated}.
 }
 
 \begin{point}{}
@@ -355,15 +411,17 @@ ARGs that discretize time, as some inference algorithms do, so that ties
 become common?
 \end{point}
 
-\reply{We do not exactly assume that all nodes in an ARG occur at unique times, however we do assume that
-	any two nodes with the same descendants should be unique. 
-	Additionally, in our example if $u$ and $v$ occurred at the same time and had descendant $c$, they would be nodes with the same index
-	and the paths for $c$ in $T_O$ and $T_I$ would be from $c\to u=v$.
-	In the case of discritized time of inferred ARGs, this is an interesting question we have not yet thought about it depth. 
-	Peter do you have extra thoughts about this? 
+\reply{
+    This is exactly right:
+    we don't assume that node times are unique,
+    as it's common (e.g., from discrete-time simulators)
+    for this not to be true;
+    so the check is to avoid producing an illegal situation
+    (parent and child at the same time).
+    We now explain this at \llname{undated}.
 }
 
-\begin{point}{} % (6) 
+\begin{point}{\llname{truth}}
 ``In what follows we think of $T_2$ as the true ARG and $T_1$ as an
 inferred ARG.'' This is not strongly enough stated. The measure is
 asymmetrical with regards to $T_1$ and $T_2$, and will give wrong answers
@@ -372,8 +430,14 @@ ARGs where neither is the true ARG.
 \end{point}
 
 \reply{
-	We think that while $\match(\T_2,\T_1)$ might not be what the user intends for our method, it can still give some valuable information between $\T_1$ and $\T_2$. We additionally discuss this when comparing inverse matched spans between $(\T_1,\T_2)$ and matched spans between $(\T_2, \T_1)$ \revref.
-	While this method is developed for measuring the correctness of an inferred ARG to the true ARG, we also think of this as a function to compare two ARGs whether or not they are truly related. Also our theoretical results on this method being a metric could allow for distances in the space of all ARGs which we think is an interesting generalization within the field. 
+    We've added extra emphasis to the point that the quantities are not symmetric
+    \llname{asymmetric};
+    furthermore the additional discussion in the ``Metrics on ARGs'' section
+    should help reinforce this point.
+    As for reversing $\T_1$ and $\T_2$,
+	we think that while $\match(\T_2,\T_1)$ might not be the most useful quantity,
+    it can still give some valuable information between inferred $\T_1$ and true $\T_2$.
+    We discuss this when comparing inverse matched spans between $(\T_1,\T_2)$ and matched spans between $(\T_2, \T_1)$ \revref.
 }
 
 \begin{point}{}
@@ -382,9 +446,14 @@ difficult to follow. \figref{fig:conceptual_discrepancy} helps but appears too l
 paper.
 \end{point}
 
-\reply{We feel like it is optimal to keep the example that computes $\operatorname{ARF}$ and $\operatorname{TPR}$
-	until after the are defined, and hence why it is at the end of the section. We have however, heard your point and
-	so we have expanded our example to give more clarity. \revref
+\reply{
+    We have expanded our example to hopefully give more clarity (see additional text
+    in caption).
+    The first reference to \figref{fig:conceptual_discrepancy} occurs at the end
+    of the second paragraph in the section on comparison;
+    it would be hard to include the example earlier
+    (and, we're not sure how helpful it will be until
+    $\arf$ and $\tpr$ are defined).
 }
 
 \begin{point}{} % (7) 
@@ -396,7 +465,15 @@ cannot vary among trees? Doesn't this just add bookkeeping effort?
 It's otherwise a very helpful figure though.
 \end{point}
 
-\reply{Good point. It is unfortunate how the math works out, but we did construct the example as such to discern that the matching for node 4 requires a max to be taken over shared spans of its two possible matches 4 and 9. To show some variety, we additionally will compute $\match(T2,T1)$ to show some additional variety and hopefully give more clarity to the methods themselves \revref. Additionally we note that we are matching spans for all nodes in a pair of ARGs including the samples however they trivially match to themselves by construction (this is not a hassle for bookkeeping). We also must have that the two ARGs being compared has the same number of sample nodes.
+\reply{
+    We sympathize with the reviewer that working through even a simple example like this
+    is tricky and confusing (but, we also find it very helpful).
+    Good point about the same forward and inverse matches.
+    Note that we did construct this example so that matching for node 4 requires a max to be taken over shared spans of its two possible matches 4 and 9.
+To show some variety, we have added computation of $\match(\T_2,\T_1)$ to show some additional variety and hopefully give more clarity to the methods themselves (see caption).
+The samples are included because in practice they do \emph{not} necessarily always match:
+consider a case where some of the samples are ancestors of others
+(ancient samples; trios; etcetera).
 }
 
 \begin{point}{} % (8) 
@@ -412,7 +489,7 @@ think it needs more explanatory text. I have no idea what point is being
 made by these diagrams.
 \end{point}
 
-\reply{Thanks for the feedback. We have added some additional feedback \revref{} and the caption of \figref{fig:node-spans}.
+\reply{Thanks for the feedback. We have added substantial additional explanation at \revref{} and the caption of \figref{fig:node-spans}.
 }
 
 \begin{point}{} % (10) 
