@@ -477,7 +477,7 @@ The algorithm we use to do this is given as \algorithmref{alg:mergeable},
 and works as follows.
 If a pair of paths is mergeable,
 then the edges of the two paths must lie in $O$ and $I$, respectively.
-Suppose an edge in $O$ has child $c$.
+Suppose an edge in $I$ has child $c$.
 To see if $c$ is the base of a pair of mergeable paths,
 the algorithm traverses up from $c$ in both $F_O$ and $F_I$;
 the variables $y_i$ and $y_o$ indicate whether the next node upwards in the traversals
@@ -543,7 +543,7 @@ need to be updated.
 	\AlgoDontDisplayBlockMarkers\SetAlgoNoEnd\SetAlgoNoLine%
     \caption{
         Extend haplotypes. Given an ARG $\T$ with $N$ trees $T_1, \ldots, T_N$
-        for which edges $O_k$ are removed to transition from $T_k$ to $T_{k+1}$,
+        for which edges $I_k$ are added to transition from $T_k$ to $T_{k+1}$,
         identify and merge all mergeable paths (see text).
         Each child node $c_e$ of each removed edge $e$ is checked to see if it
         is at the base of two mergeable paths;
@@ -559,11 +559,11 @@ need to be updated.
 	\DontPrintSemicolon
     \Fn{\extend($\T$)}{
     	\tcc{For pairs of trees in the ARG, find mergeable paths.}
-        \For{$k$ in $1 \ldots N$}{
+        \For{$k$ in $1 \ldots N-1$}{
             \text{Set } $M = 0$ \text{ and }
             $M' = \infty$.\;
             \While{$M < \infty$}{
-                \For{$e \in O_k$}{
+                \For{$e \in I_k$}{
                     \text{Set } $m_e$ = \mergeable($c_e$, $T_k$, $T_{k+1}$).\tcc*[r]{Find the number of new edges required.}
                     \eIf{$m_e \le M$}{
                         \merge($c_e$, $T_k$, $T_{k+1}$)\tcc*[r]{Extended haplotypes from $T_k$ into $T_{k+1}$.}
@@ -619,26 +619,26 @@ need to be updated.
         \While{\tn{True}}{
             \text{Set } $y_i = (p_i \neq NULL)
                 \ \&\ (p_i \notin T_O)
-                \ \&\ (t_i < t_o)$ \; \tcc*{Next node is from $T_I$.}
+                \ \&\ (t_i < t_o)$ \tcc*{Next node is from $T_I$.}
             \text{and } $y_o = (p_o \neq NULL)
                 \ \&\ (p_o \notin T_I)
-                \ \&\ (t_o < t_i)$ \; \tcc*{Next node is from $T_O$.}
+                \ \&\ (t_o < t_i)$ \tcc*{Next node is from $T_O$.}
             \If{not ($y_i$ or $y_o$)}{ \Break\; }
             \eIf{$y_i$}{
-                \If{$P_I[c] \neq p_i$ and $P_O[c] \neq p_i$}{
-                    \text{Set } $m_e = m_e + 1$. \tcc*[r]{$p_i$ is not in $T_O$}
+                \If{$P_I[c] \neq p_i$}{
+                    \text{Set } $m_e = m_e + 1$. \tcc*[r]{$c \to p_i$ is a new edge.}
                 }
                 \text{Set } $c = p_i$,
                 $p_i = P_I[p_i]$, \text{ and}\;
                 $t_i = \text{ if }(p_i = NULL)\text{ then }\infty\text{ else }t[p_i]$ .\; 
             }{
-                \If{$P_I[c] \neq p_o$ and $P_O[c] \neq p_o$}{
-                    \text{Set } $m_e = m_e + 1$. \tcc*[r]{$p_o$ is not in $T_I$}
+                \If{$P_O[c] \neq p_o$}{
+                    \text{Set } $m_e = m_e + 1$. \tcc*[r]{$c \to p_o$ is a new edge.}
                 }
                 \text{Set }$c = p_o$,
                 $p_o = P_O[p_o]$, \;
                 $t_o = \text{ if }(p_o = NULL)\text{ then }\infty\text{ else }t[p_o]$ ,\;
-                \text{and } $m = m + 1$ . \tcc*[r]{$p_o$ would be extended into $T_I$.}
+                \text{and } $m = m + 1$ . \tcc*[r]{$c \to p_o$ would be extended.}
             }
         }
         \If{$m = 0$ or $p_i \neq p_o$ or $p_i = NULL$}{
