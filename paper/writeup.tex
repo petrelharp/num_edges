@@ -600,7 +600,8 @@ need to be updated.
         Let $P_O[n]$ and $P_I[n]$ be the parents of node $n$
         in the set of edges to be removed and added, respectively
         (i.e., in $F_O$ and $F_I$);
-        these are NULL if $n$ has no parent.
+        these are NULL if $n$ has no parent,
+        and we take $t[\text{NULL}] = \infty$.
         The variable $m_e$ will record the number of new edges to be added,
         and $m$ will record the number of extended haplotypes.
         Note that if no haplotypes can be extended ($m=0$), we return $m_e$ as $\infty$
@@ -629,15 +630,17 @@ need to be updated.
                     \text{Set } $m_e = m_e + 1$. \tcc*[r]{$c \to p_i$ is a new edge.}
                 }
                 \text{Set } $c = p_i$,
-                $p_i = P_I[p_i]$, \text{ and}\;
-                $t_i = \text{ if }(p_i = NULL)\text{ then }\infty\text{ else }t[p_i]$ .\; 
+                $p_i = P_I[p_i]$, \text{ and }
+                $t_i = t[p_i]$ .\;
+                % $t_i = \text{ if }(p_i = NULL)\text{ then }\infty\text{ else }t[p_i]$ .\; 
             }{
                 \If{$P_O[c] \neq p_o$}{
                     \text{Set } $m_e = m_e + 1$. \tcc*[r]{$c \to p_o$ is a new edge.}
                 }
                 \text{Set }$c = p_o$,
-                $p_o = P_O[p_o]$, \;
-                $t_o = \text{ if }(p_o = NULL)\text{ then }\infty\text{ else }t[p_o]$ ,\;
+                $p_o = P_O[p_o]$,
+                $t_o = t[p_o]$ \;
+                % $t_o = \text{ if }(p_o = NULL)\text{ then }\infty\text{ else }t[p_o]$ ,\;
                 \text{and } $m = m + 1$ . \tcc*[r]{$c \to p_o$ would be extended.}
             }
         }
