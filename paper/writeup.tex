@@ -25,7 +25,7 @@
 \newif\ifreviewresponses
 \reviewresponsestrue  % include them
 % \reviewresponsesfalse  % don't include them
-\newcommand{\responsefile}{review-responses}  % name of the review responses file
+\newcommand{\responsefile}{review-responses2}  % name of the review responses file
 
 % redefining \input{} messes things up (and seems like a bad idea)
 % \SetKwInput{input}{Input}
@@ -390,7 +390,7 @@ Some nodes are \emph{samples}, meaning that they represent genome sequences avai
 % Typically, samples are exclusively leaves of $\T$, however it is not the case that all samples are leaves.
 Each edge $e \in E$ describes inheritance between an ancestor and a descendant
 over a segment of genome $[\ell_e, r_e)$.
-The ancestor and descendant are represented, respectively, by the parent node $p_e$ and child node $c_e$ of the edge. \revpoint{2}{1}
+The ancestor and descendant are represented, respectively, by the parent node $p_e$ and child node $c_e$ of the edge and occur at unique times so that $t_{p_e} \neq t_{c_e}$. \revpoint{2}{1}\revpoint{3}{1}
 % (The tree sequence data structure typically includes substantially more information, including genotypes, that we will not use in this paper.)
 Suppose that the unique elements of the set of left and right edge endpoints
 are $0 = a_0 < a_1 < \cdots < a_{n} = L$, where $L$ is the length of the genome.
@@ -434,7 +434,8 @@ So, we restrict our attention to pairs of such paths in adjacent trees
 for which
 $u_i \notin T_{k+1}$ for all $1 \le i \le m$,
 $v_j \notin T_k$ for all $1 \le j \le n$,
-and the times of the nodes $\{u_i\}$ and $\{v_j\}$ are unique.
+and the times of the nodes $\{u_i\}$ and $\{v_j\}$ are unique,
+meaning no node in ${u_i}$ has the same time as a node in ${v_j}$.
 Call a pair of such paths \emph{mergeable}.
 So, the goal of our algorithm is to iterate over trees,
 identify mergeable pairs of paths,
@@ -461,7 +462,7 @@ and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
 An efficient algorithm to do this is described in \algorithmref{alg:extend}.
 % and implemented in \tskit{} as \texttt{extend\_haplotypes}.
 The algorithm considers each tree transition from $T_k$ to $T_{k+1}$ in turn, updating its internal state
-(which includes possibly modifying $T_k$) as it goes.
+(which includes possibly modifying both $T_k$ and $T_{k+1}$) as it goes.\revpoint{3}{2}
 Suppose we are at the transition from tree $T_k$ to tree $T_{k+1}$,
 which is done by first removing a set of edges $O$
 and then adding another set of edges $I$.
@@ -709,7 +710,7 @@ We would like to measure (a) how much of $\T_1$ is found in $\T_2$;
 and difference between the tree sequences,
 thought of vaguely as sets;
 so note in particular that switching the roles of $\T_1$ and $\T_2$ gets 
-an different set of quantities.) \llabel{asymmetric}
+a different set of quantities.)\revpoint{1}{1} \llabel{asymmetric}
 Roughly speaking, we first identify matching nodes
 as those whose sets of descendant samples agree for the largest span along the genome,
 and then compute for how much of their spans do their descendant samples agree (or not).
@@ -853,7 +854,7 @@ The implementation of this method in \tscompare{}
 additionally produces relative values:
 the ARG RF value (non-matched span relative to $\T_1$)
 and true proportion represented (inverse matched span relative to $\T_2$).
-The ARG RF (which we call ``ARF'') is defined to be the matched span proportional
+The ARG RF (which we call ``ARF'') is defined to be the non-matched span proportional
  to the total span of nodes in $\T_1$,
  \begin{align}\label{eqn:dissimilarity}
  	\operatorname{ARF}(\T_1,\T_2)
@@ -869,7 +870,7 @@ two trees relative to the total span of nodes in $\T_2$,
 and is analogous to statistical power.
 The outputs framed as proportions relative to one of the given tree sequences is more easily understood
 for comparing pairs of tree sequences than the original matched span and inverse matched span, whose units are length of spans.
-We compute the ARF and TPR of in a simple example in \figref{fig:conceptual_discrepancy}.
+We give an example computing the ARF and TPR between two small tree sequences in \figref{fig:conceptual_discrepancy}. \revpoint{3}{3}
 
 \begin{figure}[!ht]
 	\begin{center}
@@ -942,11 +943,11 @@ relative ordering and descendant sample sets uniquely determine the (equivalence
 and that the triangle inequality is satisfied because
 $d_{\varphi_{12}}(\T_1,\T_2) + d_{\varphi_{23}}(\T_2,\T_3) \ge d_{\varphi_{23}\circ\varphi_{12}}(\T_1,\T_3)$.
 
-This metric differs from the definitions above because here
+This metric, $\min_\varphi d_\varphi(\T_1,\T_2)$, differs from the definitions above because
 we require a strict one-to-one match between nodes in $\T_1$ and $\T_2$
 (i.e., $\varphi$ is bijective, while there may be more than one node in $\T_1$
-that $\alpha$ matches to the same node in $\T_2$).
-We did not require this property above for two reasons:
+that $\alpha$ matches to the same node in $\T_2$). \revpoint{3}{4}
+We did not require this property when defining non-matched span above for two reasons:
 first, the arguable non-wrongness of additional unary nodes,
 and second, requiring a bijection makes computation much more difficult.
 
@@ -1036,8 +1037,7 @@ used a discrete-time Wright--Fisher model to simulate
 a small population of 100 that expanded to 1,000 individuals ten generations ago,
 which then doubled every generation to reach 512,000 individuals.
 All jobs for which runtime was recorded were executed on an Intel Xeon Gold 6148 processor.
-Additionally, we compare accuracy between sequences modified from a ``true'' ARG
-using our matched span methods. 
+Additionally, using our matched span methods, we compare accuracy between sequences modified from a ``true'' ARG, see \figref{fig:dissimilarity}.\revpoint{3}{5} 
 These ARGs were simulated with an effective population size of 10,000
 and recombination rate of $10^{-8}$ with between 10 and 1,000 samples
 and a genome length between $10^6$ to $5\times 10^7$.

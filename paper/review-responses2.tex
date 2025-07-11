@@ -1,0 +1,147 @@
+\begin{minipage}[b]{2.5in}
+  Resubmission Cover Letter \\
+  {\it Genetics}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{2.5in}
+    Halley Fritze  \\
+  \today
+\end{minipage}
+
+\vskip 2em
+
+\noindent
+{\bf To the Editor(s) -- }
+
+\vskip 1em
+
+We are writing to submit a final version of our manuscript,
+GENETICS-2025-307917 
+titled
+`` A forest is more than its trees: haplotypes and ancestral recombination graphs''.
+We appreciate the additional comments by the reviewers, and thank you for the acceptance into Genetics.
+
+%In addition to a Response to Reviewers (in which page/line numbers refer to the revised manuscript file),
+%we also provide a pdf with differences to the previously submitted version highlighted.
+%(Because of the limitations of the tool used to produce the diff (latexdiff),
+%changes to the algorithm are not highlighted, but we describe these below.)
+%
+%The main changes we've made are:
+%(1) additional detail and description to guide the reader through some of the sections;
+%(2) a fix to a bug in the algorithm
+%(thanks, Reviewer 3; note this did not affect the code, just the paper);
+%and (3) more description of how extending haplotypes affects efficiency on inferred ARGs.
+
+\vskip 2em
+
+\noindent \hspace{4em}
+\begin{minipage}{3in}
+\noindent
+{\bf Sincerely,}
+
+\vskip 2em
+
+{\bf
+   Halley Fritze, Nathaniel Pope, Jerome Kelleher, and Peter Ralph
+}\\
+\end{minipage}
+
+\vskip 4em
+
+\pagebreak
+
+%%%%%%%%%%%%%%
+\reviewersection{1}
+
+\begin{quote}
+	The authors have more than sufficiently addressed all of my comments from the previous round of reviews. I congratulate them on the interesting and well-written paper.
+\end{quote}
+
+We thank you very much for your effort in reviewing our paper!
+
+\begin{point}{\revref}
+	One minor typo has arisen in the revision:
+	p.6 line 8 (track changes version): "gets an different set of quantities" --> maybe "gets a different set of quantities"?
+\end{point}
+
+\reply{
+	Changed, thank you for pointing out this typo.
+}
+
+%%%%%%%%%%%%%%
+\reviewersection{2}
+
+
+%%%%%%%%%%%%%%
+\reviewersection{3}
+
+\begin{quote}
+The clarity of the paper is much improved and the pseudocode now appears to
+be correct (though to this reviewer, Algorithm 1 is a bit of black
+magic--I had to code it to determine that it performs as advertised!)
+
+I have only minor corrections.
+\end{quote}
+
+Thank you for your dedicated work on review. We appreciate your input.
+
+\begin{point}{\revref}
+	p. 3 line 21 "the times of the nodes ${u_i}$ and ${v_i}$ are unique"
+	Could we please establish before this that parent and child cannot be at the same
+	time? I know this is assumed by \texttt{tskit} but it's not a universal assumption, and
+	without this assumption the line above is really ambiguous.
+	
+	I also suggest rephrasing as "no node in ${u_i}$ has the same time as a node in ${v_i}$."
+\end{point}
+
+\reply{
+	Thank you for your comment. We have added the assumption of the parent node and child node having unique times in the previous section where the notation for parent and child nodes are introduced in the previous section, \revref. We have additionally included your re-phrasing to describe the uniqueness between the sets $\{u_i\}$ and $\{v_j\}$.
+}
+
+\begin{point}{\revref}
+	P. 3 around line 21 says we are extending nodes ${u_i}$ to $T_{k+1}$. This sounds like it
+	modifies $T_{k+1}$ by adding unary nodes to it. Around line 25 says that we are modifying
+	$T_k$. p. 4 says we are modifying both $T_k$ and $T_{k+1}$. Please clarify.
+\end{point}
+
+\reply{
+	Thank you for bringing this to our attention. Algorithm 2 as stated in page 4, line 27-29 can alter both trees $T_k$ and $T_{k+1}$ which is why they are updated at each transition between $T_k\to T_{k+1}$. We have added this point on \revref to note that both trees can be modified during any iteration of Algorithm 2.
+}
+
+\begin{point}{\revref}
+	p. 7 "we compute the ARF and TPR of in a simple example" typo
+\end{point}
+
+\reply{
+	Thanks for pointing out this typo! It is now fixed.
+}
+
+\begin{point}{\revref}
+	p. 9 "here we require" tripped me up: does it refer to the method used throughout
+	the paper, or the alternative proposed here? Becomes clear a few lines later but
+	could be clarified here.
+\end{point}
+
+\reply{
+	Good point, we have added some extra nouns to help clarify that ``here'' meant the metric defined above.
+}
+
+\begin{point}{\revref}
+	p. 9 lines 54-55. You simulated "ARGs modified from a 'true' ARG"--modified how?
+	The text doesn't seem to say at all.
+\end{point}
+
+\reply{
+	Thanks for the comment. We perform the modifications explained in the Results subsections \textit{Accuracy with true trees} and \textit{Inferred ARGs}. We refer to Figure 6 in this section for clarity on the modifications.
+}
+
+\begin{point}{}
+	The results on simulated data could use a bit of roadmapping: a lot of
+	different data sets are mentioned with no clear organization or goal.
+\end{point}
+
+\reply{
+
+}
+
+
