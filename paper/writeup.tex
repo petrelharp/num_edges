@@ -25,7 +25,7 @@
 \newif\ifreviewresponses
 \reviewresponsestrue  % include them
 % \reviewresponsesfalse  % don't include them
-\newcommand{\responsefile}{review-responses}  % name of the review responses file
+\newcommand{\responsefile}{review-responses2}  % name of the review responses file
 
 % redefining \input{} messes things up (and seems like a bad idea)
 % \SetKwInput{input}{Input}
@@ -390,7 +390,7 @@ Some nodes are \emph{samples}, meaning that they represent genome sequences avai
 % Typically, samples are exclusively leaves of $\T$, however it is not the case that all samples are leaves.
 Each edge $e \in E$ describes inheritance between an ancestor and a descendant
 over a segment of genome $[\ell_e, r_e)$.
-The ancestor and descendant are represented, respectively, by the parent node $p_e$ and child node $c_e$ of the edge. \revpoint{2}{1}
+The ancestor and descendant are represented, respectively, by the parent node $p_e$ and child node $c_e$ of the edge and occur at unique times so that $t_{p_e} > t_{c_e}$. \llabel{unique_times}
 % (The tree sequence data structure typically includes substantially more information, including genotypes, that we will not use in this paper.)
 Suppose that the unique elements of the set of left and right edge endpoints
 are $0 = a_0 < a_1 < \cdots < a_{n} = L$, where $L$ is the length of the genome.
@@ -424,7 +424,7 @@ so it seems reasonable to assume that $c$ has inherited from $p$ \emph{along the
 In other words, the intermediate nodes $\{u_i\}$ should also lie on the path from $c$ to $p$ in tree $T_{k+1}$,
 and conversely the nodes $\{v_j\}$ should lie on that path in tree $T_k$.
 For instance, in \figref{fig:conceptual} take $p=4$ and $c=1$,
-so that $u_1=3$ (and $m=1)$ and there are no $v$ (so $n=0$); \revpoint{3}{11}\revpoint{3}{12}
+so that $u_1=3$ (and $m=1)$ and there are no $v$ (so $n=0$);
 and so as shown in \figref[B\&D]{fig:conceptual},
 we might extend node 3 over this entire segment.
 Of course, this does not always make sense --
@@ -434,11 +434,12 @@ So, we restrict our attention to pairs of such paths in adjacent trees
 for which
 $u_i \notin T_{k+1}$ for all $1 \le i \le m$,
 $v_j \notin T_k$ for all $1 \le j \le n$,
-and the times of the nodes $\{u_i\}$ and $\{v_j\}$ are unique.
+and the times of the nodes $\{u_i\}$ and $\{v_j\}$ are unique, \revpoint{3}{1}
+meaning no node in ${u_i}$ has the same time as a node in ${v_j}$.
 Call a pair of such paths \emph{mergeable}.
 So, the goal of our algorithm is to iterate over trees,
 identify mergeable pairs of paths,
-and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
+and then extend the nodes $\{u_i\}$ to $T_{k+1}$. \revpoint{3}{2}
 (We also extend $\{v_j\}$ to $T_k$, but on a backwards pass.)
 
 \begin{figure}[!ht]
@@ -461,14 +462,14 @@ and then extend the nodes $\{u_i\}$ to $T_{k+1}$.
 An efficient algorithm to do this is described in \algorithmref{alg:extend}.
 % and implemented in \tskit{} as \texttt{extend\_haplotypes}.
 The algorithm considers each tree transition from $T_k$ to $T_{k+1}$ in turn, updating its internal state
-(which includes possibly modifying $T_k$) as it goes.
+(which includes possibly modifying $T_{k+1}$) as it goes. \llabel{extend_k}
 Suppose we are at the transition from tree $T_k$ to tree $T_{k+1}$,
 which is done by first removing a set of edges $O$
 and then adding another set of edges $I$.
 $O$ defines a sub-forest $F_O$ of $T_k$,
 and $I$ defines a sub-forest $F_I$ of $T_{k+1}$.
 In \figref{fig:conceptual} (in the portion of the tree shown),
-the removed edges that make up $F_O$ \llabel{ref_conceptual2}
+the removed edges that make up $F_O$
 are $4 \to 3$, $3 \to 1$, and $3 \to 2$,
 and the added edges that make up $F_I$ are $4 \to 1$ and the new edge leading to 2.
 The key step in the algorithm is to determine whether the pair of paths
@@ -481,7 +482,7 @@ Suppose an edge in $I$ has child $c$.
 To see if $c$ is the base of a pair of mergeable paths,
 the algorithm traverses up from $c$ in both $F_O$ and $F_I$;
 the variables $y_i$ and $y_o$ indicate whether the next node upwards in the traversals
-(i.e., the next older node, as recall $t_n$ is amount of time in the past that $n$ lived) \llabel{time_reminder}
+(i.e., the next older node, as recall $t_n$ is amount of time in the past that $n$ lived)
 is in $F_I$ or $F_O$.
 The traversals terminate if a node in the other tree is found
 (i.e., if the node traversed in $F_O$ is in $T_{k+1}$ or if the node traversed in $F_I$ is in $T_k$)
@@ -493,7 +494,7 @@ so, the algorithm merges pairs of mergeable paths,
 starting with pairs that add the smallest number of new edges,
 until no more are found.
 
-Note that the algorithm could be applied to an undated ARG, \llabel{undated}
+Note that the algorithm could be applied to an undated ARG,
 with some adjustments.
 The algorithm only uses node time for two reasons:
 convenience, when iterating jointly up the two paths;
@@ -506,7 +507,7 @@ then we would have a parent and child with the same time, which is not allowed.
 in several ways for the sake of clarity --
 for instance, the bookkeeping required to keep track of $T_k$ and $T_{k+1}$ is omitted.
 Furthermore, as described the algorithm does one left-to-right pass over the tree sequence;
-in practice we do repeated passes in both directions until no changes can be made. \revpoint{2}{2}
+in practice we do repeated passes in both directions until no changes can be made.
 We require repeated passes because the additional structure added by a given path of the algorithm
 may introduce more mergeable paths.
 Most of these cases seem to occur for paths
@@ -527,8 +528,8 @@ into the path in $T_{k+1}$.
 To do this, some edges that end at $a_k$ will be extended to end at $a_{k+1}$;
 some edges that begin at $a_k$ will be postponed to begin at $a_{k+1}$,
 and some entirely new edges may be added, as in \figref{fig:extending_diagram}.
-Furthermore, the trees $T_k$ and $T_{k+1}$ (and corresponding forests $F_O$ and $F_I$)
-need to be updated.
+Furthermore, the forests $F_O$ and $F_I$ (and hence $T_{k+1}$)
+need to be updated. \llabel{extend_k2}
 
 \begin{algorithm2e}[!ht]
 	\SetStartEndCondition{ }{}{}%
@@ -709,7 +710,7 @@ We would like to measure (a) how much of $\T_1$ is found in $\T_2$;
 and difference between the tree sequences,
 thought of vaguely as sets;
 so note in particular that switching the roles of $\T_1$ and $\T_2$ gets 
-an different set of quantities.) \llabel{asymmetric}
+a different set of quantities.)\revpoint{1}{1} \llabel{asymmetric}
 Roughly speaking, we first identify matching nodes
 as those whose sets of descendant samples agree for the largest span along the genome,
 and then compute for how much of their spans do their descendant samples agree (or not).
@@ -853,7 +854,7 @@ The implementation of this method in \tscompare{}
 additionally produces relative values:
 the ARG RF value (non-matched span relative to $\T_1$)
 and true proportion represented (inverse matched span relative to $\T_2$).
-The ARG RF (which we call ``ARF'') is defined to be the matched span proportional
+The ARG RF (which we call ``ARF'') is defined to be the non-matched span proportional
  to the total span of nodes in $\T_1$,
  \begin{align}\label{eqn:dissimilarity}
  	\operatorname{ARF}(\T_1,\T_2)
@@ -869,7 +870,7 @@ two trees relative to the total span of nodes in $\T_2$,
 and is analogous to statistical power.
 The outputs framed as proportions relative to one of the given tree sequences is more easily understood
 for comparing pairs of tree sequences than the original matched span and inverse matched span, whose units are length of spans.
-We compute the ARF and TPR of in a simple example in \figref{fig:conceptual_discrepancy}.
+We give an example computing the ARF and TPR between two small tree sequences in \figref{fig:conceptual_discrepancy}. \revpoint{3}{3}
 
 \begin{figure}[!ht]
 	\begin{center}
@@ -942,11 +943,11 @@ relative ordering and descendant sample sets uniquely determine the (equivalence
 and that the triangle inequality is satisfied because
 $d_{\varphi_{12}}(\T_1,\T_2) + d_{\varphi_{23}}(\T_2,\T_3) \ge d_{\varphi_{23}\circ\varphi_{12}}(\T_1,\T_3)$.
 
-This metric differs from the definitions above because here
+This metric, $\min_\varphi d_\varphi(\T_1,\T_2)$, differs from the definitions above because
 we require a strict one-to-one match between nodes in $\T_1$ and $\T_2$
 (i.e., $\varphi$ is bijective, while there may be more than one node in $\T_1$
-that $\alpha$ matches to the same node in $\T_2$).
-We did not require this property above for two reasons:
+that $\alpha$ matches to the same node in $\T_2$). \revpoint{3}{4}
+We did not require this property when defining non-matched span above for two reasons:
 first, the arguable non-wrongness of additional unary nodes,
 and second, requiring a bijection makes computation much more difficult.
 
@@ -1036,14 +1037,21 @@ used a discrete-time Wright--Fisher model to simulate
 a small population of 100 that expanded to 1,000 individuals ten generations ago,
 which then doubled every generation to reach 512,000 individuals.
 All jobs for which runtime was recorded were executed on an Intel Xeon Gold 6148 processor.
-Additionally, we compare accuracy between sequences modified from a ``true'' ARG
-using our matched span methods. 
+Additionally, using our matched span methods, we compare accuracy between sequences modified from a ``true'' ARG,
+(see \figref{fig:dissimilarity}). \revpoint{3}{5} 
 These ARGs were simulated with an effective population size of 10,000
 and recombination rate of $10^{-8}$ with between 10 and 1,000 samples
 and a genome length between $10^6$ to $5\times 10^7$.
 
 
 \section{Results}
+
+We next present the results of various experiments with inferred ARGs. \revpoint{3}{6}
+First, we quantify the reduction in number of edges and resulting computational speedups.
+Next, to validate the principle of the algorithm,
+we describe accuracy of inferred additional edge spans when applied to true ARGs with unary spans removed.
+Finally, we explore implications for accuracy with inferred ARGs.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Tree sequence compression and computation}
@@ -1200,7 +1208,7 @@ The top row shows the proportion of the given ARG that does not match the origin
 showing that the total amount of mis-matching span
 produced by extending haplotypes is very small ($\approx 1\%$).
 (Simplification does not produce non-matched span, so the ``S'' line is at zero.)
-The bottom row shows the proportion of the original ARG that is represented in the given ARG (``TRP'').
+The bottom row shows the proportion of the original ARG that is represented in the given ARG (``TPR'').
 This shows that a large proportion of an ARG can be removed by simplification,
 indicating that coalescent nodes are unary
 over a substantial portion of their spans.
@@ -1312,8 +1320,6 @@ in \figref{fig:inferred_runtime}.
 
 \section{Data availability}
 
-\revpoint{2}{5}
-\revpoint{3}{20}
 The method to extend haplotypes described here is available through the \tskit{}
 python and C APIs (\url{https://tskit.dev/tskit}) as \texttt{extend\_haplotypes};
 methods to compare ARGs are implemented in the \tscompare{} python package
