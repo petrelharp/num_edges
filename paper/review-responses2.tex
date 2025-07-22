@@ -19,10 +19,12 @@ We are writing to submit a final version of our manuscript,
 GENETICS-2025-307917 
 titled
 `` A forest is more than its trees: haplotypes and ancestral recombination graphs''.
-We appreciate the additional comments by the reviewers, and thank you for the acceptance into Genetics.
+We appreciate the additional comments by the reviewers,
+and have made changes in response to all of them, as detailed in our Response to Reviewers.
 
-%In addition to a Response to Reviewers (in which page/line numbers refer to the revised manuscript file),
-%we also provide a pdf with differences to the previously submitted version highlighted.
+In addition to a Response to Reviewers (in which page/line numbers refer to the revised manuscript file),
+we also provide a pdf with differences to the previously submitted version highlighted.
+
 %(Because of the limitations of the tool used to produce the diff (latexdiff),
 %changes to the algorithm are not highlighted, but we describe these below.)
 %
@@ -61,7 +63,8 @@ We thank you very much for your effort in reviewing our paper!
 
 \begin{point}{\revref}
 	One minor typo has arisen in the revision:
-	p.6 line 8 (track changes version): "gets an different set of quantities" --> maybe "gets a different set of quantities"?
+	% p.6 line 8 (track changes version): 
+    ``gets an different set of quantities'' --> maybe ``gets a different set of quantities''?
 \end{point}
 
 \reply{
@@ -69,7 +72,7 @@ We thank you very much for your effort in reviewing our paper!
 }
 
 %%%%%%%%%%%%%%
-\reviewersection{2}
+% \reviewersection{2}
 
 
 %%%%%%%%%%%%%%
@@ -85,8 +88,8 @@ I have only minor corrections.
 
 Thank you for your dedicated work on review. We appreciate your input.
 
-\begin{point}{\revref}
-	p. 3 line 21 "the times of the nodes ${u_i}$ and ${v_i}$ are unique"
+\begin{point}{\revref} % p. 3 line 21 
+    "the times of the nodes ${u_i}$ and ${v_i}$ are unique"
 	Could we please establish before this that parent and child cannot be at the same
 	time? I know this is assumed by \texttt{tskit} but it's not a universal assumption, and
 	without this assumption the line above is really ambiguous.
@@ -95,21 +98,36 @@ Thank you for your dedicated work on review. We appreciate your input.
 \end{point}
 
 \reply{
-	Thank you for your comment. We have added the assumption of the parent node and child node having unique times in the previous section where the notation for parent and child nodes are introduced in the previous section, \revref. We have additionally included your re-phrasing to describe the uniqueness between the sets $\{u_i\}$ and $\{v_j\}$.
+    Thank you for your comment.
+    We have added the assumption of the parent node and child node having unique times in the previous section where the notation for parent and child nodes are introduced in the previous section, \llname{unique_times}.
+    We have additionally included your re-phrasing to describe the uniqueness between the sets $\{u_i\}$ and $\{v_j\}$
+    \revref.
 }
 
 \begin{point}{\revref}
-	P. 3 around line 21 says we are extending nodes ${u_i}$ to $T_{k+1}$. This sounds like it
-	modifies $T_{k+1}$ by adding unary nodes to it. Around line 25 says that we are modifying
-	$T_k$. p. 4 says we are modifying both $T_k$ and $T_{k+1}$. Please clarify.
+	% P. 3 around line 21 
+    Around [\revref{} it]
+    says we are extending nodes ${u_i}$ to $T_{k+1}$. This sounds like it
+	modifies $T_{k+1}$ by adding unary nodes to it.
+    Around % line 25
+    [\llname{extend_k}{} it]
+    says that we are modifying $T_k$.
+    % p. 4 
+    [At \llname{extend_k2}{} it]
+    says we are modifying both $T_k$ and $T_{k+1}$. Please clarify.
 \end{point}
 
 \reply{
-	Thank you for bringing this to our attention. Algorithm 2 as stated in page 4, line 27-29 can alter both trees $T_k$ and $T_{k+1}$ which is why they are updated at each transition between $T_k\to T_{k+1}$. We have added this point on \revref to note that both trees can be modified during any iteration of Algorithm 2.
+	Thank you for bringing this to our attention.
+    The algorithm only extends edges ``into'' the next tree;
+    so keeps $T_k$ fixed and changes $T_{k+1}$
+    (which will then be the ``next'' $T_k$).
+    We've made corrections to \llname{extend_k2}{} and \llname{extend_k}.
 }
 
 \begin{point}{\revref}
-	p. 7 "we compute the ARF and TPR of in a simple example" typo
+	% p. 7 
+    "we compute the ARF and TPR of in a simple example" typo
 \end{point}
 
 \reply{
@@ -117,7 +135,8 @@ Thank you for your dedicated work on review. We appreciate your input.
 }
 
 \begin{point}{\revref}
-	p. 9 "here we require" tripped me up: does it refer to the method used throughout
+	% p. 9 
+    "here we require" tripped me up: does it refer to the method used throughout
 	the paper, or the alternative proposed here? Becomes clear a few lines later but
 	could be clarified here.
 \end{point}
@@ -127,12 +146,13 @@ Thank you for your dedicated work on review. We appreciate your input.
 }
 
 \begin{point}{\revref}
-	p. 9 lines 54-55. You simulated "ARGs modified from a 'true' ARG"--modified how?
+	% p. 9 lines 54-55. 
+    You simulated "ARGs modified from a 'true' ARG"--modified how?
 	The text doesn't seem to say at all.
 \end{point}
 
 \reply{
-	Thanks for the comment. We perform the modifications explained in the Results subsections \textit{Accuracy with true trees} and \textit{Inferred ARGs}. We refer to Figure 6 in this section for clarity on the modifications.
+	Thanks for the comment. We perform the modifications explained in the Results subsections \textit{Accuracy with true trees} and \textit{Inferred ARGs}. We refer to Figure 6 now so it's more clear what we're referring to.
 }
 
 \begin{point}{}
@@ -141,7 +161,7 @@ Thank you for your dedicated work on review. We appreciate your input.
 \end{point}
 
 \reply{
-
+Good idea; we've added a roadmap \revref.
 }
 
 
